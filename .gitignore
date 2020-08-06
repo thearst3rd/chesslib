@@ -1,6 +1,5 @@
 # Our executables
-chess
-tests
+bin
 
 ### TAKEN FROM
 ### https://github.com/github/gitignore/blob/master/C.gitignore

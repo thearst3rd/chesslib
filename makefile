@@ -1,44 +1,46 @@
 # Makefile for Chess implemenetation in C
 # by thearst3rd
 
+CC = gcc
+CFLAGS = -g0 -Wall
+
+ALLSOURCES = $(wildcard src/*.c)
+SOURCES = $(filter-out src/main.c src/tests.c, $(ALLSOURCES))
+ALLMODULES = $(patsubst %.c, %.o, $(ALLSOURCES))
+MODULES = $(patsubst %.c, %.o, $(SOURCES))
+
 # Platform independance
 ifeq ($(OS),Windows_NT)
-	CHESS_EXE = chess.exe
-	TESTS_EXE = tests.exe
+	CHESS_EXE = bin/chess.exe
+	TESTS_EXE = bin/tests.exe
 else
-	CHESS_EXE = chess
-	TESTS_EXE = tests
+	CHESS_EXE = bin/chess
+	TESTS_EXE = bin/tests
 endif
 
 
-all: $(CHESS_EXE) $(TESTS_EXE)
+all: $(CHESS_EXE)
+
+chess: $(CHESS_EXE)
+tests: $(TESTS_EXE)
 
 
-main.o: main.c
-	gcc -c main.c
-
-pos.o: pos.c pos.h
-	gcc -c pos.c
-
-piece.o: piece.c piece.h
-	gcc -c piece.c
-
-move.o: move.c move.h
-	gcc -c move.c
-
-tests.o: tests.c tests.h
-	gcc -c tests.c
+$(ALLMODULES): src/%.o : src/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 
-$(TESTS_EXE): tests.o pos.o piece.o move.o
-	gcc -o $(TESTS_EXE) tests.o pos.o piece.o move.o
+$(TESTS_EXE): build src/tests.o $(MODULES)
+	$(CC) $(CFLAGS) -o $(TESTS_EXE) src/tests.o $(MODULES)
 
-$(CHESS_EXE): main.o pos.o piece.o move.o
-	gcc -o $(CHESS_EXE) main.o pos.o piece.o move.o
+$(CHESS_EXE): build src/main.o $(MODULES)
+	$(CC) $(CFLAGS) -o $(CHESS_EXE) src/main.o $(MODULES)
 
+
+build:
+	@mkdir -p bin
 
 clean:
-	rm -rf *.o $(CHESS_EXE) $(TESTS_EXE)
+	rm -rf **/*.o bin
 
 test: $(TESTS_EXE)
 	./$(TESTS_EXE)

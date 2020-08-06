@@ -16,8 +16,6 @@ const char *currTest;
 // Runs tests. Will halt when one is failed
 int main(int argc, char *argv[])
 {
-	int passed;
-
 	// Test Pos
 	currTest = "testIPos";   testIPos();
 	currTest = "testSPos";   testSPos();
