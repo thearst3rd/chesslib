@@ -4,10 +4,9 @@
 CC = gcc
 CFLAGS = -g0 -Wall
 
-ALLSOURCES = $(wildcard src/*.c)
-SOURCES = $(filter-out src/main.c src/tests.c, $(ALLSOURCES))
-ALLOBJECTS = $(patsubst %.c, %.o, $(ALLSOURCES))
+SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c, %.o, $(SOURCES))
+OBJECTS_NO_MAINS = $(filter-out src/main.o src/tests.o, $(OBJECTS))
 
 # Platform independance
 ifeq ($(OS), Windows_NT)
@@ -25,15 +24,15 @@ chess: $(CHESS_EXE)
 tests: $(TESTS_EXE)
 
 
-$(ALLOBJECTS): src/%.o : src/%.c
+$(OBJECTS): src/%.o : src/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 
-$(TESTS_EXE): build src/tests.o $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(TESTS_EXE) src/tests.o $(OBJECTS)
+$(TESTS_EXE): build src/tests.o $(OBJECTS_NO_MAINS)
+	$(CC) $(CFLAGS) -o $(TESTS_EXE) src/tests.o $(OBJECTS_NO_MAINS)
 
-$(CHESS_EXE): build src/main.o $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(CHESS_EXE) src/main.o $(OBJECTS)
+$(CHESS_EXE): build src/main.o $(OBJECTS_NO_MAINS)
+	$(CC) $(CFLAGS) -o $(CHESS_EXE) src/main.o $(OBJECTS_NO_MAINS)
 
 
 build:

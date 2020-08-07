@@ -10,16 +10,18 @@
 #include "tests.h"
 #include "pos.h"
 
-
 const char *currTest;
+
+#define RUN_TEST(testName) currTest=#testName; testName();
+
 
 // Runs tests. Will halt when one is failed
 int main(int argc, char *argv[])
 {
 	// Test Pos
-	currTest = "testIPos";   testIPos();
-	currTest = "testSPos";   testSPos();
-	currTest = "testPosStr"; testPosStr();
+	RUN_TEST(testIPos);
+	RUN_TEST(testSPos);
+	RUN_TEST(testPosStr);
 	
 	// We made it to the end
 	printf("Success - all tests passed!\n");
