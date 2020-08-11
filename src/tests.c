@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	RUN_TEST(testIPos);
 	RUN_TEST(testSPos);
 	RUN_TEST(testPosStr);
-	
+
 	// We made it to the end
 	printf("Success - all tests passed!\n");
 	return 0;
@@ -79,7 +79,7 @@ void testPosStr()
 
 	if (strcmp(posStr(p), "e4"))
 		failTest("posStr of \"e4\" was not \"e4\"");
-	
+
 	p = sPos("h6");
 
 	if (strcmp(posStr(p), "h6"))
