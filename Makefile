@@ -28,14 +28,14 @@ $(OBJECTS): src/%.o : src/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 
-$(TESTS_EXE): build src/tests.o $(OBJECTS_NO_MAINS)
+$(TESTS_EXE): src/tests.o $(OBJECTS_NO_MAINS) | bin
 	$(CC) $(CFLAGS) -o $(TESTS_EXE) src/tests.o $(OBJECTS_NO_MAINS)
 
-$(CHESS_EXE): build src/main.o $(OBJECTS_NO_MAINS)
+$(CHESS_EXE): src/main.o $(OBJECTS_NO_MAINS) | bin
 	$(CC) $(CFLAGS) -o $(CHESS_EXE) src/main.o $(OBJECTS_NO_MAINS)
 
 
-build:
+bin:
 	@mkdir -p bin
 
 clean:
