@@ -54,8 +54,8 @@ void testIPos()
 
 			if (p.file != file || p.rank != rank)
 			{
-				char msg[40];
-				sprintf(msg, "Actual (%d, %d), but expected (%d, %d)", file, rank, p.file, p.rank);
+				char msg[50];
+				sprintf(msg, "Actual (%d, %d), but expected (%d, %d)", p.file, p.rank, file, rank);
 				failTest(msg);
 			}
 		}
@@ -74,7 +74,7 @@ void testSPos()
 
 			if (p.file != file || p.rank != rank)
 			{
-				char msg[40];
+				char msg[60];
 				sprintf(msg, "Actual (%d, %d), but expected (%d, %d) from \"%s\"", p.file, p.rank, file, rank, str);
 				failTest(msg);
 			}
@@ -94,8 +94,8 @@ void testPosStr()
 
 			if (strcmp(posStr(p), str))
 			{
-				char msg[40];
-				sprintf(msg, "Actual \"%s\", but expected \"%s\"", str, posStr(p));
+				char msg[60];
+				sprintf(msg, "Actual \"%s\", but expected \"%s\"", posStr(p), str);
 				failTest(msg);
 			}
 		}
