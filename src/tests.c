@@ -46,42 +46,58 @@ void failTest(const char *msg)
 
 void testIPos()
 {
-	pos p;
-	p = iPos(5, 4);
+	for (uint8_t rank = 1; rank <= 8; rank++)
+	{
+		for (uint8_t file = 1; file <= 8; file++)
+		{
+			pos p = iPos(file, rank);
 
-	if (!(p.file == 5 && p.rank == 4))
-		failTest("pos (5, 4) should have values 5, 4");
-
-	p = iPos(8, 6);
-
-	if (!(p.file == 8 && p.rank == 6))
-		failTest("pos (8, 6) should have values 8, 6");
+			if (p.file != file || p.rank != rank)
+			{
+				char msg[40];
+				sprintf(msg, "Actual (%d, %d), but expected (%d, %d)", file, rank, p.file, p.rank);
+				failTest(msg);
+			}
+		}
+	}
 }
 
 void testSPos()
 {
-	pos p;
-	p = sPos("e4");
+	for (uint8_t rank = 1; rank <= 8; rank++)
+	{
+		for (uint8_t file = 1; file <= 8; file++)
+		{
+			char str[3] = {'a' + file - 1, '0' + rank, 0};
 
-	if (!(p.file == 5 && p.rank == 4))
-		failTest("pos 'e4' should have values 5, 4");
+			pos p = sPos(str);
 
-	p = sPos("h6");
-
-	if (!(p.file == 8 && p.rank == 6))
-		failTest("pos 'h6' should have values 8, 6");
+			if (p.file != file || p.rank != rank)
+			{
+				char msg[40];
+				sprintf(msg, "Actual (%d, %d), but expected (%d, %d) from \"%s\"", p.file, p.rank, file, rank, str);
+				failTest(msg);
+			}
+		}
+	}
 }
 
 void testPosStr()
 {
-	pos p;
-	p = sPos("e4");
+	for (uint8_t rank = 1; rank <= 8; rank++)
+	{
+		for (uint8_t file = 1; file <= 8; file++)
+		{
+			pos p = iPos(file, rank);
 
-	if (strcmp(posStr(p), "e4"))
-		failTest("posStr of \"e4\" was not \"e4\"");
+			char str[3] = {'a' + file - 1, '0' + rank, 0};
 
-	p = sPos("h6");
-
-	if (strcmp(posStr(p), "h6"))
-		failTest("posStr of \"h6\" was not \"h6\"");
+			if (strcmp(posStr(p), str))
+			{
+				char msg[40];
+				sprintf(msg, "Actual \"%s\", but expected \"%s\"", str, posStr(p));
+				failTest(msg);
+			}
+		}
+	}
 }
