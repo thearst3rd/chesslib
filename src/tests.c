@@ -9,6 +9,7 @@
 
 #include "tests.h"
 #include "pos.h"
+#include "move.h"
 
 const char *currTest;
 
@@ -19,14 +20,24 @@ const char *currTest;
 int main(int argc, char *argv[])
 {
 	// Test Pos
-	RUN_TEST(testIPos);
-	RUN_TEST(testSPos);
-	RUN_TEST(testPosStr);
+	RUN_TEST(testPosI);
+	RUN_TEST(testPosS);
+	RUN_TEST(testPosGetStr);
+
+	// Test Move
+	RUN_TEST(testMoveCreate);
+	RUN_TEST(testMoveGetUci);
+	RUN_TEST(testMoveFromUci);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
 	return 0;
 }
+
+
+//////////////////////
+// HELPER FUNCTIONS //
+//////////////////////
 
 // Fail the currently running test and halt the program. NULL for no message
 void failTest(const char *msg)
@@ -39,18 +50,35 @@ void failTest(const char *msg)
 	exit(1);
 }
 
+void validateString(const char *actual, const char *expected)
+{
+	if (strcmp(actual, expected) != 0)
+	{
+		int len1 = strlen(actual);
+		int len2 = strlen(expected);
+
+		char *str = (char *) malloc(35 + len1 + len2);
+
+		sprintf(str, "Actual \"%s\", but expected \"%s\"", actual, expected);
+		failTest(str);
+
+		// This doesn't actually get run because failTest exits, but it just feels like the right thing to do
+		free(str);
+	}
+}
+
 
 //////////////
 // TEST POS //
 //////////////
 
-void testIPos()
+void testPosI()
 {
 	for (uint8_t rank = 1; rank <= 8; rank++)
 	{
 		for (uint8_t file = 1; file <= 8; file++)
 		{
-			pos p = iPos(file, rank);
+			pos p = posI(file, rank);
 
 			if (p.file != file || p.rank != rank)
 			{
@@ -62,7 +90,7 @@ void testIPos()
 	}
 }
 
-void testSPos()
+void testPosS()
 {
 	for (uint8_t rank = 1; rank <= 8; rank++)
 	{
@@ -70,7 +98,7 @@ void testSPos()
 		{
 			char str[3] = {'a' + file - 1, '0' + rank, 0};
 
-			pos p = sPos(str);
+			pos p = posS(str);
 
 			if (p.file != file || p.rank != rank)
 			{
@@ -82,22 +110,66 @@ void testSPos()
 	}
 }
 
-void testPosStr()
+void testPosGetStr()
 {
 	for (uint8_t rank = 1; rank <= 8; rank++)
 	{
 		for (uint8_t file = 1; file <= 8; file++)
 		{
-			pos p = iPos(file, rank);
+			pos p = posI(file, rank);
 
 			char str[3] = {'a' + file - 1, '0' + rank, 0};
 
-			if (strcmp(posStr(p), str))
-			{
-				char msg[60];
-				sprintf(msg, "Actual \"%s\", but expected \"%s\"", posStr(p), str);
-				failTest(msg);
-			}
+			validateString(posGetStr(p), str);
 		}
 	}
+}
+
+
+///////////////
+// TEST MOVE //
+///////////////
+
+void validateMove(move m, pos expectedFrom, pos expectedTo, pieceType expectedPromotion)
+{
+	if (m.from.file != expectedFrom.file || m.from.rank != expectedFrom.rank
+			|| m.to.file != expectedTo.file || m.to.rank != expectedTo.rank
+			|| m.promotion != expectedPromotion)
+	{
+		char msg[55];
+		sprintf(msg, "Actual (%s, %s, %d), but expected (%s, %s, %d)",
+				posGetStr(m.from), posGetStr(m.to), m.promotion,
+				posGetStr(expectedFrom), posGetStr(expectedTo), expectedPromotion);
+		failTest(msg);
+	}
+}
+
+void testMoveCreate()
+{
+	// maybe TODO - make this test more thorough
+	move m = movePos(posI(5, 8), posI(5, 7));
+	validateMove(m, posI(5, 8), posI(5, 7), empty);
+
+	m = movePromote(posI(3, 2), posI(2, 1), queen);
+	validateMove(m, posI(3, 2), posI(2, 1), queen);
+}
+
+void testMoveGetUci()
+{
+	// maybe TODO - make this test more thorough
+	move m = movePos(posI(5, 8), posI(5, 7));
+	validateString(moveGetUci(m), "e8e7");
+
+	m = movePromote(posI(3, 2), posI(2, 1), queen);
+	validateString(moveGetUci(m), "c2b1q");
+}
+
+void testMoveFromUci()
+{
+	// maybe TODO - make this test more thorough
+	move m = moveFromUci("e8e7");
+	validateMove(m, posI(5, 8), posI(5, 7), empty);
+
+	m = moveFromUci("c2b1q");
+	validateMove(m, posI(3, 2), posI(2, 1), queen);
 }

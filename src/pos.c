@@ -6,7 +6,7 @@
 #include "pos.h"
 
 // Create a position from two ints, i.e. 5, 4
-pos iPos(uint8_t file, uint8_t rank)
+pos posI(uint8_t file, uint8_t rank)
 {
 	pos p;
 	p.file = file;
@@ -15,7 +15,7 @@ pos iPos(uint8_t file, uint8_t rank)
 }
 
 // Create a position from a SAN square, i.e. "e4"
-pos sPos(const char *str)
+pos posS(const char *str)
 {
 	pos p;
 	p.file = str[0] - 'a' + 1;
@@ -36,10 +36,10 @@ const char *POS_STRS[64] =
 };
 
 // Gets the SAN string representing the given pos. Does not need to be freed
-const char *posStr(pos p)
+const char *posGetStr(pos p)
 {
 	unsigned int index = (p.rank - 1) * 8 + (p.file - 1);
 	if (index >= 64)
-		return "INVALID";
+		return "##";
 	return POS_STRS[index];
 }
