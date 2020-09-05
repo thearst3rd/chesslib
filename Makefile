@@ -6,7 +6,7 @@ CFLAGS = -g0 -Wall
 
 SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c, %.o, $(SOURCES))
-OBJECTS_NO_MAINS = $(filter-out src/main.o src/tests.o, $(OBJECTS))
+OBJECTS_NO_MAINS = $(filter-out src/cli-chess-main.o src/tests.o, $(OBJECTS))
 
 HEADERS_NO_MAINS = $(filter-out src/tests.h, $(wildcard src/*.h))
 
@@ -38,11 +38,11 @@ $(CHESS_LIB): $(OBJECTS_NO_MAINS) | bin
 	ar -crs $(CHESS_LIB) $(OBJECTS_NO_MAINS)
 	cp $(HEADERS_NO_MAINS) bin
 
-$(CLI_CHESS_EXE): src/main.o $(OBJECTS_NO_MAINS) | bin
-	$(CC) $(CFLAGS) -o $(CLI_CHESS_EXE) src/main.o $(OBJECTS_NO_MAINS)
+$(CLI_CHESS_EXE): src/cli-chess-main.o $(OBJECTS_NO_MAINS) | bin
+	$(CC) $(CFLAGS) -o $(CLI_CHESS_EXE) src/cli-chess-main.o $(OBJECTS_NO_MAINS)
 
-$(TESTS_EXE): src/tests.o $(OBJECTS_NO_MAINS) | bin
-	$(CC) $(CFLAGS) -o $(TESTS_EXE) src/tests.o $(OBJECTS_NO_MAINS)
+$(TESTS_EXE): src/tests-main.o $(OBJECTS_NO_MAINS) | bin
+	$(CC) $(CFLAGS) -o $(TESTS_EXE) src/tests-main.o $(OBJECTS_NO_MAINS)
 
 
 bin:

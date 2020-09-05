@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tests.h"
+#include "tests-main.h"
 #include "pos.h"
 #include "move.h"
 
