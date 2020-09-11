@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "move.h"
+#include "chesslib/move.h"
 
 move movePos(pos from, pos to)
 {

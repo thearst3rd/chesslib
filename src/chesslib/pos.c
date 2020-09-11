@@ -3,7 +3,7 @@
  * Created by thearst3rd on 8/6/2020
  */
 
-#include "pos.h"
+#include "chesslib/pos.h"
 
 // Create a position from two ints, i.e. 5, 4
 pos posI(uint8_t file, uint8_t rank)

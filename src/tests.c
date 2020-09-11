@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tests-main.h"
-#include "pos.h"
-#include "move.h"
+#include "tests.h"
+#include "chesslib/pos.h"
+#include "chesslib/move.h"
 
 const char *currTest;
 

@@ -5,7 +5,7 @@
 
 #include <ctype.h>
 
-#include "piece.h"
+#include "chesslib/piece.h"
 
 pieceType getPieceType(piece p)
 {

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "pos.h"
-#include "piece.h"
+#include "chesslib/pos.h"
+#include "chesslib/piece.h"
 
 typedef struct
 {
