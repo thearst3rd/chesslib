@@ -18,3 +18,6 @@ void testPosGetStr();
 void testMoveCreate();
 void testMoveFromUci();
 void testMoveGetUci();
+
+// Move list testing
+void testMoveList();

@@ -9,7 +9,7 @@
 
 #include "tests.h"
 #include "chesslib/pos.h"
-#include "chesslib/move.h"
+#include "chesslib/movelist.h"
 
 const char *currTest;
 
@@ -28,6 +28,9 @@ int main(int argc, char *argv[])
 	RUN_TEST(testMoveCreate);
 	RUN_TEST(testMoveGetUci);
 	RUN_TEST(testMoveFromUci);
+
+	// Test Move List
+	RUN_TEST(testMoveList);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -172,4 +175,61 @@ void testMoveFromUci()
 
 	m = moveFromUci("c2b1q");
 	validateMove(m, posI(3, 2), posI(2, 1), queen);
+}
+
+
+///////////////////
+// TEST MOVELIST //
+///////////////////
+
+void testMoveList()
+{
+	move m1 = moveFromUci("e2e4");
+	move m2 = moveFromUci("e7e5");
+	move m3 = moveFromUci("e1e2");
+
+	moveList *list = createMoveList();
+
+	addToMoveList(list, m1);
+	addToMoveList(list, m2);
+	addToMoveList(list, m3);
+
+	move m11 = getFromMoveList(list, 0);
+	move m12 = getFromMoveList(list, 1);
+	move m13 = getFromMoveList(list, 2);
+
+	char *uci;
+	char *expected;
+
+	uci = moveGetUci(m11);
+	expected = "e2e4";
+	if (strcmp(uci, expected) != 0)
+	{
+		char failStr[30];
+		sprintf(failStr, "Actual \"%s\" but, expected \"%s\"", uci, expected);
+		failTest(failStr);
+	}
+	free(uci);
+
+	uci = moveGetUci(m12);
+	expected = "e7e5";
+	if (strcmp(uci, expected) != 0)
+	{
+		char failStr[30];
+		sprintf(failStr, "Actual \"%s\" but, expected \"%s\"", uci, expected);
+		failTest(failStr);
+	}
+	free(uci);
+
+	uci = moveGetUci(m13);
+	expected = "e1e2";
+	if (strcmp(uci, expected) != 0)
+	{
+		char failStr[30];
+		sprintf(failStr, "Actual \"%s\" but, expected \"%s\"", uci, expected);
+		failTest(failStr);
+	}
+	free(uci);
+
+	freeMoveList(list);
 }
