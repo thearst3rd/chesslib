@@ -18,7 +18,7 @@ typedef struct
 	piece pieces[64];
 	uint8_t blackToPlay;
 	uint8_t castleState; 	// Bitmask describing castle state
-	pos enPassantTarget;
+	pos epTarget;
 	uint32_t halfMoveClock;
 	uint32_t moveNumber;
 } board;

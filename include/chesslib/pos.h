@@ -27,3 +27,6 @@ uint8_t posGetIndex(pos p);
 
 // Gets the SAN string representing the given pos. Does not need to be freed
 const char *posGetStr(pos p);
+
+// Compares two positions, returns true if equal and false otherwise
+uint8_t posEq(pos p1, pos p2);

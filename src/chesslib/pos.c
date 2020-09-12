@@ -69,3 +69,8 @@ const char *posGetStr(pos p)
 		return "##";
 	return POS_STRS[index];
 }
+
+uint8_t posEq(pos p1, pos p2)
+{
+	return p1.file == p2.file && p1.rank == p2.rank;
+}

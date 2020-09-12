@@ -188,7 +188,7 @@ board createBoardFromFen(const char *fen)
 	c = *fen;
 	if (c == '-')
 	{
-		board.enPassantTarget = POS_INVALID;
+		board.epTarget = POS_INVALID;
 		fen++;
 	}
 	else
@@ -200,7 +200,7 @@ board createBoardFromFen(const char *fen)
 			fprintf(stderr, "ERROR IN FEN: Invalid EP target square \"%s\"\n", epTargetStr);
 			return board;
 		}
-		board.enPassantTarget = epTarget;
+		board.epTarget = epTarget;
 		fen += 2;
 	}
 
@@ -215,7 +215,7 @@ board createBoardFromFen(const char *fen)
 	// Read in half move clock and full move count
 	// Note: more error checking should probably be done here
 
-	sscanf(fen, "%du %du", &board.halfMoveClock, &board.moveNumber);
+	sscanf(fen, "%u %u", &board.halfMoveClock, &board.moveNumber);
 
 	return board;
 }

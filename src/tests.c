@@ -140,8 +140,7 @@ void testPosGetStr()
 
 void validateMove(move m, pos expectedFrom, pos expectedTo, pieceType expectedPromotion)
 {
-	if (m.from.file != expectedFrom.file || m.from.rank != expectedFrom.rank
-			|| m.to.file != expectedTo.file || m.to.rank != expectedTo.rank
+	if (!posEq(m.from, expectedFrom) || !posEq(m.to, expectedTo)
 			|| m.promotion != expectedPromotion)
 	{
 		char msg[55];
@@ -295,19 +294,21 @@ void testBoardCreate()
 	if (b.castleState != 0b1111)
 		failTest("Not all castling flags enabled");
 
-	if (b.enPassantTarget.file != -1 || b.enPassantTarget.rank != -1)
+	if (posEq(b.epTarget, POS_INVALID))
 		failTest("EP target square was not POS_INVALID");
 
 	if (b.halfMoveClock != 0)
 	{
 		char message[50];
-		sprintf(message, "Half move clock was %du, expected 0", b.halfMoveClock);
+		sprintf(message, "Half move clock was %u, expected 0", b.halfMoveClock);
+		failTest(message);
 	}
 
 	if (b.moveNumber != 1)
 	{
 		char message[50];
-		sprintf(message, "Full move number was %du, expected 1", b.moveNumber);
+		sprintf(message, "Full move number was %u, expected 1", b.moveNumber);
+		failTest(message);
 	}
 }
 
@@ -338,21 +339,24 @@ void testBoardCreateFromFen()
 	if (b.castleState != 0b0000)
 		failTest("Not all castling flags disabled");
 
-	if (b.enPassantTarget.file != 5 || b.enPassantTarget.rank != 3)
+	if (!posEq(b.epTarget, posI(5, 3)))
 	{
 		char message[50];
-		sprintf(message, "Actual EP target square: %s, expected: e3", posGetStr(b.enPassantTarget));
+		sprintf(message, "Actual EP target square: %s, expected: e3", posGetStr(b.epTarget));
+		failTest(message);
 	}
 
 	if (b.halfMoveClock != 0)
 	{
 		char message[50];
-		sprintf(message, "Half move clock was %du, expected 0", b.halfMoveClock);
+		sprintf(message, "Half move clock was %u, expected 0", b.halfMoveClock);
+		failTest(message);
 	}
 
 	if (b.moveNumber != 46)
 	{
 		char message[50];
-		sprintf(message, "Full move number was %du, expected 46", b.moveNumber);
+		sprintf(message, "Full move number was %u, expected 46", b.moveNumber);
+		failTest(message);
 	}
 }
