@@ -8,8 +8,6 @@ SOURCES = $(wildcard src/chesslib/*.c) $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 OBJECTS_NO_MAINS = $(filter-out src/cli-chess-main.o src/tests-main.o,$(OBJECTS))
 
-HEADERS_NO_MAINS = $(wildcard src/chesslib/*.h)
-
 # Platform independance
 ifeq ($(OS), Windows_NT)
 	CLI_CHESS_EXE = bin/cli-chess.exe
@@ -31,19 +29,17 @@ tests: $(TESTS_EXE)
 
 
 $(OBJECTS): src/%.o : src/%.c
-	$(CC) $(CFLAGS) -o $@ -Isrc -c $<
+	$(CC) $(CFLAGS) -o $@ -Iinclude -c $<
 
 
 $(CHESS_LIB): $(OBJECTS_NO_MAINS) | bin
 	ar rcs $(CHESS_LIB) $(OBJECTS_NO_MAINS)
-	mkdir -p bin/chesslib
-	cp $(HEADERS_NO_MAINS) bin/chesslib
 
 $(CLI_CHESS_EXE): src/cli-chess.o chesslib | bin
-	$(CC) $(CFLAGS) -o $(CLI_CHESS_EXE) -Isrc src/cli-chess.o -Lbin -lchesslib
+	$(CC) $(CFLAGS) -o $(CLI_CHESS_EXE) -Iinclude src/cli-chess.o -Lbin -lchesslib
 
 $(TESTS_EXE): src/tests.o chesslib | bin
-	$(CC) $(CFLAGS) -o $(TESTS_EXE) -Isrc src/tests.o -Lbin -lchesslib
+	$(CC) $(CFLAGS) -o $(TESTS_EXE) -Iinclude src/tests.o -Lbin -lchesslib
 
 
 bin:
