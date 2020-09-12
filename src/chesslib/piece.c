@@ -37,6 +37,9 @@ char getPieceTypeLetter(pieceType p)
 		case king:
 			return 'k';
 
+		case empty:
+			return ' ';
+
 		default:
 			return 0;
 	}

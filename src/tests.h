@@ -21,3 +21,7 @@ void testMoveGetUci();
 
 // Move list testing
 void testMoveList();
+
+// Board testing
+void testBoardCreate();
+void testBoardCreateFromFen();

@@ -8,6 +8,9 @@
 // Create a position from two ints, i.e. 5, 4
 pos posI(uint8_t file, uint8_t rank)
 {
+	if (file < 1 || file > 8 || rank < 1 || rank > 8)
+		return POS_INVALID;
+
 	pos p;
 	p.file = file;
 	p.rank = rank;
@@ -17,9 +20,15 @@ pos posI(uint8_t file, uint8_t rank)
 // Create a position from a SAN square, i.e. "e4"
 pos posS(const char *str)
 {
+	char c1 = str[0];
+	char c2 = str[1];
+
+	if (c1 < 'a' || c1 > 'h' || c2 < '1' || c2 > '8')
+		return POS_INVALID;
+
 	pos p;
-	p.file = str[0] - 'a' + 1;
-	p.rank = str[1] - '0';
+	p.file = c1 - 'a' + 1;
+	p.rank = c2 - '0';
 	return p;
 }
 
@@ -35,11 +44,28 @@ const char *POS_STRS[64] =
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
 };
 
+// Create a position from the given index (same as the POS_STRS below)
+pos posIndex(uint8_t index)
+{
+	if (index < 0 || index > 63)
+		return POS_INVALID;
+
+	return posS(POS_STRS[index]);
+}
+
+uint8_t posGetIndex(pos p)
+{
+	if (p.file < 1 || p.file > 8 || p.rank < 1 || p.rank > 8)
+		return -1;
+
+	return (8 * (p.rank - 1)) + (p.file - 1);
+}
+
 // Gets the SAN string representing the given pos. Does not need to be freed
 const char *posGetStr(pos p)
 {
-	unsigned int index = (p.rank - 1) * 8 + (p.file - 1);
-	if (index >= 64)
+	unsigned int index = posGetIndex(p);
+	if (index > 63)
 		return "##";
 	return POS_STRS[index];
 }

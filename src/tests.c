@@ -10,6 +10,7 @@
 #include "tests.h"
 #include "chesslib/pos.h"
 #include "chesslib/movelist.h"
+#include "chesslib/board.h"
 
 const char *currTest;
 
@@ -31,6 +32,10 @@ int main(int argc, char *argv[])
 
 	// Test Move List
 	RUN_TEST(testMoveList);
+
+	// Test Board
+	RUN_TEST(testBoardCreate);
+	RUN_TEST(testBoardCreateFromFen);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -232,4 +237,122 @@ void testMoveList()
 	free(uci);
 
 	freeMoveList(list);
+}
+
+
+////////////////
+// TEST BOARD //
+////////////////
+
+void assertPiece(piece actual, piece expected)
+{
+	if (actual != expected)
+	{
+		char actualL = getPieceLetter(actual);
+		char expectedL = getPieceLetter(expected);
+		char message[45];
+		sprintf(message, "Actual piece '%c' found, expected '%c'", actualL, expectedL);
+		failTest(message);
+	}
+}
+
+void testBoardCreate()
+{
+	board b = createBoard();
+
+	return;
+
+	assertPiece(b.pieces[0], pWRook);
+	assertPiece(b.pieces[1], pWKnight);
+	assertPiece(b.pieces[2], pWBishop);
+	assertPiece(b.pieces[3], pWQueen);
+	assertPiece(b.pieces[4], pWKing);
+	assertPiece(b.pieces[5], pWBishop);
+	assertPiece(b.pieces[6], pWKnight);
+	assertPiece(b.pieces[7], pWRook);
+
+	for (int i = 8; i < 16; i++)
+		assertPiece(b.pieces[i], pWPawn);
+
+	for (int i = 16; i < 48; i++)
+		assertPiece(b.pieces[i], pEmpty);
+
+	for (int i = 48; i < 56; i++)
+		assertPiece(b.pieces[i], pBPawn);
+
+	assertPiece(b.pieces[56], pWRook);
+	assertPiece(b.pieces[57], pWKnight);
+	assertPiece(b.pieces[58], pWBishop);
+	assertPiece(b.pieces[59], pWQueen);
+	assertPiece(b.pieces[60], pWKing);
+	assertPiece(b.pieces[61], pWBishop);
+	assertPiece(b.pieces[62], pWKnight);
+	assertPiece(b.pieces[63], pWRook);
+
+	if (b.blackToPlay)
+		failTest("Actual: black to play, expected: white to play");
+
+	if (b.castleState != 0b1111)
+		failTest("Not all castling flags enabled");
+
+	if (b.enPassantTarget.file != -1 || b.enPassantTarget.rank != -1)
+		failTest("EP target square was not POS_INVALID");
+
+	if (b.halfMoveClock != 0)
+	{
+		char message[50];
+		sprintf(message, "Half move clock was %du, expected 0", b.halfMoveClock);
+	}
+
+	if (b.moveNumber != 1)
+	{
+		char message[50];
+		sprintf(message, "Full move number was %du, expected 1", b.moveNumber);
+	}
+}
+
+void testBoardCreateFromFen()
+{
+	board b = createBoardFromFen("8/8/3k4/8/4Pp2/2K5/8/5QQQ b - e3 0 46");
+
+	for (int i = 0; i < 64; i++)
+	{
+		// Special case out the pieces that are actually there
+		if ((i == 5) || (i == 6) || (i == 7) || (i == 18) || (i == 28) || (i == 29) || (i == 43))
+			continue;
+
+		assertPiece(b.pieces[i], pEmpty);
+	}
+
+	assertPiece(b.pieces[5], pWQueen);
+	assertPiece(b.pieces[6], pWQueen);
+	assertPiece(b.pieces[7], pWQueen);
+	assertPiece(b.pieces[28], pWPawn);
+	assertPiece(b.pieces[29], pBPawn);
+	assertPiece(b.pieces[18], pWKing);
+	assertPiece(b.pieces[43], pBKing);
+
+	if (!b.blackToPlay)
+		failTest("Actual: white to play, expected: black to play");
+
+	if (b.castleState != 0b0000)
+		failTest("Not all castling flags disabled");
+
+	if (b.enPassantTarget.file != 5 || b.enPassantTarget.rank != 3)
+	{
+		char message[50];
+		sprintf(message, "Actual EP target square: %s, expected: e3", posGetStr(b.enPassantTarget));
+	}
+
+	if (b.halfMoveClock != 0)
+	{
+		char message[50];
+		sprintf(message, "Half move clock was %du, expected 0", b.halfMoveClock);
+	}
+
+	if (b.moveNumber != 46)
+	{
+		char message[50];
+		sprintf(message, "Full move number was %du, expected 46", b.moveNumber);
+	}
 }
