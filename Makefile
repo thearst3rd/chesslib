@@ -6,7 +6,7 @@ CFLAGS = -g0 -Wall
 
 SOURCES = $(wildcard src/chesslib/*.c) $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
-OBJECTS_NO_MAINS = $(filter-out src/cli-chess-main.o src/tests-main.o,$(OBJECTS))
+OBJECTS_NO_MAINS = $(filter-out src/cli-chess.o src/tests.o,$(OBJECTS))
 
 # Platform independance
 ifeq ($(OS), Windows_NT)
