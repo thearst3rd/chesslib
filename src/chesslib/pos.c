@@ -21,9 +21,13 @@ pos posI(uint8_t file, uint8_t rank)
 pos posS(const char *str)
 {
 	char c1 = str[0];
+
+	if (c1 < 'a' || c1 > 'h')
+		return POS_INVALID;
+
 	char c2 = str[1];
 
-	if (c1 < 'a' || c1 > 'h' || c2 < '1' || c2 > '8')
+	if (c2 < '1' || c2 > '8')
 		return POS_INVALID;
 
 	pos p;
