@@ -33,6 +33,14 @@ typedef enum
 	pBKing
 } piece;
 
+typedef enum
+{
+	noColor,
+	white,
+	black
+} pieceColor;
+
 pieceType getPieceType(piece p);
+pieceColor getPieceColor(piece p);
 char getPieceTypeLetter(pieceType p);
 char getPieceLetter(piece p);

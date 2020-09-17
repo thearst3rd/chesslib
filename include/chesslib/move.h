@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <stdint.h>
 #include "chesslib/pos.h"
 #include "chesslib/piece.h"
 

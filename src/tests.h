@@ -25,3 +25,6 @@ void testMoveList();
 // Board testing
 void testBoardCreate();
 void testBoardCreateFromFen();
+
+// Piece moves testing
+void testPawnMoves();

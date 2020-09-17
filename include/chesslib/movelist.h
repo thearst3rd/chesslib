@@ -3,6 +3,10 @@
  * Created by thearst3rd on 9/09/2020
  */
 
+#pragma once
+
+#include <stddef.h>
+
 #include "chesslib/move.h"
 
 typedef struct _moveListNode
@@ -25,6 +29,9 @@ moveListNode *createMoveListNode(move move);
 // Move list operations
 void addToMoveList(moveList *list, move move);
 move getFromMoveList(moveList *list, unsigned int index);
+
+// Adds all moves from movesToAdd into list. Does not modify or free movesToAdd
+void addAllMovesToMoveList(moveList *list, moveList *movesToAdd);
 
 // Frees the movelist and all nodes
 void freeMoveList(moveList *list);

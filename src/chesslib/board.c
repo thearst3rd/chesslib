@@ -7,6 +7,7 @@
 #include <ctype.h>
 
 #include "chesslib/board.h"
+#include "chesslib/piecemoves.h"
 
 board createBoard()
 {
@@ -120,10 +121,10 @@ board createBoardFromFen(const char *fen)
 	switch (c)
 	{
 		case 'w':
-			board.blackToPlay = 0;
+			board.currentPlayer = white;
 			break;
 		case 'b':
-			board.blackToPlay = 1;
+			board.currentPlayer = black;
 			break;
 		default:
 			fprintf(stderr, "ERROR IN FEN: Expected 'w' or 'b', found '%c'\n", c);
@@ -230,4 +231,40 @@ piece boardGetPiece(board *board, pos pos)
 {
 	int index = posGetIndex(pos);
 	return board->pieces[index];
+}
+
+// Generates a list of all legal moves. This list must be freed with freeMoveList
+moveList *generateMoves(board *b)
+{
+	moveList *list = createMoveList();
+
+	for (int i = 0; i < 64; i++)
+	{
+		pos p = posIndex(i);
+		piece pe = boardGetPiece(b, p);
+
+		if (getPieceColor(pe) != b->currentPlayer)
+			continue;
+
+		pieceType type = getPieceType(pe);
+		moveList *currMoves;
+
+		switch (type)
+		{
+			case pawn:
+				currMoves = getPawnMoves(b, p);
+				// TODO - only add legal moves that won't leave you in check
+				addAllMovesToMoveList(list, currMoves);
+				freeMoveList(currMoves);
+				break;
+
+			// TODO: add the rest of the pieces
+
+			default:
+				// Nothing to do
+				break;
+		}
+	}
+
+	return list;
 }

@@ -56,6 +56,14 @@ move getFromMoveList(moveList *list, unsigned int index)
 	return currNode->move;
 }
 
+void addAllMovesToMoveList(moveList *list, moveList *movesToAdd)
+{
+	for (moveListNode *n = list->head; n; n = n->next)
+	{
+		addToMoveList(list, n->move);
+	}
+}
+
 void freeMoveList(moveList *list)
 {
 	moveListNode *node = list->head;

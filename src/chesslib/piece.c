@@ -15,6 +15,17 @@ pieceType getPieceType(piece p)
 	return (pieceType) p;
 }
 
+pieceColor getPieceColor(piece p)
+{
+	if (p >= pWPawn && p <= pWKing)
+		return white;
+
+	if (p >= pBPawn && p <= pBKing)
+		return black;
+
+	return noColor;
+}
+
 char getPieceTypeLetter(pieceType p)
 {
 	switch (p)

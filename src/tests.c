@@ -11,6 +11,7 @@
 #include "chesslib/pos.h"
 #include "chesslib/movelist.h"
 #include "chesslib/board.h"
+#include "chesslib/piecemoves.h"
 
 const char *currTest;
 
@@ -36,6 +37,9 @@ int main(int argc, char *argv[])
 	// Test Board
 	RUN_TEST(testBoardCreate);
 	RUN_TEST(testBoardCreateFromFen);
+
+	// Test Piece Moves
+	RUN_TEST(testPawnMoves);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -288,7 +292,7 @@ void testBoardCreate()
 	assertPiece(b.pieces[62], pWKnight);
 	assertPiece(b.pieces[63], pWRook);
 
-	if (b.blackToPlay)
+	if (b.currentPlayer != white)
 		failTest("Actual: black to play, expected: white to play");
 
 	if (b.castleState != 0b1111)
@@ -333,7 +337,7 @@ void testBoardCreateFromFen()
 	assertPiece(b.pieces[18], pWKing);
 	assertPiece(b.pieces[43], pBKing);
 
-	if (!b.blackToPlay)
+	if (b.currentPlayer != black)
 		failTest("Actual: white to play, expected: black to play");
 
 	if (b.castleState != 0b0000)
@@ -359,4 +363,185 @@ void testBoardCreateFromFen()
 		sprintf(message, "Full move number was %u, expected 46", b.moveNumber);
 		failTest(message);
 	}
+}
+
+
+/////////////////////
+// TEST PIECEMOVES //
+/////////////////////
+
+// Helper function - checks if given UCI string exists in moveList
+void validateUciIsInMovelist(moveList *list, char *expectedUci)
+{
+	for (moveListNode *n = list->head; n; n = n->next)
+	{
+		char *actualUci = moveGetUci(n->move);
+		int cmp = strcmp(actualUci, expectedUci);
+		free(actualUci);
+		if (cmp == 0)
+			return;
+	}
+	char message[60];
+	sprintf(message, "Expected %s to be in move list but was absent", expectedUci);
+	failTest(message);
+}
+
+// Helper function - validates the size of the list
+void validateListSize(moveList *list, size_t expectedSize)
+{
+	if (list->size != expectedSize)
+	{
+		char message[70];
+		sprintf(message, "Actual list was %lu element(s), expected %lu", list->size, expectedSize);
+		failTest(message);
+	}
+}
+
+void testPawnMoves()
+{
+	board b = createBoardFromFen("8/8/8/8/8/8/8/8 w - - 0 1");
+
+	moveList *list;
+
+	// Lone white pawn on starting rank
+	boardSetPiece(&b, posS("e2"), pWPawn);
+
+	list = getPawnMoves(&b, posS("e2"));
+
+	validateListSize(list, 2);
+	validateUciIsInMovelist(list, "e2e3");
+	validateUciIsInMovelist(list, "e2e4");
+
+	freeMoveList(list);
+
+	// Pawn with captures
+	boardSetPiece(&b, posS("d3"), pBQueen);
+	boardSetPiece(&b, posS("f3"), pBKnight);
+
+	list = getPawnMoves(&b, posS("e2"));
+
+	validateListSize(list, 4);
+	validateUciIsInMovelist(list, "e2e3");
+	validateUciIsInMovelist(list, "e2e4");
+	validateUciIsInMovelist(list, "e2d3");
+	validateUciIsInMovelist(list, "e2f3");
+
+	freeMoveList(list);
+
+	// Pawn blocked
+	boardSetPiece(&b, posS("d3"), pEmpty);
+	boardSetPiece(&b, posS("f3"), pEmpty);
+
+	boardSetPiece(&b, posS("e3"), pWKing);
+
+	list = getPawnMoves(&b, posS("e2"));
+
+	validateListSize(list, 0);
+
+	freeMoveList(list);
+
+	// Pawn not on first rank
+	boardSetPiece(&b, posS("e2"), pEmpty);
+	boardSetPiece(&b, posS("e3"), pEmpty);
+
+	boardSetPiece(&b, posS("e4"), pWPawn);
+
+	list = getPawnMoves(&b, posS("e4"));
+
+	validateListSize(list, 1);
+	validateUciIsInMovelist(list, "e4e5");
+
+	// White pawn about to promote
+	boardSetPiece(&b, posS("e4"), pEmpty);
+	boardSetPiece(&b, posS("g7"), pWPawn);
+
+	list = getPawnMoves(&b, posS("g7"));
+
+	validateListSize(list, 4);
+	validateUciIsInMovelist(list, "g7g8q");
+	validateUciIsInMovelist(list, "g7g8r");
+	validateUciIsInMovelist(list, "g7g8b");
+	validateUciIsInMovelist(list, "g7g8n");
+
+	freeMoveList(list);
+
+	// Black pawn on first rank
+	b.currentPlayer = black;
+
+	boardSetPiece(&b, posS("g7"), pBPawn);
+
+	list = getPawnMoves(&b, posS("g7"));
+
+	validateListSize(list, 2);
+	validateUciIsInMovelist(list, "g7g6");
+	validateUciIsInMovelist(list, "g7g5");
+
+	freeMoveList(list);
+
+	// Pawn blocked with one free spot, opp color
+	boardSetPiece(&b, posS("g5"), pWPawn);
+
+	list = getPawnMoves(&b, posS("g7"));
+
+	validateListSize(list, 1);
+	validateUciIsInMovelist(list, "g7g6");
+
+	freeMoveList(list);
+
+	// Black pawn about to promote, with capturing ability
+	boardSetPiece(&b, posS("g7"), pEmpty);
+	boardSetPiece(&b, posS("g5"), pEmpty);
+
+	boardSetPiece(&b, posS("a2"), pBPawn);
+	boardSetPiece(&b, posS("b1"), pWQueen);
+
+	list = getPawnMoves(&b, posS("a2"));
+
+	validateListSize(list, 8);
+	validateUciIsInMovelist(list, "a2a1q");
+	validateUciIsInMovelist(list, "a2a1r");
+	validateUciIsInMovelist(list, "a2a1b");
+	validateUciIsInMovelist(list, "a2a1n");
+	validateUciIsInMovelist(list, "a2b1q");
+	validateUciIsInMovelist(list, "a2b1r");
+	validateUciIsInMovelist(list, "a2b1b");
+	validateUciIsInMovelist(list, "a2b1n");
+
+	freeMoveList(list);
+
+	// White with opportunity to capture en passant
+	boardSetPiece(&b, posS("a2"), pEmpty);
+	boardSetPiece(&b, posS("b1"), pEmpty);
+
+	boardSetPiece(&b, posS("e5"), pWPawn);
+	boardSetPiece(&b, posS("f5"), pBPawn);
+
+	b.currentPlayer = white;
+	b.epTarget = posS("f6");
+
+	list = getPawnMoves(&b, posS("e5"));
+
+	validateListSize(list, 2);
+	validateUciIsInMovelist(list, "e5e6");
+	validateUciIsInMovelist(list, "e5f6");
+
+	freeMoveList(list);
+
+	// Black with opportunity to capture en passant
+	boardSetPiece(&b, posS("e5"), pEmpty);
+	boardSetPiece(&b, posS("f5"), pEmpty);
+
+	boardSetPiece(&b, posS("h4"), pBPawn);
+	boardSetPiece(&b, posS("g4"), pWPawn);
+
+	b.currentPlayer = black;
+	b.epTarget = posS("g3");
+
+	list = getPawnMoves(&b, posS("h4"));
+
+	validateListSize(list, 2);
+	validateUciIsInMovelist(list, "h4h3");
+	validateUciIsInMovelist(list, "h4g3");
+
+	freeMoveList(list);
 }

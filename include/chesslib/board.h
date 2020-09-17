@@ -7,6 +7,7 @@
 
 #include "chesslib/pos.h"
 #include "chesslib/piece.h"
+#include "chesslib/movelist.h"
 
 #define CASTLE_WK 0x0001
 #define CASTLE_WQ 0x0010
@@ -16,7 +17,7 @@
 typedef struct
 {
 	piece pieces[64];
-	uint8_t blackToPlay;
+	pieceColor currentPlayer;
 	uint8_t castleState; 	// Bitmask describing castle state
 	pos epTarget;
 	uint32_t halfMoveClock;
@@ -28,3 +29,5 @@ board createBoardFromFen(const char *fen);
 
 void boardSetPiece(board *board, pos pos, piece p);
 piece boardGetPiece(board *board, pos pos);
+
+moveList *generateMoves(board *board);
