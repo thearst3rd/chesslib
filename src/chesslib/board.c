@@ -258,7 +258,40 @@ moveList *generateMoves(board *b)
 				freeMoveList(currMoves);
 				break;
 
-			// TODO: add the rest of the pieces
+			case knight:
+				currMoves = getKnightMoves(b, p);
+				// TODO - only add legal moves that won't leave you in check
+				addAllMovesToMoveList(list, currMoves);
+				freeMoveList(currMoves);
+				break;
+
+			case bishop:
+				currMoves = getBishopMoves(b, p);
+				// TODO - only add legal moves that won't leave you in check
+				addAllMovesToMoveList(list, currMoves);
+				freeMoveList(currMoves);
+				break;
+
+			case rook:
+				currMoves = getRookMoves(b, p);
+				// TODO - only add legal moves that won't leave you in check
+				addAllMovesToMoveList(list, currMoves);
+				freeMoveList(currMoves);
+				break;
+
+			case queen:
+				currMoves = getQueenMoves(b, p);
+				// TODO - only add legal moves that won't leave you in check
+				addAllMovesToMoveList(list, currMoves);
+				freeMoveList(currMoves);
+				break;
+
+			case king:
+				currMoves = getKingMoves(b, p);
+				// TODO - only add legal moves that won't leave you in check
+				addAllMovesToMoveList(list, currMoves);
+				freeMoveList(currMoves);
+				break;
 
 			default:
 				// Nothing to do

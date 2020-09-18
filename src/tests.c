@@ -40,6 +40,11 @@ int main(int argc, char *argv[])
 
 	// Test Piece Moves
 	RUN_TEST(testPawnMoves);
+	RUN_TEST(testKnightMoves);
+	//RUN_TEST(testBishopMoves);
+	//RUN_TEST(testRookMoves);
+	//RUN_TEST(testQueenMoves);
+	//RUN_TEST(testKingMoves);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -544,4 +549,48 @@ void testPawnMoves()
 	validateUciIsInMovelist(list, "h4g3");
 
 	freeMoveList(list);
+}
+
+void testKnightMoves()
+{
+	board b = createBoardFromFen("8/8/8/8/8/8/8/8 w - - 0 1");
+
+	moveList *list;
+
+	// Lone Knight
+	boardSetPiece(&b, posS("c3"), pWKnight);
+
+	list = getKnightMoves(&b, posS("c3"));
+
+	validateListSize(list, 8);
+	validateUciIsInMovelist(list, "c3d5");
+	validateUciIsInMovelist(list, "c3e4");
+	validateUciIsInMovelist(list, "c3e2");
+	validateUciIsInMovelist(list, "c3d1");
+	validateUciIsInMovelist(list, "c3b1");
+	validateUciIsInMovelist(list, "c3a2");
+	validateUciIsInMovelist(list, "c3a4");
+	validateUciIsInMovelist(list, "c3b5");
+
+	freeMoveList(list);
+}
+
+void testBishopMoves()
+{
+	failTest("Not implemented yet");
+}
+
+void testRookMoves()
+{
+	failTest("Not implemented yet");
+}
+
+void testQueenMoves()
+{
+	failTest("Not implemented yet");
+}
+
+void testKingMoves()
+{
+	failTest("Not implemented yet");
 }

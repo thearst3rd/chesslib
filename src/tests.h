@@ -28,3 +28,8 @@ void testBoardCreateFromFen();
 
 // Piece moves testing
 void testPawnMoves();
+void testKnightMoves();
+void testBishopMoves();
+void testRookMoves();
+void testQueenMoves();
+void testKingMoves();

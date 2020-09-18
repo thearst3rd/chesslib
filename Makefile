@@ -2,14 +2,20 @@
 # by thearst3rd
 
 CC = gcc
-CFLAGS = -g0 -Wall
+CFLAGS = -Wall
+
+ifeq ($(DEBUG),1)
+	CFLAGS += -g
+else
+	CFLAGS += -g0
+endif
 
 SOURCES = $(wildcard src/chesslib/*.c) $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 OBJECTS_NO_MAINS = $(filter-out src/cli-chess.o src/tests.o,$(OBJECTS))
 
 # Platform independance
-ifeq ($(OS), Windows_NT)
+ifeq ($(OS),Windows_NT)
 	CLI_CHESS_EXE = bin/cli-chess.exe
 	TESTS_EXE = bin/tests.exe
 	# TODO - is this next line right? Should we use .dll?
@@ -28,13 +34,14 @@ cli-chess: $(CLI_CHESS_EXE)
 tests: $(TESTS_EXE)
 
 
-$(OBJECTS): src/%.o : src/%.c
+$(OBJECTS): %.o : %.c
 	$(CC) $(CFLAGS) -o $@ -Iinclude -c $<
 
 
 $(CHESS_LIB): $(OBJECTS_NO_MAINS) | bin
 	ar rcs $(CHESS_LIB) $(OBJECTS_NO_MAINS)
 
+# TODO - Figure out why these two exes are being rebuild every time even when there are no changes...
 $(CLI_CHESS_EXE): src/cli-chess.o chesslib | bin
 	$(CC) $(CFLAGS) -o $(CLI_CHESS_EXE) -Iinclude src/cli-chess.o -Lbin -lchesslib
 
