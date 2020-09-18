@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
 	// Test Piece Moves
 	RUN_TEST(testPawnMoves);
 	RUN_TEST(testKnightMoves);
-	//RUN_TEST(testBishopMoves);
-	//RUN_TEST(testRookMoves);
-	//RUN_TEST(testQueenMoves);
-	//RUN_TEST(testKingMoves);
+	RUN_TEST(testBishopMoves);
+	RUN_TEST(testRookMoves);
+	RUN_TEST(testQueenMoves);
+	RUN_TEST(testKingMoves);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -582,20 +582,199 @@ void testKnightMoves()
 
 void testBishopMoves()
 {
-	failTest("Not implemented yet");
+	board b;
+	moveList *list;
+
+	// Lone bishop
+	b = createBoardFromFen("8/4b3/8/8/8/8/8/8 b - - 0 1");
+
+	list = getBishopMoves(&b, posS("e7"));
+
+	validateListSize(list, 9);
+	validateUciIsInMovelist(list, "e7f8");
+	validateUciIsInMovelist(list, "e7f6");
+	validateUciIsInMovelist(list, "e7g5");
+	validateUciIsInMovelist(list, "e7h4");
+	validateUciIsInMovelist(list, "e7d6");
+	validateUciIsInMovelist(list, "e7c5");
+	validateUciIsInMovelist(list, "e7b4");
+	validateUciIsInMovelist(list, "e7a3");
+	validateUciIsInMovelist(list, "e7d8");
+
+	freeMoveList(list);
+
+	// Position with some blocks captures
+	b = createBoardFromFen("8/8/5n2/8/1r6/2B5/3Q4/N7 w - - 0 1");
+
+	list = getBishopMoves(&b, posS("c3"));
+
+	validateListSize(list, 5);
+	validateUciIsInMovelist(list, "c3d4");
+	validateUciIsInMovelist(list, "c3e5");
+	validateUciIsInMovelist(list, "c3f6");
+	validateUciIsInMovelist(list, "c3b2");
+	validateUciIsInMovelist(list, "c3b4");
+
+	freeMoveList(list);
 }
 
 void testRookMoves()
 {
-	failTest("Not implemented yet");
+	board b;
+	moveList *list;
+
+	// Lone rook
+	b = createBoardFromFen("8/3R4/8/8/8/8/8/8 w - - 0 1");
+
+	list = getRookMoves(&b, posS("d7"));
+
+	validateListSize(list, 14);
+	validateUciIsInMovelist(list, "d7d8");
+	validateUciIsInMovelist(list, "d7e7");
+	validateUciIsInMovelist(list, "d7f7");
+	validateUciIsInMovelist(list, "d7g7");
+	validateUciIsInMovelist(list, "d7h7");
+	validateUciIsInMovelist(list, "d7d6");
+	validateUciIsInMovelist(list, "d7d5");
+	validateUciIsInMovelist(list, "d7d4");
+	validateUciIsInMovelist(list, "d7d3");
+	validateUciIsInMovelist(list, "d7d2");
+	validateUciIsInMovelist(list, "d7d1");
+	validateUciIsInMovelist(list, "d7c7");
+	validateUciIsInMovelist(list, "d7b7");
+	validateUciIsInMovelist(list, "d7a7");
+
+	freeMoveList(list);
+
+	// Rook with some stuff around
+	b = createBoardFromFen("8/3R4/8/2k1r1BQ/8/8/3n1R2/4b3 b - - 0 1");
+
+	list = getRookMoves(&b, posS("e5"));
+
+	validateListSize(list, 9);
+	validateUciIsInMovelist(list, "e5e6");
+	validateUciIsInMovelist(list, "e5e7");
+	validateUciIsInMovelist(list, "e5e8");
+	validateUciIsInMovelist(list, "e5f5");
+	validateUciIsInMovelist(list, "e5g5");
+	validateUciIsInMovelist(list, "e5e4");
+	validateUciIsInMovelist(list, "e5e3");
+	validateUciIsInMovelist(list, "e5e2");
+
+	freeMoveList(list);
 }
 
 void testQueenMoves()
 {
-	failTest("Not implemented yet");
+	board b;
+	moveList *list;
+
+	// Lone queen
+	b = createBoardFromFen("8/8/8/8/8/8/1Q6/8 w - - 0 1");
+
+	list = getQueenMoves(&b, posS("b2"));
+
+	validateListSize(list, 23);
+	validateUciIsInMovelist(list, "b2b3");
+	validateUciIsInMovelist(list, "b2b4");
+	validateUciIsInMovelist(list, "b2b5");
+	validateUciIsInMovelist(list, "b2b6");
+	validateUciIsInMovelist(list, "b2b7");
+	validateUciIsInMovelist(list, "b2b8");
+
+	validateUciIsInMovelist(list, "b2c3");
+	validateUciIsInMovelist(list, "b2d4");
+	validateUciIsInMovelist(list, "b2e5");
+	validateUciIsInMovelist(list, "b2f6");
+	validateUciIsInMovelist(list, "b2g7");
+	validateUciIsInMovelist(list, "b2h8");
+
+	validateUciIsInMovelist(list, "b2c2");
+	validateUciIsInMovelist(list, "b2d2");
+	validateUciIsInMovelist(list, "b2e2");
+	validateUciIsInMovelist(list, "b2f2");
+	validateUciIsInMovelist(list, "b2g2");
+	validateUciIsInMovelist(list, "b2h2");
+
+	validateUciIsInMovelist(list, "b2c1");
+	validateUciIsInMovelist(list, "b2b1");
+	validateUciIsInMovelist(list, "b2a1");
+	validateUciIsInMovelist(list, "b2a2");
+	validateUciIsInMovelist(list, "b2a3");
+
+	freeMoveList(list);
+
+	// Queen with stuff around
+	b = createBoardFromFen("8/1Q3N2/2br4/2Rq2P1/2Rr4/6p1/5P2/8 b - - 0 1");
+
+	list = getQueenMoves(&b, posS("d5"));
+
+	validateListSize(list, 11);
+	validateUciIsInMovelist(list, "d5e6");
+	validateUciIsInMovelist(list, "d5f7");
+	validateUciIsInMovelist(list, "d5e5");
+	validateUciIsInMovelist(list, "d5f5");
+	validateUciIsInMovelist(list, "d5g5");
+	validateUciIsInMovelist(list, "d5e4");
+	validateUciIsInMovelist(list, "d5f3");
+	validateUciIsInMovelist(list, "d5g2");
+	validateUciIsInMovelist(list, "d5h1");
+	validateUciIsInMovelist(list, "d5c4");
+	validateUciIsInMovelist(list, "d5c5");
+
+	freeMoveList(list);
 }
 
 void testKingMoves()
 {
-	failTest("Not implemented yet");
+	// NOTE: THIS TEST DOES NOT CONSIDER CHECK!
+	// The king will be able to move into check since getKingMoves() does not consider the legality of a move.
+
+	// TODO - refactor this test when I add castling
+
+	board b;
+	moveList *list;
+
+	// Lone king
+	b = createBoardFromFen("8/2k5/8/8/8/8/8/8 b - - 0 1");
+
+	list = getKingMoves(&b, posS("c7"));
+
+	validateListSize(list, 8);
+	validateUciIsInMovelist(list, "c7c8");
+	validateUciIsInMovelist(list, "c7d8");
+	validateUciIsInMovelist(list, "c7d7");
+	validateUciIsInMovelist(list, "c7d6");
+	validateUciIsInMovelist(list, "c7c6");
+	validateUciIsInMovelist(list, "c7b6");
+	validateUciIsInMovelist(list, "c7b7");
+	validateUciIsInMovelist(list, "c7b8");
+
+	freeMoveList(list);
+
+	// King in corner
+	b = createBoardFromFen("8/8/8/8/8/8/8/K7 w - - 0 1");
+
+	list = getKingMoves(&b, posS("a1"));
+
+	validateListSize(list, 3);
+	validateUciIsInMovelist(list, "a1a2");
+	validateUciIsInMovelist(list, "a1b2");
+	validateUciIsInMovelist(list, "a1b1");
+
+	freeMoveList(list);
+
+	// King with stuff around
+	b = createBoardFromFen("8/2B2R2/3nb3/3k4/2BRn3/8/3q4/8 b - - 0 1");
+
+	list = getKingMoves(&b, posS("d5"));
+
+	validateListSize(list, 5);
+	validateUciIsInMovelist(list, "d5e5");
+	validateUciIsInMovelist(list, "d5d4");
+	validateUciIsInMovelist(list, "d5c4");
+	validateUciIsInMovelist(list, "d5c5");
+	validateUciIsInMovelist(list, "d5c6");
+
+	freeMoveList(list);
 }
