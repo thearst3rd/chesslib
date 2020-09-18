@@ -404,12 +404,11 @@ void validateListSize(moveList *list, size_t expectedSize)
 
 void testPawnMoves()
 {
-	board b = createBoardFromFen("8/8/8/8/8/8/8/8 w - - 0 1");
-
+	board b;
 	moveList *list;
 
 	// Lone white pawn on starting rank
-	boardSetPiece(&b, posS("e2"), pWPawn);
+	b = createBoardFromFen("8/8/8/8/8/8/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
@@ -420,8 +419,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn with captures
-	boardSetPiece(&b, posS("d3"), pBQueen);
-	boardSetPiece(&b, posS("f3"), pBKnight);
+	b = createBoardFromFen("8/8/8/8/8/3q1n2/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
@@ -432,22 +430,18 @@ void testPawnMoves()
 	validateUciIsInMovelist(list, "e2f3");
 
 	freeMoveList(list);
-	boardSetPiece(&b, posS("d3"), pEmpty);
-	boardSetPiece(&b, posS("f3"), pEmpty);
 
 	// Pawn blocked
-	boardSetPiece(&b, posS("e3"), pWKing);
+	b = createBoardFromFen("8/8/8/8/8/4N3/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
 	validateListSize(list, 0);
 
 	freeMoveList(list);
-	boardSetPiece(&b, posS("e2"), pEmpty);
-	boardSetPiece(&b, posS("e3"), pEmpty);
 
 	// Pawn not on first rank
-	boardSetPiece(&b, posS("e4"), pWPawn);
+	b = createBoardFromFen("8/8/8/8/4P3/8/8/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e4"));
 
@@ -455,10 +449,9 @@ void testPawnMoves()
 	validateUciIsInMovelist(list, "e4e5");
 
 	freeMoveList(list);
-	boardSetPiece(&b, posS("e4"), pEmpty);
 
 	// White pawn about to promote
-	boardSetPiece(&b, posS("g7"), pWPawn);
+	b = createBoardFromFen("8/6P1/8/8/8/8/8/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -471,9 +464,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Black pawn on first rank
-	b.currentPlayer = black;
-
-	boardSetPiece(&b, posS("g7"), pBPawn);
+	b = createBoardFromFen("8/6p1/8/8/8/8/8/8 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -484,7 +475,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn blocked with one free spot, opp color
-	boardSetPiece(&b, posS("g5"), pWPawn);
+	b = createBoardFromFen("8/6p1/8/6P1/8/8/8/8 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -492,12 +483,9 @@ void testPawnMoves()
 	validateUciIsInMovelist(list, "g7g6");
 
 	freeMoveList(list);
-	boardSetPiece(&b, posS("g7"), pEmpty);
-	boardSetPiece(&b, posS("g5"), pEmpty);
 
 	// Black pawn about to promote, with capturing ability
-	boardSetPiece(&b, posS("a2"), pBPawn);
-	boardSetPiece(&b, posS("b1"), pWQueen);
+	b = createBoardFromFen("8/8/8/8/8/8/p7/1Q6 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("a2"));
 
@@ -512,12 +500,9 @@ void testPawnMoves()
 	validateUciIsInMovelist(list, "a2b1n");
 
 	freeMoveList(list);
-	boardSetPiece(&b, posS("a2"), pEmpty);
-	boardSetPiece(&b, posS("b1"), pEmpty);
 
 	// White with opportunity to capture en passant
-	boardSetPiece(&b, posS("e5"), pWPawn);
-	boardSetPiece(&b, posS("f5"), pBPawn);
+	b = createBoardFromFen("8/8/8/4Pp2/8/8/8/8 w - f6 0 1");
 
 	b.currentPlayer = white;
 	b.epTarget = posS("f6");
@@ -529,12 +514,9 @@ void testPawnMoves()
 	validateUciIsInMovelist(list, "e5f6");
 
 	freeMoveList(list);
-	boardSetPiece(&b, posS("e5"), pEmpty);
-	boardSetPiece(&b, posS("f5"), pEmpty);
 
 	// Black with opportunity to capture en passant
-	boardSetPiece(&b, posS("h4"), pBPawn);
-	boardSetPiece(&b, posS("g4"), pWPawn);
+	b = createBoardFromFen("8/8/8/8/6Pp/8/8/8 b - g3 0 1");
 
 	b.currentPlayer = black;
 	b.epTarget = posS("g3");
@@ -550,12 +532,11 @@ void testPawnMoves()
 
 void testKnightMoves()
 {
-	board b = createBoardFromFen("8/8/8/8/8/8/8/8 w - - 0 1");
-
+	board b;
 	moveList *list;
 
 	// Lone knight
-	boardSetPiece(&b, posS("c3"), pWKnight);
+	b = createBoardFromFen("8/8/8/8/8/2N5/8/8 w - - 0 1");
 
 	list = getKnightMoves(&b, posS("c3"));
 
@@ -570,11 +551,9 @@ void testKnightMoves()
 	validateUciIsInMovelist(list, "c3b5");
 
 	freeMoveList(list);
-	boardSetPiece(&b, posS("c3"), pEmpty);
 
 	// Knight near the edge
-	b.currentPlayer = black;
-	boardSetPiece(&b, posS("h7"), pBKnight);
+	b = createBoardFromFen("8/7n/8/8/8/8/8/8 b - - 0 1");
 
 	list = getKnightMoves(&b, posS("h7"));
 
@@ -586,20 +565,7 @@ void testKnightMoves()
 	freeMoveList(list);
 
 	// Knight with some blocks
-	boardSetPiece(&b, posS("f6"), pBKnight);
-
-	boardSetPiece(&b, posS("f7"), pWQueen);
-	boardSetPiece(&b, posS("g7"), pWQueen);
-	boardSetPiece(&b, posS("g6"), pWQueen);
-	boardSetPiece(&b, posS("g5"), pWQueen);
-	boardSetPiece(&b, posS("f5"), pWQueen);
-	boardSetPiece(&b, posS("e5"), pWQueen);
-	boardSetPiece(&b, posS("e6"), pWQueen);
-	boardSetPiece(&b, posS("e7"), pWQueen);
-
-	boardSetPiece(&b, posS("e4"), pBBishop);
-	boardSetPiece(&b, posS("d7"), pWBishop);
-	boardSetPiece(&b, posS("g8"), pWKnight);
+	b = createBoardFromFen("6N1/3BQQQn/4QnQ1/4QQQ1/4b3/8/8/8 b - - 0 1");
 
 	list = getKnightMoves(&b, posS("f6"));
 
