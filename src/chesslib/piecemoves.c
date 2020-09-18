@@ -37,7 +37,7 @@ moveList *leaperMoveList(board *b, pos p, pieceType pt, int8_t dirs[][2], size_t
 	for (int i = 0; i < numDirs; i++)
 	{
 		newPos.file = p.file + dirs[i][0];
-		newPos.rank = p.file + dirs[i][1];
+		newPos.rank = p.rank + dirs[i][1];
 
 		if (newPos.file < 1 || newPos.file > 8 || newPos.rank < 1 || newPos.rank > 8)
 			continue;
