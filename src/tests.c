@@ -397,7 +397,7 @@ void validateListSize(moveList *list, size_t expectedSize)
 	if (list->size != expectedSize)
 	{
 		char message[70];
-		sprintf(message, "Actual list was %lu element(s), expected %lu", list->size, expectedSize);
+		sprintf(message, "Actual list was %zu element(s), expected %zu", list->size, expectedSize);
 		failTest(message);
 	}
 }
