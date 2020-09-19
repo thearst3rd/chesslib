@@ -29,3 +29,7 @@ void boardSetPiece(board *board, pos pos, piece p);
 piece boardGetPiece(board *board, pos pos);
 
 moveList *generateMoves(board *board);
+
+uint8_t isSquareAttacked(board *b, pos p, pieceColor attacker);
+uint8_t isInCheck(board *b);
+uint8_t isPlayerInCheck(board *b, pieceColor player);

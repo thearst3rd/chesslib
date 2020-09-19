@@ -234,57 +234,131 @@ moveList *generateMoves(board *b)
 			continue;
 
 		pieceType type = getPieceType(pe);
-		moveList *currMoves;
+		moveList *currMoves = NULL;
 
 		switch (type)
 		{
 			case pawn:
 				currMoves = getPawnMoves(b, p);
-				// TODO - only add legal moves that won't leave you in check
-				addAllMovesToMoveList(list, currMoves);
-				freeMoveList(currMoves);
 				break;
 
 			case knight:
 				currMoves = getKnightMoves(b, p);
-				// TODO - only add legal moves that won't leave you in check
-				addAllMovesToMoveList(list, currMoves);
-				freeMoveList(currMoves);
 				break;
 
 			case bishop:
 				currMoves = getBishopMoves(b, p);
-				// TODO - only add legal moves that won't leave you in check
-				addAllMovesToMoveList(list, currMoves);
-				freeMoveList(currMoves);
 				break;
 
 			case rook:
 				currMoves = getRookMoves(b, p);
-				// TODO - only add legal moves that won't leave you in check
-				addAllMovesToMoveList(list, currMoves);
-				freeMoveList(currMoves);
 				break;
 
 			case queen:
 				currMoves = getQueenMoves(b, p);
-				// TODO - only add legal moves that won't leave you in check
-				addAllMovesToMoveList(list, currMoves);
-				freeMoveList(currMoves);
 				break;
 
 			case king:
 				currMoves = getKingMoves(b, p);
-				// TODO - only add legal moves that won't leave you in check
-				addAllMovesToMoveList(list, currMoves);
-				freeMoveList(currMoves);
 				break;
 
 			default:
 				// Nothing to do
 				break;
 		}
+
+		if (currMoves)
+		{
+			// TODO - only add legal moves that won't leave you in check
+			addAllMovesToMoveList(list, currMoves);
+			freeMoveList(currMoves);
+		}
 	}
 
 	return list;
+}
+
+uint8_t isSquareAttacked(board *b, pos p, pieceColor attacker)
+{
+	for (int i = 0; i < 64; i++)
+	{
+		pos attackerP = posIndex(i);
+		piece attackerPe = boardGetPiece(b, attackerP);
+
+		if (getPieceColor(attackerPe) != attacker)
+			continue;
+
+		pieceType type = getPieceType(attackerPe);
+		moveList *currMoves = NULL;
+
+		uint8_t found = 0;
+
+		switch (type)
+		{
+			case pawn:
+				currMoves = getPawnMoves(b, p);
+				break;
+
+			case knight:
+				currMoves = getKnightMoves(b, p);
+				break;
+
+			case bishop:
+				currMoves = getBishopMoves(b, p);
+				break;
+
+			case rook:
+				currMoves = getRookMoves(b, p);
+				break;
+
+			case queen:
+				currMoves = getQueenMoves(b, p);
+				break;
+
+			case king:
+				currMoves = getKingMoves(b, p);
+				break;
+
+			default:
+				// Nothing to do
+				break;
+		}
+
+		if (currMoves)
+		{
+			for (moveListNode *n = currMoves->head; n; n = n->next)
+			{
+				if (posEq(p, n->move.to))
+				{
+					found = 1;
+					break;
+				}
+			}
+			freeMoveList(currMoves);
+			if (found)
+				return 1;
+		}
+	}
+	return 0;
+}
+
+uint8_t isInCheck(board *b)
+{
+	return isPlayerInCheck(b, b->currentPlayer);
+}
+
+uint8_t isPlayerInCheck(board *b, pieceColor player)
+{
+	piece royalPiece = (player == white) ? pWKing : pBKing;
+	pieceColor otherColor = (player == white) ? black : white;
+	for (int i = 0; i < 64; i++)
+	{
+		pos p = posIndex(i);
+		if (boardGetPiece(b, p) == royalPiece)
+		{
+			if (isSquareAttacked(b, p, otherColor))
+				return 1;
+		}
+	}
+	return 0;
 }
