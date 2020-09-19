@@ -20,8 +20,6 @@ typedef struct
 	pieceColor currentPlayer;
 	uint8_t castleState; 	// Bitmask describing castle state
 	pos epTarget;
-	uint32_t halfMoveClock;
-	uint32_t moveNumber;
 } board;
 
 board createBoard();

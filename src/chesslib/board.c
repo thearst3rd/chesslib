@@ -205,19 +205,6 @@ board createBoardFromFen(const char *fen)
 		fen += 2;
 	}
 
-	c = *fen;
-	if (c != ' ')
-	{
-		fprintf(stderr, "ERROR IN FEN: Expected ' ' after EP target square, found '%c'\n", c);
-		return board;
-	}
-	fen++;
-
-	// Read in half move clock and full move count
-	// Note: more error checking should probably be done here
-
-	sscanf(fen, "%u %u", &board.halfMoveClock, &board.moveNumber);
-
 	return board;
 }
 
