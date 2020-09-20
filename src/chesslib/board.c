@@ -221,7 +221,7 @@ piece boardGetPiece(board *board, pos pos)
 }
 
 // Generates a list of all legal moves. This list must be freed with freeMoveList
-moveList *generateMoves(board *b)
+moveList *boardGenerateMoves(board *b)
 {
 	moveList *list = createMoveList();
 
@@ -278,17 +278,17 @@ moveList *generateMoves(board *b)
 	return list;
 }
 
-uint8_t isSquareAttacked(board *b, pos p, pieceColor attacker)
+uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker)
 {
 	for (int i = 0; i < 64; i++)
 	{
 		pos attackerP = posIndex(i);
-		piece attackerPe = boardGetPiece(b, attackerP);
+		piece pe = boardGetPiece(b, attackerP);
 
-		if (getPieceColor(attackerPe) != attacker)
+		if (getPieceColor(pe) != attacker)
 			continue;
 
-		pieceType type = getPieceType(attackerPe);
+		pieceType type = getPieceType(pe);
 		moveList *currMoves = NULL;
 
 		uint8_t found = 0;
@@ -296,27 +296,27 @@ uint8_t isSquareAttacked(board *b, pos p, pieceColor attacker)
 		switch (type)
 		{
 			case pawn:
-				currMoves = getPawnAttacks(b, p);
+				currMoves = getPawnAttacks(b, attackerP);
 				break;
 
 			case knight:
-				currMoves = getKnightMoves(b, p);
+				currMoves = getKnightMoves(b, attackerP);
 				break;
 
 			case bishop:
-				currMoves = getBishopMoves(b, p);
+				currMoves = getBishopMoves(b, attackerP);
 				break;
 
 			case rook:
-				currMoves = getRookMoves(b, p);
+				currMoves = getRookMoves(b, attackerP);
 				break;
 
 			case queen:
-				currMoves = getQueenMoves(b, p);
+				currMoves = getQueenMoves(b, attackerP);
 				break;
 
 			case king:
-				currMoves = getKingMoves(b, p);
+				currMoves = getKingMoves(b, attackerP);
 				break;
 
 			default:
@@ -342,12 +342,12 @@ uint8_t isSquareAttacked(board *b, pos p, pieceColor attacker)
 	return 0;
 }
 
-uint8_t isInCheck(board *b)
+uint8_t boardIsInCheck(board *b)
 {
-	return isPlayerInCheck(b, b->currentPlayer);
+	return boardIsPlayerInCheck(b, b->currentPlayer);
 }
 
-uint8_t isPlayerInCheck(board *b, pieceColor player)
+uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 {
 	piece royalPiece = (player == white) ? pWKing : pBKing;
 	pieceColor otherColor = (player == white) ? black : white;
@@ -356,7 +356,7 @@ uint8_t isPlayerInCheck(board *b, pieceColor player)
 		pos p = posIndex(i);
 		if (boardGetPiece(b, p) == royalPiece)
 		{
-			if (isSquareAttacked(b, p, otherColor))
+			if (boardIsSquareAttacked(b, p, otherColor))
 				return 1;
 		}
 	}

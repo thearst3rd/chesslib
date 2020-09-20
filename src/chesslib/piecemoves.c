@@ -157,6 +157,36 @@ moveList *getPawnMoves(board *b, pos p)
 	return list;
 }
 
+// Pawns are special...
+// Note, this is not getting the squares a pawn is CURRENTLY attacking, just where it COULD attack were there a piece
+moveList *getPawnAttacks(board *b, pos p)
+{
+	moveList *list = createMoveList();
+
+	piece bPiece = boardGetPiece(b, p);
+	if (getPieceType(bPiece) != pawn)
+		return list;
+
+	pieceColor color = getPieceColor(bPiece);
+	int delta = color == white ? 1 : -1;
+
+	if (p.file > 1)
+	{
+		pos newPos = posI(p.file - 1, p.rank + delta);
+		if (canMoveHere(b, newPos, color))
+			addToMoveList(list, movePos(p, newPos));
+	}
+
+	if (p.file < 8)
+	{
+		pos newPos = posI(p.file + 1, p.rank + delta);
+		if (canMoveHere(b, newPos, color))
+			addToMoveList(list, movePos(p, newPos));
+	}
+
+	return list;
+}
+
 
 ////////////
 // KNIGHT //

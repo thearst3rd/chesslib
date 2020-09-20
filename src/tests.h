@@ -35,3 +35,5 @@ void testQueenMoves();
 void testKingMoves();
 
 // Square attacking/check testing
+void testIsSquareAttacked();
+void testIsInCheck();

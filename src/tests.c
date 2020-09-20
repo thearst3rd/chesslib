@@ -46,6 +46,9 @@ int main(int argc, char *argv[])
 	RUN_TEST(testQueenMoves);
 	RUN_TEST(testKingMoves);
 
+	// Test Attacked Squares
+	RUN_TEST(testIsSquareAttacked);
+
 	// We made it to the end
 	printf("Success - all tests passed!\n");
 	return 0;
@@ -756,4 +759,49 @@ void testKingMoves()
 // TEST ATTACKED SQUARES AND CHECK //
 /////////////////////////////////////
 
+void testIsSquareAttacked()
+{
+	board b;
 
+	// Knight in corner and pawn
+	b = createBoardFromFen("7N/8/8/8/8/8/1P6/8 w - -");
+
+	for (int i = 0; i < 64; i++)
+	{
+		pos p = posIndex(i);
+
+		uint8_t expectedAttacked = posEq(p, posS("a3")) || posEq(p, posS("c3")) || posEq(p, posS("f7"))
+				|| posEq(p, posS("g6"));
+
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, white);
+
+		if (expectedAttacked != actualAttacked)
+		{
+			char message[50];
+			sprintf(message, "Actual %s attacked: %u, expected: %u", posGetStr(p), actualAttacked, expectedAttacked);
+			failTest(message);
+		}
+	}
+
+	// Lone rook
+	b = createBoardFromFen("8/8/8/3r4/8/8/8/8 b - -");
+
+	for (int i = 0; i < 64; i++)
+	{
+		pos p = posIndex(i);
+
+		uint8_t expectedAttacked = (p.file == 4) ^ (p.rank == 5);
+
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, black);
+
+		if (expectedAttacked != actualAttacked)
+		{
+			char message[50];
+			sprintf(message, "Actual %s attacked: %u, expected: %u", posGetStr(p), actualAttacked, expectedAttacked);
+			failTest(message);
+		}
+	}
+
+	// Rook with blocks
+	b = createBoardFromFen("8/8/8/8/8/1r6/8/1r1R4 w - - 0 1");
+}

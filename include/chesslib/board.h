@@ -28,8 +28,8 @@ board createBoardFromFen(const char *fen);
 void boardSetPiece(board *board, pos pos, piece p);
 piece boardGetPiece(board *board, pos pos);
 
-moveList *generateMoves(board *board);
+moveList *boardGenerateMoves(board *board);
 
-uint8_t isSquareAttacked(board *b, pos p, pieceColor attacker);
-uint8_t isInCheck(board *b);
-uint8_t isPlayerInCheck(board *b, pieceColor player);
+uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker);
+uint8_t boardIsInCheck(board *b);
+uint8_t boardIsPlayerInCheck(board *b, pieceColor player);
