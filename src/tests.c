@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
 
 	// Test Attacked Squares
 	RUN_TEST(testIsSquareAttacked);
+	RUN_TEST(testIsInCheck);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -821,4 +822,36 @@ void testIsSquareAttacked()
 			failTest(message);
 		}
 	}
+}
+
+void testIsInCheck()
+{
+	board b;
+
+	// Simple example - in check by a rook
+	b = createBoardFromFen("8/8/1k6/1r2K3/8/8/8/8 w - -");
+
+	if (!boardIsInCheck(&b))
+		failTest("Board was not in check, expected board to be in check");
+
+	if (boardIsPlayerInCheck(&b, black))
+		failTest("Board was in check, expected board to be not in check");
+
+	// Scholar's mate
+	b = createBoardFromFen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4");
+
+	if (!boardIsInCheck(&b))
+		failTest("Board was not in check, expected board to be in check");
+
+	if (boardIsPlayerInCheck(&b, white))
+		failTest("Board was in check, expected board to be not in check");
+
+	// Checks blocked by knights
+	b = createBoardFromFen("7k/3q4/1q3q2/2NNN3/q1NKN1q1/2NNN3/1q3q2/3q4 w - -");
+
+	if (boardIsInCheck(&b))
+		failTest("Board was in check, expected board to be not in check");
+
+	if (boardIsPlayerInCheck(&b, black))
+		failTest("Board was in check, expected board to be not in check");
 }
