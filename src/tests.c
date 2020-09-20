@@ -802,6 +802,23 @@ void testIsSquareAttacked()
 		}
 	}
 
-	// Rook with blocks
-	b = createBoardFromFen("8/8/8/8/8/1r6/8/1r1R4 w - - 0 1");
+	// Rook with blocks/captures
+	b = createBoardFromFen("8/8/8/8/1p6/8/8/1r1R4 w - -");
+
+	for (int i = 0; i < 64; i++)
+	{
+		pos p = posIndex(i);
+
+		uint8_t expectedAttacked = posEq(p, posS("a1")) || posEq(p, posS("c1")) || posEq(p, posS("d1"))
+				|| posEq(p, posS("b2")) || posEq(p, posS("b3")) || posEq(p, posS("a3")) || posEq(p, posS("c3"));
+
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, black);
+
+		if (expectedAttacked != actualAttacked)
+		{
+			char message[50];
+			sprintf(message, "Actual %s attacked: %u, expected: %u", posGetStr(p), actualAttacked, expectedAttacked);
+			failTest(message);
+		}
+	}
 }
