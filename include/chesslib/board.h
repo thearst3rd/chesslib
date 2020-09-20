@@ -25,10 +25,10 @@ typedef struct
 board createBoard();
 board createBoardFromFen(const char *fen);
 
-void boardSetPiece(board *board, pos pos, piece p);
-piece boardGetPiece(board *board, pos pos);
+void boardSetPiece(board *b, pos p, piece pe);
+piece boardGetPiece(board *b, pos p);
 
-moveList *boardGenerateMoves(board *board);
+moveList *boardGenerateMoves(board *b);
 
 uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker);
 uint8_t boardIsInCheck(board *b);

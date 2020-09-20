@@ -208,16 +208,16 @@ board createBoardFromFen(const char *fen)
 	return board;
 }
 
-void boardSetPiece(board *board, pos pos, piece p)
+void boardSetPiece(board *b, pos p, piece pe)
 {
-	int index = posGetIndex(pos);
-	board->pieces[index] = p;
+	int index = posGetIndex(p);
+	b->pieces[index] = pe;
 }
 
-piece boardGetPiece(board *board, pos pos)
+piece boardGetPiece(board *b, pos p)
 {
-	int index = posGetIndex(pos);
-	return board->pieces[index];
+	int index = posGetIndex(p);
+	return b->pieces[index];
 }
 
 // Generates a list of all legal moves. This list must be freed with freeMoveList
