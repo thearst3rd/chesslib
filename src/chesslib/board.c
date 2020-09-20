@@ -296,7 +296,7 @@ uint8_t isSquareAttacked(board *b, pos p, pieceColor attacker)
 		switch (type)
 		{
 			case pawn:
-				currMoves = getPawnMoves(b, p);
+				currMoves = getPawnAttacks(b, p);
 				break;
 
 			case knight:

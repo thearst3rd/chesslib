@@ -27,3 +27,6 @@ moveList *getBishopMoves(board *b, pos p);
 moveList *getRookMoves(board *b, pos p);
 moveList *getQueenMoves(board *b, pos p);
 moveList *getKingMoves(board *b, pos p);
+
+// Pawns are special...
+moveList *getPawnAttacks(board *b, pos p);

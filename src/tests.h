@@ -33,3 +33,5 @@ void testBishopMoves();
 void testRookMoves();
 void testQueenMoves();
 void testKingMoves();
+
+// Square attacking/check testing

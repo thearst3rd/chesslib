@@ -750,3 +750,10 @@ void testKingMoves()
 
 	freeMoveList(list);
 }
+
+
+/////////////////////////////////////
+// TEST ATTACKED SQUARES AND CHECK //
+/////////////////////////////////////
+
+
