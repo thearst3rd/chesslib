@@ -362,3 +362,80 @@ uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 	}
 	return 0;
 }
+
+// Returns a new board on which the given move was played on the given board
+board boardPlayMove(board *b, move m)
+{
+	board newBoard = *b;
+
+	// TODO - should probably be redesigned to be more efficient...
+	moveList *moves = boardGenerateMoves(b);
+	uint8_t found = 0;
+	for (moveListNode *n = moves->head; n; n = n->next)
+	{
+		move legalMove = n->move;
+		if (posEq(m.to, legalMove.to) && posEq(m.from, legalMove.from) && (m.promotion == legalMove.promotion))
+		{
+			found = 1;
+			break;
+		}
+	}
+	free(moves);
+
+	if (!found)
+	{
+		char *uci = moveGetUci(m);
+		fprintf(stderr, "%s is an illegal move\n", uci);
+		free(uci);
+		return newBoard;
+	}
+
+	// CONTEXTUALIZE MOVE - is this a special move of sorts?
+	// Is this a castling move?
+	pieceType pt = getPieceType(boardGetPiece(b, m.from));
+	if (pt == king)
+	{
+		// TODO - maybe redesign this to work better with Chess 960, though I don't like Fischer castling >:(
+		uint8_t diffFile = m.to.file - m.from.file;
+		if (diffFile == 2) 	// O-O
+		{
+			// Move rook from h file to correct file
+			boardSetPiece(&newBoard, posI(8, m.to.rank), pEmpty);
+			boardSetPiece(&newBoard, posI(m.to.file - 1, m.to.rank), b->currentPlayer == white ? pWRook : pBRook);
+			newBoard.castleState &= ~((b->currentPlayer == white) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
+		}
+		else if (diffFile == -2) 	// O-O-O
+		{
+			// Move rook from a file to correct file
+			boardSetPiece(&newBoard, posI(1, m.to.rank), pEmpty);
+			boardSetPiece(&newBoard, posI(m.to.file + 1, m.to.rank), b->currentPlayer == white ? pWRook : pBRook);
+			newBoard.castleState &= ~((b->currentPlayer == white) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
+		}
+	}
+
+	// Is this an en passant capture?
+	if (pt == pawn && posEq(b->epTarget, m.to))
+	{
+		// Remove the captured pawn
+		uint8_t delta = (b->currentPlayer == white) ? -1 : 1;
+		boardSetPiece(&newBoard, posI(m.to.file, m.to.rank + delta), pEmpty);
+	}
+
+	// Move the piece
+	boardSetPiece(&newBoard, m.to, boardGetPiece(b, m.from));
+	boardSetPiece(&newBoard, m.from, pEmpty);
+
+	// Should this set the EP target square?
+	uint8_t diffRank = m.to.rank - m.from.rank;
+	if (pt == pawn && ((diffRank == 2) || (diffRank == -2)))
+	{
+		uint8_t delta = (b->currentPlayer == white) ? -1 : 1;
+		newBoard.epTarget = posI(m.to.file, m.to.rank + delta);
+	}
+	else
+	{
+		newBoard.epTarget = POS_INVALID;
+	}
+
+	return newBoard;
+}

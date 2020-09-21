@@ -33,3 +33,6 @@ moveList *boardGenerateMoves(board *b);
 uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker);
 uint8_t boardIsInCheck(board *b);
 uint8_t boardIsPlayerInCheck(board *b, pieceColor player);
+
+// Returns a new board on which the given move was played on the given board
+board boardPlayMove(board *b, move m)
