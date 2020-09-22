@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
@@ -380,7 +381,7 @@ board boardPlayMove(board *b, move m)
 			break;
 		}
 	}
-	free(moves);
+	freeMoveList(moves);
 
 	if (!found)
 	{
