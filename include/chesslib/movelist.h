@@ -30,8 +30,5 @@ moveListNode *createMoveListNode(move move);
 void addToMoveList(moveList *list, move move);
 move getFromMoveList(moveList *list, unsigned int index);
 
-// Adds all moves from movesToAdd into list. Does not modify or free movesToAdd
-void addAllMovesToMoveList(moveList *list, moveList *movesToAdd);
-
 // Frees the movelist and all nodes
 void freeMoveList(moveList *list);

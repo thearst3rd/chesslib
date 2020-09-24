@@ -734,10 +734,8 @@ void testQueenMoves()
 
 void testKingMoves()
 {
-	// NOTE: THIS TEST DOES NOT CONSIDER CHECK!
+	// NOTE: getKingMoves DOES NOT CONSIDER CHECK!
 	// The king will be able to move into check since getKingMoves() does not consider the legality of a move.
-
-	// TODO - refactor this test when I add castling
 
 	board b;
 	moveList *list;

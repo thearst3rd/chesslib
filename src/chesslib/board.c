@@ -284,10 +284,44 @@ moveList *boardGenerateMoves(board *b)
 
 		if (currMoves)
 		{
-			// TODO - only add legal moves that won't leave you in check
-			addAllMovesToMoveList(list, currMoves);
+			for (moveListNode *n = currMoves->head; n; n = n->next)
+			{
+				move m = n->move;
+				board bCheck = boardPlayMove(b, m);
+				if (!boardIsPlayerInCheck(&bCheck, b->currentPlayer))
+					addToMoveList(list, m);
+			}
 			freeMoveList(currMoves);
 		}
+	}
+
+	// Can we castle?
+	// TODO - validate either here or in createBoardFromFen that the castling flags make sense...
+	uint8_t castleOO = b->currentPlayer == white ? (b->castleState & CASTLE_WK) : (b->castleState & CASTLE_BK);
+	uint8_t castleOOO = b->currentPlayer == white ? (b->castleState & CASTLE_WQ) : (b->castleState & CASTLE_BQ);
+
+	uint8_t castleRank = b->currentPlayer == white ? 1 : 8;
+	pieceColor attacker = b->currentPlayer == white ? black : white;
+
+	if (castleOO)
+	{
+		if (boardGetPiece(b, posI(6, castleRank)) == pEmpty
+				&& boardGetPiece(b, posI(7, castleRank)) == pEmpty
+				&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
+				&& !boardIsSquareAttacked(b, posI(6, castleRank), attacker)
+				&& !boardIsSquareAttacked(b, posI(7, castleRank), attacker))
+			addToMoveList(list, movePos(posI(5, castleRank), posI(7, castleRank)));
+	}
+
+	if (castleOOO)
+	{
+		if (boardGetPiece(b, posI(4, castleRank)) == pEmpty
+				&& boardGetPiece(b, posI(3, castleRank)) == pEmpty
+				&& boardGetPiece(b, posI(2, castleRank)) == pEmpty
+				&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
+				&& !boardIsSquareAttacked(b, posI(4, castleRank), attacker)
+				&& !boardIsSquareAttacked(b, posI(3, castleRank), attacker))
+			addToMoveList(list, movePos(posI(5, castleRank), posI(3, castleRank)));
 	}
 
 	return list;
@@ -379,31 +413,10 @@ uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 }
 
 // Returns a new board on which the given move was played on the given board
+// NOTE - this assumes that the move is legal!
 board boardPlayMove(board *b, move m)
 {
 	board newBoard = *b;
-
-	// TODO - should probably be redesigned to be more efficient...
-	moveList *moves = boardGenerateMoves(b);
-	uint8_t found = 0;
-	for (moveListNode *n = moves->head; n; n = n->next)
-	{
-		move legalMove = n->move;
-		if (posEq(m.to, legalMove.to) && posEq(m.from, legalMove.from) && (m.promotion == legalMove.promotion))
-		{
-			found = 1;
-			break;
-		}
-	}
-	freeMoveList(moves);
-
-	if (!found)
-	{
-		char *uci = moveGetUci(m);
-		fprintf(stderr, "%s is an illegal move\n", uci);
-		free(uci);
-		return newBoard;
-	}
 
 	newBoard.currentPlayer = (b->currentPlayer == white) ? black : white;
 	newBoard.castleState = b->castleState;
