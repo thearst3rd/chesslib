@@ -50,6 +50,9 @@ int main(int argc, char *argv[])
 	RUN_TEST(testIsSquareAttacked);
 	RUN_TEST(testIsInCheck);
 
+	// Test playing moves
+	RUN_TEST(testBoardPlayMove);
+
 	// We made it to the end
 	printf("Success - all tests passed!\n");
 	return 0;
@@ -882,4 +885,35 @@ void testIsInCheck()
 
 	if (boardIsPlayerInCheck(&b, black))
 		failTest("Board was in check, expected board to be not in check");
+}
+
+
+////////////////////////
+// TEST PLAYING MOVES //
+////////////////////////
+
+void testBoardPlayMove()
+{
+	board b = createBoard();
+
+	// 1. e4
+	board b1 = boardPlayMove(&b, movePos(posS("e2"), posS("e4")));
+	board b1Check = createBoardFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+	board b1CheckFuzzy = createBoardFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 32 53");
+
+	if (!boardEq(&b1, &b1Check))
+		failTest("Boards were not exactly the same, expected the same board");
+
+	if (boardEq(&b1, &b1CheckFuzzy))
+		failTest("Boards were EXACTLY equal - they should have differed in EP target and move counts");
+
+	if (!boardEqContext(&b1, &b1CheckFuzzy))
+		failTest("Boards were not contextually the same, expected the same board");
+
+	// 1... Nf6
+	board b2 = boardPlayMove(&b1, movePos(posS("g8"), posS("f6")));
+	board b2Check = createBoardFromFen("rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2");
+
+	if (!boardEq(&b2, &b2Check))
+		failTest("Boards were not exactly the same, expected the same board");
 }

@@ -37,3 +37,6 @@ void testKingMoves();
 // Square attacking/check testing
 void testIsSquareAttacked();
 void testIsInCheck();
+
+// Test playing moves
+void testBoardPlayMove();

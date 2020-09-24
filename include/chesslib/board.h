@@ -38,3 +38,8 @@ uint8_t boardIsPlayerInCheck(board *b, pieceColor player);
 
 // Returns a new board on which the given move was played on the given board
 board boardPlayMove(board *b, move m);
+
+// Returns if two boards are equal in all ways
+uint8_t boardEq(board *b1, board *b2);
+// Returns if two boards are equal WITHOUT the counters, and filtering the EP target square
+uint8_t boardEqContext(board *b1, board *b2);

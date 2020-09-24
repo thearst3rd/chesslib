@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
@@ -404,6 +405,9 @@ board boardPlayMove(board *b, move m)
 		return newBoard;
 	}
 
+	newBoard.currentPlayer = (b->currentPlayer == white) ? black : white;
+	newBoard.castleState = b->castleState;
+
 	// CONTEXTUALIZE MOVE - is this a special move of sorts?
 	// Is this a castling move?
 	pieceType pt = getPieceType(boardGetPiece(b, m.from));
@@ -416,15 +420,21 @@ board boardPlayMove(board *b, move m)
 			// Move rook from h file to correct file
 			boardSetPiece(&newBoard, posI(8, m.to.rank), pEmpty);
 			boardSetPiece(&newBoard, posI(m.to.file - 1, m.to.rank), b->currentPlayer == white ? pWRook : pBRook);
-			newBoard.castleState &= ~((b->currentPlayer == white) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
 		}
 		else if (diffFile == -2) 	// O-O-O
 		{
 			// Move rook from a file to correct file
 			boardSetPiece(&newBoard, posI(1, m.to.rank), pEmpty);
 			boardSetPiece(&newBoard, posI(m.to.file + 1, m.to.rank), b->currentPlayer == white ? pWRook : pBRook);
-			newBoard.castleState &= ~((b->currentPlayer == white) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
 		}
+		newBoard.castleState &= ~((b->currentPlayer == white) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
+	}
+	else if (pt == rook)
+	{
+		if (posEq(m.from, posI(1, b->currentPlayer == white ? 1 : 8)))
+			newBoard.castleState &= ~((b->currentPlayer == white) ? CASTLE_WQ : CASTLE_BQ);
+		else if (posEq(m.from, posI(8, b->currentPlayer == white ? 1 : 8)))
+			newBoard.castleState &= ~((b->currentPlayer == white) ? CASTLE_WK : CASTLE_BK);
 	}
 
 	// Is this an en passant capture?
@@ -465,4 +475,69 @@ board boardPlayMove(board *b, move m)
 		newBoard.moveNumber++;
 
 	return newBoard;
+}
+
+// Board equality - returns true if boards are fully equal
+uint8_t boardEq(board *b1, board *b2)
+{
+	if (memcmp(b1, b2, 64 * sizeof(piece)))
+		return 0;
+
+	if (b1->currentPlayer != b2->currentPlayer)
+		return 0;
+
+	if (b1->castleState != b2->castleState)
+		return 0;
+
+	if (!posEq(b1->epTarget, b2->epTarget))
+		return 0;
+
+	if (b1->halfMoveClock != b2->halfMoveClock)
+		return 0;
+
+	if (b1->moveNumber != b2->moveNumber)
+		return 0;
+
+	return 1;
+}
+
+// Contextual board equality - doesn't consider counters, and filters out EP target square
+uint8_t boardEqContext(board *b1, board *b2)
+{
+	if (memcmp(b1, b2, 64 * sizeof(piece)))
+		return 0;
+
+	if (b1->currentPlayer != b2->currentPlayer)
+		return 0;
+
+	if (b1->castleState != b2->castleState)
+		return 0;
+
+	// Filter EP target squares
+	pos b1EpTarget = b1->epTarget;
+	if (!posEq(b1EpTarget, POS_INVALID))
+	{
+		// Are there actually any pawns that can attack this square? If not, make it POS_INVALID
+		int delta = b1->currentPlayer == white ? -1 : 1;
+		int pe = b1->currentPlayer == white ? pBPawn : pWPawn;
+		if (boardGetPiece(b1, posI(b1EpTarget.file - 1, b1EpTarget.rank + delta)) != pe
+				&& boardGetPiece(b1, posI(b1EpTarget.file + 1, b1EpTarget.rank + delta)) != pe)
+			b1EpTarget = POS_INVALID;
+	}
+
+	pos b2EpTarget = b2->epTarget;
+	if (!posEq(b2EpTarget, POS_INVALID))
+	{
+		// Are there actually any pawns that can attack this square? If not, make it POS_INVALID
+		int delta = b2->currentPlayer == white ? -1 : 1;
+		int pe = b2->currentPlayer == white ? pBPawn : pWPawn;
+		if (boardGetPiece(b2, posI(b2EpTarget.file - 1, b2EpTarget.rank + delta)) != pe
+				&& boardGetPiece(b2, posI(b2EpTarget.file + 1, b2EpTarget.rank + delta)) != pe)
+			b2EpTarget = POS_INVALID;
+	}
+
+	if (!posEq(b1EpTarget, b2EpTarget))
+		return 0;
+
+	return 1;
 }

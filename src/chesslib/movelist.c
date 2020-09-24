@@ -58,7 +58,7 @@ move getFromMoveList(moveList *list, unsigned int index)
 
 void addAllMovesToMoveList(moveList *list, moveList *movesToAdd)
 {
-	for (moveListNode *n = list->head; n; n = n->next)
+	for (moveListNode *n = movesToAdd->head; n; n = n->next)
 	{
 		addToMoveList(list, n->move);
 	}
