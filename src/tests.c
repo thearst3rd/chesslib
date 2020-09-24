@@ -309,11 +309,25 @@ void testBoardCreate()
 
 	if (posEq(b.epTarget, POS_INVALID))
 		failTest("EP target square was not POS_INVALID");
+
+	if (b.halfMoveClock != 0)
+	{
+		char message[50];
+		sprintf(message, "Half move clock was %u, expected 0", b.halfMoveClock);
+		failTest(message);
+	}
+
+	if (b.moveNumber != 1)
+	{
+		char message[50];
+		sprintf(message, "Full move number was %u, expected 1", b.moveNumber);
+		failTest(message);
+	}
 }
 
 void testBoardCreateFromFen()
 {
-	board b = createBoardFromFen("8/8/3k4/8/4Pp2/2K5/8/5QQQ b - e3");
+	board b = createBoardFromFen("8/8/3k4/8/4Pp2/2K5/8/5QQQ b - e3 0 46");
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -342,6 +356,20 @@ void testBoardCreateFromFen()
 	{
 		char message[50];
 		sprintf(message, "Actual EP target square: %s, expected: e3", posGetStr(b.epTarget));
+		failTest(message);
+	}
+
+	if (b.halfMoveClock != 0)
+	{
+		char message[50];
+		sprintf(message, "Half move clock was %u, expected 0", b.halfMoveClock);
+		failTest(message);
+	}
+
+	if (b.moveNumber != 46)
+	{
+		char message[50];
+		sprintf(message, "Full move number was %u, expected 46", b.moveNumber);
 		failTest(message);
 	}
 }
@@ -384,7 +412,7 @@ void testPawnMoves()
 	moveList *list;
 
 	// Lone white pawn on starting rank
-	b = createBoardFromFen("8/8/8/8/8/8/4P3/8 w - -");
+	b = createBoardFromFen("8/8/8/8/8/8/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
@@ -395,7 +423,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn with captures
-	b = createBoardFromFen("8/8/8/8/8/3q1n2/4P3/8 w - -");
+	b = createBoardFromFen("8/8/8/8/8/3q1n2/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
@@ -408,7 +436,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn blocked
-	b = createBoardFromFen("8/8/8/8/8/4N3/4P3/8 w - -");
+	b = createBoardFromFen("8/8/8/8/8/4N3/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
@@ -417,7 +445,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn not on first rank
-	b = createBoardFromFen("8/8/8/8/4P3/8/8/8 w - -");
+	b = createBoardFromFen("8/8/8/8/4P3/8/8/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e4"));
 
@@ -427,7 +455,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// White pawn about to promote
-	b = createBoardFromFen("8/6P1/8/8/8/8/8/8 w - -");
+	b = createBoardFromFen("8/6P1/8/8/8/8/8/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -440,7 +468,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Black pawn on first rank
-	b = createBoardFromFen("8/6p1/8/8/8/8/8/8 b - -");
+	b = createBoardFromFen("8/6p1/8/8/8/8/8/8 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -451,7 +479,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn blocked with one free spot, opp color
-	b = createBoardFromFen("8/6p1/8/6P1/8/8/8/8 b - -");
+	b = createBoardFromFen("8/6p1/8/6P1/8/8/8/8 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -461,7 +489,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Black pawn about to promote, with capturing ability
-	b = createBoardFromFen("8/8/8/8/8/8/p7/1Q6 b - -");
+	b = createBoardFromFen("8/8/8/8/8/8/p7/1Q6 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("a2"));
 
@@ -478,7 +506,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// White with opportunity to capture en passant
-	b = createBoardFromFen("8/8/8/4Pp2/8/8/8/8 w - f6");
+	b = createBoardFromFen("8/8/8/4Pp2/8/8/8/8 w - f6 0 1");
 
 	b.currentPlayer = white;
 	b.epTarget = posS("f6");
@@ -492,7 +520,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Black with opportunity to capture en passant
-	b = createBoardFromFen("8/8/8/8/6Pp/8/8/8 b - g3");
+	b = createBoardFromFen("8/8/8/8/6Pp/8/8/8 b - g3 0 1");
 
 	b.currentPlayer = black;
 	b.epTarget = posS("g3");
@@ -512,7 +540,7 @@ void testKnightMoves()
 	moveList *list;
 
 	// Lone knight
-	b = createBoardFromFen("8/8/8/8/8/2N5/8/8 w - -");
+	b = createBoardFromFen("8/8/8/8/8/2N5/8/8 w - - 0 1");
 
 	list = getKnightMoves(&b, posS("c3"));
 
@@ -529,7 +557,7 @@ void testKnightMoves()
 	freeMoveList(list);
 
 	// Knight near the edge
-	b = createBoardFromFen("8/7n/8/8/8/8/8/8 b - -");
+	b = createBoardFromFen("8/7n/8/8/8/8/8/8 b - - 0 1");
 
 	list = getKnightMoves(&b, posS("h7"));
 
@@ -541,7 +569,7 @@ void testKnightMoves()
 	freeMoveList(list);
 
 	// Knight with some blocks
-	b = createBoardFromFen("6N1/3BQQQn/4QnQ1/4QQQ1/4b3/8/8/8 b - -");
+	b = createBoardFromFen("6N1/3BQQQn/4QnQ1/4QQQ1/4b3/8/8/8 b - - 0 1");
 
 	list = getKnightMoves(&b, posS("f6"));
 
@@ -562,7 +590,7 @@ void testBishopMoves()
 	moveList *list;
 
 	// Lone bishop
-	b = createBoardFromFen("8/4b3/8/8/8/8/8/8 b - -");
+	b = createBoardFromFen("8/4b3/8/8/8/8/8/8 b - - 0 1");
 
 	list = getBishopMoves(&b, posS("e7"));
 
@@ -580,7 +608,7 @@ void testBishopMoves()
 	freeMoveList(list);
 
 	// Position with some blocks captures
-	b = createBoardFromFen("8/8/5n2/8/1r6/2B5/3Q4/N7 w - -");
+	b = createBoardFromFen("8/8/5n2/8/1r6/2B5/3Q4/N7 w - - 0 1");
 
 	list = getBishopMoves(&b, posS("c3"));
 
@@ -600,7 +628,7 @@ void testRookMoves()
 	moveList *list;
 
 	// Lone rook
-	b = createBoardFromFen("8/3R4/8/8/8/8/8/8 w - -");
+	b = createBoardFromFen("8/3R4/8/8/8/8/8/8 w - - 0 1");
 
 	list = getRookMoves(&b, posS("d7"));
 
@@ -623,7 +651,7 @@ void testRookMoves()
 	freeMoveList(list);
 
 	// Rook with some stuff around
-	b = createBoardFromFen("8/3R4/8/2k1r1BQ/8/8/3n1R2/4b3 b - -");
+	b = createBoardFromFen("8/3R4/8/2k1r1BQ/8/8/3n1R2/4b3 b - - 0 1");
 
 	list = getRookMoves(&b, posS("e5"));
 
@@ -646,7 +674,7 @@ void testQueenMoves()
 	moveList *list;
 
 	// Lone queen
-	b = createBoardFromFen("8/8/8/8/8/8/1Q6/8 w - -");
+	b = createBoardFromFen("8/8/8/8/8/8/1Q6/8 w - - 0 1");
 
 	list = getQueenMoves(&b, posS("b2"));
 
@@ -681,7 +709,7 @@ void testQueenMoves()
 	freeMoveList(list);
 
 	// Queen with stuff around
-	b = createBoardFromFen("8/1Q3N2/2br4/2Rq2P1/2Rr4/6p1/5P2/8 b - -");
+	b = createBoardFromFen("8/1Q3N2/2br4/2Rq2P1/2Rr4/6p1/5P2/8 b - - 0 1");
 
 	list = getQueenMoves(&b, posS("d5"));
 
@@ -712,7 +740,7 @@ void testKingMoves()
 	moveList *list;
 
 	// Lone king
-	b = createBoardFromFen("8/2k5/8/8/8/8/8/8 b - -");
+	b = createBoardFromFen("8/2k5/8/8/8/8/8/8 b - - 0 1");
 
 	list = getKingMoves(&b, posS("c7"));
 
@@ -729,7 +757,7 @@ void testKingMoves()
 	freeMoveList(list);
 
 	// King in corner
-	b = createBoardFromFen("8/8/8/8/8/8/8/K7 w - -");
+	b = createBoardFromFen("8/8/8/8/8/8/8/K7 w - - 0 1");
 
 	list = getKingMoves(&b, posS("a1"));
 
@@ -741,7 +769,7 @@ void testKingMoves()
 	freeMoveList(list);
 
 	// King with stuff around
-	b = createBoardFromFen("8/2B2R2/3nb3/3k4/2BRn3/8/3q4/8 b - -");
+	b = createBoardFromFen("8/2B2R2/3nb3/3k4/2BRn3/8/3q4/8 b - - 0 1");
 
 	list = getKingMoves(&b, posS("d5"));
 
