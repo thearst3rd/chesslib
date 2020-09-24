@@ -793,7 +793,7 @@ void testIsSquareAttacked()
 	board b;
 
 	// Knight in corner and pawn
-	b = createBoardFromFen("7N/8/8/8/8/8/1P6/8 w - -");
+	b = createBoardFromFen("7N/8/8/8/8/8/1P6/8 w - - 0 1");
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -813,7 +813,7 @@ void testIsSquareAttacked()
 	}
 
 	// Lone rook
-	b = createBoardFromFen("8/8/8/3r4/8/8/8/8 b - -");
+	b = createBoardFromFen("8/8/8/3r4/8/8/8/8 b - - 0 1");
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -832,7 +832,7 @@ void testIsSquareAttacked()
 	}
 
 	// Rook with blocks/captures
-	b = createBoardFromFen("8/8/8/8/1p6/8/8/1r1R4 w - -");
+	b = createBoardFromFen("8/8/8/8/1p6/8/8/1r1R4 w - - 0 1");
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -857,7 +857,7 @@ void testIsInCheck()
 	board b;
 
 	// Simple example - in check by a rook
-	b = createBoardFromFen("8/8/1k6/1r2K3/8/8/8/8 w - -");
+	b = createBoardFromFen("8/8/1k6/1r2K3/8/8/8/8 w - - 0 1");
 
 	if (!boardIsInCheck(&b))
 		failTest("Board was not in check, expected board to be in check");
@@ -875,7 +875,7 @@ void testIsInCheck()
 		failTest("Board was in check, expected board to be not in check");
 
 	// Checks blocked by knights
-	b = createBoardFromFen("7k/3q4/1q3q2/2NNN3/q1NKN1q1/2NNN3/1q3q2/3q4 w - -");
+	b = createBoardFromFen("7k/3q4/1q3q2/2NNN3/q1NKN1q1/2NNN3/1q3q2/3q4 w - - 0 1");
 
 	if (boardIsInCheck(&b))
 		failTest("Board was in check, expected board to be not in check");

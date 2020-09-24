@@ -451,5 +451,18 @@ board boardPlayMove(board *b, move m)
 		newBoard.epTarget = POS_INVALID;
 	}
 
+	// Update the counters
+
+	// Was this an irreversable move?
+	if (pt == pawn || (boardGetPiece(b, m.to) != pEmpty))
+		newBoard.halfMoveClock = 0;
+	else
+		newBoard.halfMoveClock = b->halfMoveClock + 1;
+
+	// Is this the end of a move?
+	newBoard.moveNumber = b->moveNumber;
+	if (b->currentPlayer == black)
+		newBoard.moveNumber++;
+
 	return newBoard;
 }
