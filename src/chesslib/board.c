@@ -427,7 +427,7 @@ board boardPlayMove(board *b, move m)
 	if (pt == king)
 	{
 		// TODO - maybe redesign this to work better with Chess 960, though I don't like Fischer castling >:(
-		uint8_t diffFile = m.to.file - m.from.file;
+		int8_t diffFile = m.to.file - m.from.file;
 		if (diffFile == 2) 	// O-O
 		{
 			// Move rook from h file to correct file
