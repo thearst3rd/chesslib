@@ -53,6 +53,10 @@ int main(int argc, char *argv[])
 	// Test playing moves
 	RUN_TEST(testBoardPlayMove);
 
+	// Test board move generation
+	RUN_TEST(testBoardGenerateMoves);
+	RUN_TEST(testBoardGenerateMovesCastling);
+
 	// We made it to the end
 	printf("Success - all tests passed!\n");
 	return 0;
@@ -914,4 +918,298 @@ void testBoardPlayMove()
 
 	if (!boardEq(&b2, &b2Check))
 		failTest("Boards were not exactly the same, expected the same board");
+
+	// TODO - test more things: captures, castling, ep, etc
+}
+
+
+////////////////////////////////
+// TEST BOARD MOVE GENERATION //
+////////////////////////////////
+
+// Helper function - asserts that given UCI string does NOT in moveList. For castling tests
+void validateUciIsNotInMovelist(moveList *list, char *expectedUci)
+{
+	for (moveListNode *n = list->head; n; n = n->next)
+	{
+		char *actualUci = moveGetUci(n->move);
+		int cmp = strcmp(actualUci, expectedUci);
+		free(actualUci);
+		if (cmp == 0)
+		{
+			char message[60];
+			sprintf(message, "Expected %s to be absent but was in movelist", expectedUci);
+			failTest(message);
+			return;
+		}
+	}
+	// All good, was not hit
+}
+
+void testBoardGenerateMoves()
+{
+	board b;
+	moveList *list;
+
+	// Test all 20 moves on initial board
+	b = createBoard();
+	list = boardGenerateMoves(&b);
+
+	validateListSize(list, 20);
+	// Pawn moves
+	validateUciIsInMovelist(list, "a2a3");
+	validateUciIsInMovelist(list, "a2a4");
+	validateUciIsInMovelist(list, "b2b3");
+	validateUciIsInMovelist(list, "b2b4");
+	validateUciIsInMovelist(list, "c2c3");
+	validateUciIsInMovelist(list, "c2c4");
+	validateUciIsInMovelist(list, "d2d3");
+	validateUciIsInMovelist(list, "d2d4");
+	validateUciIsInMovelist(list, "e2e3");
+	validateUciIsInMovelist(list, "e2e4");
+	validateUciIsInMovelist(list, "f2f3");
+	validateUciIsInMovelist(list, "f2f4");
+	validateUciIsInMovelist(list, "g2g3");
+	validateUciIsInMovelist(list, "g2g4");
+	validateUciIsInMovelist(list, "h2h3");
+	validateUciIsInMovelist(list, "h2h4");
+	// Knight moves
+	validateUciIsInMovelist(list, "b1a3");
+	validateUciIsInMovelist(list, "b1c3");
+	validateUciIsInMovelist(list, "g1f3");
+	validateUciIsInMovelist(list, "g1h3");
+
+	freeMoveList(list);
+
+	// Board with some moves played
+	b = createBoardFromFen("r1bqkbnr/ppp2ppp/2np4/4p3/2B1P3/3P4/PPP2PPP/RNBQK1NR w KQkq - 1 4");
+	list = boardGenerateMoves(&b);
+
+	validateListSize(list, 12 + 5 + 11 + 6 + 3);
+	// Pawn moves, 12
+	validateUciIsInMovelist(list, "a2a3");
+	validateUciIsInMovelist(list, "a2a4");
+	validateUciIsInMovelist(list, "b2b3");
+	validateUciIsInMovelist(list, "b2b4");
+	validateUciIsInMovelist(list, "c2c3");
+	validateUciIsInMovelist(list, "d3d4");
+	validateUciIsInMovelist(list, "f2f3");
+	validateUciIsInMovelist(list, "f2f4");
+	validateUciIsInMovelist(list, "g2g3");
+	validateUciIsInMovelist(list, "g2g4");
+	validateUciIsInMovelist(list, "h2h3");
+	validateUciIsInMovelist(list, "h2h4");
+	// Knight moves, 6
+	validateUciIsInMovelist(list, "b1a3");
+	validateUciIsInMovelist(list, "b1c3");
+	validateUciIsInMovelist(list, "b1d2");
+	validateUciIsInMovelist(list, "g1e2");
+	validateUciIsInMovelist(list, "g1f3");
+	validateUciIsInMovelist(list, "g1h3");
+	// Bishop moves, 11
+	// (Light square)
+	validateUciIsInMovelist(list, "c4b5");
+	validateUciIsInMovelist(list, "c4a6");
+	validateUciIsInMovelist(list, "c4b3");
+	validateUciIsInMovelist(list, "c4d5");
+	validateUciIsInMovelist(list, "c4e6");
+	validateUciIsInMovelist(list, "c4f7");
+	// (Dark square)
+	validateUciIsInMovelist(list, "c1d2");
+	validateUciIsInMovelist(list, "c1e3");
+	validateUciIsInMovelist(list, "c1f4");
+	validateUciIsInMovelist(list, "c1g5");
+	validateUciIsInMovelist(list, "c1h6");
+	// Queen moves, 5
+	validateUciIsInMovelist(list, "d1d2");
+	validateUciIsInMovelist(list, "d1e2");
+	validateUciIsInMovelist(list, "d1f3");
+	validateUciIsInMovelist(list, "d1g4");
+	validateUciIsInMovelist(list, "d1h5");
+	// King moves, 3
+	validateUciIsInMovelist(list, "e1d2");
+	validateUciIsInMovelist(list, "e1e2");
+	validateUciIsInMovelist(list, "e1f1");
+
+	freeMoveList(list);
+
+	// Less pieces on the board
+	b = createBoardFromFen("8/1k4n1/4n3/8/5P2/6R1/3Q1K2/8 b - - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateListSize(list, 7 + 3 + 8);
+	// Knight e6 moves, 7
+	validateUciIsInMovelist(list, "e6f8");
+	validateUciIsInMovelist(list, "e6g5");
+	validateUciIsInMovelist(list, "e6f4");
+	validateUciIsInMovelist(list, "e6d4");
+	validateUciIsInMovelist(list, "e6c5");
+	validateUciIsInMovelist(list, "e6c7");
+	validateUciIsInMovelist(list, "e6d8");
+	// Knight g7 moves, 3
+	validateUciIsInMovelist(list, "g7h5");
+	validateUciIsInMovelist(list, "g7f5");
+	validateUciIsInMovelist(list, "g7e8");
+	// King moves, 8
+	validateUciIsInMovelist(list, "b7b8");
+	validateUciIsInMovelist(list, "b7c8");
+	validateUciIsInMovelist(list, "b7c7");
+	validateUciIsInMovelist(list, "b7c6");
+	validateUciIsInMovelist(list, "b7b6");
+	validateUciIsInMovelist(list, "b7a6");
+	validateUciIsInMovelist(list, "b7a7");
+	validateUciIsInMovelist(list, "b7a8");
+
+	freeMoveList(list);
+
+	// Test a pinned knight - it can't move
+	b = createBoardFromFen("8/8/8/6k1/1K1N2q1/8/8/8 w - - 0 1");
+	list = boardGenerateMoves(&b);
+
+	// should ONLY have king moves
+	validateListSize(list, 8);
+	validateUciIsInMovelist(list, "b4c4");
+	validateUciIsNotInMovelist(list, "d4e6");
+
+	freeMoveList(list);
+
+	// King is in check, but it can be blocked
+	b = createBoardFromFen("3b3k/8/8/8/8/2Q5/4K3/8 b - - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateListSize(list, 3);
+	// Bishop can move to block the check...
+	validateUciIsInMovelist(list, "d8f6");
+	// ...but it CANNOT make any other move
+	validateUciIsNotInMovelist(list, "d8e7");
+	validateUciIsNotInMovelist(list, "d8g5");
+	validateUciIsNotInMovelist(list, "d8h4");
+
+	freeMoveList(list);
+}
+
+void testBoardGenerateMovesCastling()
+{
+	board b;
+	moveList *list;
+
+	// White O-O
+	b = createBoardFromFen("rnbqk2r/pppp1ppp/3b1n2/4p3/4P3/3B1N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e1g1");
+
+	freeMoveList(list);
+
+	// If we remove the castling flag?
+	b.castleState = b.castleState & (~CASTLE_WK);
+	list = boardGenerateMoves(&b);
+
+	validateUciIsNotInMovelist(list, "e1g1");
+
+	freeMoveList(list);
+
+	// Black O-O
+	b.currentPlayer = black;
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e8g8");
+
+	freeMoveList(list);
+
+	// White O-O-O
+	b = createBoardFromFen("r3kbnr/ppp1pppp/2nqb3/3p4/3P4/2NQB3/PPP1PPPP/R3KBNR w KQkq - 6 5");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e1c1");
+
+	freeMoveList(list);
+
+	// Black O-O-O
+	b.currentPlayer = black;
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e8c8");
+
+	freeMoveList(list);
+
+	// King is in check - no castling
+	b = createBoardFromFen("4k3/8/4r3/8/8/8/8/R3K2R w KQ - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsNotInMovelist(list, "e1g1");
+	validateUciIsNotInMovelist(list, "e1c1");
+
+	freeMoveList(list);
+
+	// Rook is checking the f1 square - no O-O but yes O-O-O
+	b = createBoardFromFen("4k3/8/5r2/8/8/8/8/R3K2R w KQ - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsNotInMovelist(list, "e1g1");
+	validateUciIsInMovelist(list, "e1c1");
+
+	freeMoveList(list);
+
+	// Rook is checking the g1 square - no O-O but yes O-O-O
+	b = createBoardFromFen("4k3/8/6r1/8/8/8/8/R3K2R w KQ - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsNotInMovelist(list, "e1g1");
+	validateUciIsInMovelist(list, "e1c1");
+
+	freeMoveList(list);
+
+	// Rook is attacking the h rook - both castlings allowed
+	b = createBoardFromFen("4k3/8/7r/8/8/8/8/R3K2R w KQ - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e1g1");
+	validateUciIsInMovelist(list, "e1c1");
+
+	freeMoveList(list);
+
+	// Rook is checking d8, no O-O-O
+	b = createBoardFromFen("r3k2r/8/8/8/8/3R4/8/4K3 b kq - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e8g8");
+	validateUciIsNotInMovelist(list, "e8c8");
+
+	freeMoveList(list);
+
+	// Rook is checking c8, no O-O-O
+	b = createBoardFromFen("r3k2r/8/8/8/8/2R5/8/4K3 b kq - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e8g8");
+	validateUciIsNotInMovelist(list, "e8c8");
+
+	freeMoveList(list);
+
+	// Rook is checking b8, both castlings allowed
+	b = createBoardFromFen("r3k2r/8/8/8/8/1R6/8/4K3 b kq - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e8g8");
+	validateUciIsInMovelist(list, "e8c8");
+
+	freeMoveList(list);
+
+	// Rook is attacking a rook, both castlings allowed
+	b = createBoardFromFen("r3k2r/8/8/8/8/R7/8/4K3 b kq - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsInMovelist(list, "e8g8");
+	validateUciIsInMovelist(list, "e8c8");
+
+	freeMoveList(list);
+
+	// Subtle case - PINNED piece is checking d1, but O-O-O still NOT allowed!!
+	b = createBoardFromFen("8/8/8/8/1k6/2n5/3B4/R3K3 w Q - 0 1");
+	list = boardGenerateMoves(&b);
+
+	validateUciIsNotInMovelist(list, "e8c8");
+
+	freeMoveList(list);
 }

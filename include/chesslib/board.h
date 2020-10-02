@@ -9,10 +9,10 @@
 #include "chesslib/piece.h"
 #include "chesslib/movelist.h"
 
-#define CASTLE_WK 0x0001
-#define CASTLE_WQ 0x0010
-#define CASTLE_BK 0x0100
-#define CASTLE_BQ 0x1000
+#define CASTLE_WK 0b0001
+#define CASTLE_WQ 0b0010
+#define CASTLE_BK 0b0100
+#define CASTLE_BQ 0b1000
 
 typedef struct
 {
