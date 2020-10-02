@@ -9,6 +9,8 @@
 #include "chesslib/piece.h"
 #include "chesslib/movelist.h"
 
+#define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
 #define CASTLE_WK 0b0001
 #define CASTLE_WQ 0b0010
 #define CASTLE_BK 0b0100

@@ -13,7 +13,7 @@
 
 board createBoard()
 {
-	return createBoardFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+	return createBoardFromFen(INITIAL_FEN);
 }
 
 board createBoardFromFen(const char *fen)
