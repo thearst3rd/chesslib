@@ -45,3 +45,5 @@ board boardPlayMove(board *b, move m);
 uint8_t boardEq(board *b1, board *b2);
 // Returns if two boards are equal WITHOUT the counters, and filtering the EP target square
 uint8_t boardEqContext(board *b1, board *b2);
+
+char *boardGetFen(board *b);

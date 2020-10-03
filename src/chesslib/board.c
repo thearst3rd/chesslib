@@ -554,3 +554,95 @@ uint8_t boardEqContext(board *b1, board *b2)
 
 	return 1;
 }
+
+// Returns a FEN string from the given board. Must be freed
+char *boardGetFen(board *b)
+{
+	char buf[100];
+	char *c = buf;
+
+	// Pieces
+	for (uint8_t rank = 8; rank >= 1; rank--)
+	{
+		uint8_t blanks = 0;
+		for (uint8_t file = 1; file <= 8; file++)
+		{
+			pos p = posI(file, rank);
+			piece pe = boardGetPiece(b, p);
+			if (pe)
+			{
+				if (blanks > 0)
+				{
+					*c++ = '0' + blanks;
+					blanks = 0;
+				}
+				*c++ = getPieceLetter(pe);
+			}
+			else
+			{
+				blanks++;
+			}
+		}
+
+		if (blanks > 0)
+		{
+			*c++ = '0' + blanks;
+		}
+
+		if (rank > 1)
+		{
+			*c++ = '/';
+		}
+	}
+
+	*c++ = ' ';
+
+	// Current player
+	if (b->currentPlayer == white)
+		*c++ = 'w';
+	else
+		*c++ = 'b';
+
+	*c++ = ' ';
+
+	// Castling state
+	if (b->currentPlayer == 0)
+	{
+		*c++ = '-';
+	}
+	else
+	{
+		if (b->castleState & CASTLE_WK)
+			*c++ = 'K';
+		if (b->castleState & CASTLE_WQ)
+			*c++ = 'Q';
+		if (b->castleState & CASTLE_BK)
+			*c++ = 'k';
+		if (b->castleState & CASTLE_BQ)
+			*c++ = 'q';
+	}
+
+	*c++ = ' ';
+
+	// EP target
+	if (posEq(b->epTarget, POS_INVALID))
+	{
+		*c++ = '-';
+	}
+	else
+	{
+		const char *ep = posGetStr(b->epTarget);
+		*c++ = ep[0];
+		*c++ = ep[1];
+	}
+
+	*c++ = 0;
+
+	// Fill in the rest of the string with half move clock and move number
+	//sprintf(c, "%u %u", b->halfMoveClock, b->moveNumber);
+
+	size_t len = strlen(buf);
+	char *str = (char *) malloc(len);
+	strcpy(str, buf);
+	return str;
+}
