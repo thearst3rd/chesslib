@@ -57,6 +57,9 @@ int main(int argc, char *argv[])
 	RUN_TEST(testBoardGenerateMoves);
 	RUN_TEST(testBoardGenerateMovesCastling);
 
+	// Test FEN generation
+	RUN_TEST(testBoardGetFen);
+
 	// We made it to the end
 	printf("Success - all tests passed!\n");
 	return 0;
@@ -1212,4 +1215,24 @@ void testBoardGenerateMovesCastling()
 	validateUciIsNotInMovelist(list, "e8c8");
 
 	freeMoveList(list);
+}
+
+/////////////////////////
+// TEST FEN GENERATION //
+/////////////////////////
+
+// HELPER - takes in a FEN string, creates board, validates output
+void validateBoardFen(char *fen)
+{
+	board b = createBoardFromFen(fen);
+	char *actualFen = boardGetFen(&b);
+
+	validateString(actualFen, fen);
+
+	free(actualFen);
+}
+
+void testBoardGetFen()
+{
+	validateBoardFen(INITIAL_FEN);
 }

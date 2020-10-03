@@ -567,7 +567,7 @@ uint8_t boardEqContext(board *b1, board *b2)
 // Returns a FEN string from the given board. Must be freed
 char *boardGetFen(board *b)
 {
-	char buf[100];
+	char buf[104];
 	char *c = buf;
 
 	// Pieces
@@ -615,7 +615,7 @@ char *boardGetFen(board *b)
 	*c++ = ' ';
 
 	// Castling state
-	if (b->currentPlayer == 0)
+	if (b->castleState == 0)
 	{
 		*c++ = '-';
 	}
@@ -645,13 +645,13 @@ char *boardGetFen(board *b)
 		*c++ = ep[1];
 	}
 
-	*c++ = 0;
+	*c++ = ' ';
 
 	// Fill in the rest of the string with half move clock and move number
-	//sprintf(c, "%u %u", b->halfMoveClock, b->moveNumber);
+	sprintf(c, "%u %u", b->halfMoveClock, b->moveNumber);
 
 	size_t len = strlen(buf);
-	char *str = (char *) malloc(len);
+	char *str = (char *) malloc((len + 1) * sizeof(char));
 	strcpy(str, buf);
 	return str;
 }

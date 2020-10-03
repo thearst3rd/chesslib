@@ -44,3 +44,6 @@ void testBoardPlayMove();
 // Test full move generation
 void testBoardGenerateMoves();
 void testBoardGenerateMovesCastling();
+
+// Test FEN generation
+void testBoardGetFen();
