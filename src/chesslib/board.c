@@ -296,16 +296,20 @@ moveList *boardGenerateMoves(board *b)
 	}
 
 	// Can we castle?
-	// TODO - validate either here or in createBoardFromFen that the castling flags make sense...
 	uint8_t castleOO = b->currentPlayer == white ? (b->castleState & CASTLE_WK) : (b->castleState & CASTLE_BK);
 	uint8_t castleOOO = b->currentPlayer == white ? (b->castleState & CASTLE_WQ) : (b->castleState & CASTLE_BQ);
 
 	uint8_t castleRank = b->currentPlayer == white ? 1 : 8;
 	pieceColor attacker = b->currentPlayer == white ? black : white;
 
+	piece ourKing = b->currentPlayer == white ? pWKing : pBKing;
+	piece ourRook = b->currentPlayer == white ? pWRook : pBRook;
+
 	if (castleOO)
 	{
-		if (boardGetPiece(b, posI(6, castleRank)) == pEmpty
+		if (boardGetPiece(b, posI(5, castleRank)) == ourKing
+				&& boardGetPiece(b, posI(8, castleRank)) == ourRook
+				&& boardGetPiece(b, posI(6, castleRank)) == pEmpty
 				&& boardGetPiece(b, posI(7, castleRank)) == pEmpty
 				&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
 				&& !boardIsSquareAttacked(b, posI(6, castleRank), attacker)
@@ -315,7 +319,9 @@ moveList *boardGenerateMoves(board *b)
 
 	if (castleOOO)
 	{
-		if (boardGetPiece(b, posI(4, castleRank)) == pEmpty
+		if (boardGetPiece(b, posI(5, castleRank)) == ourKing
+				&& boardGetPiece(b, posI(1, castleRank)) == ourRook
+				&& boardGetPiece(b, posI(4, castleRank)) == pEmpty
 				&& boardGetPiece(b, posI(3, castleRank)) == pEmpty
 				&& boardGetPiece(b, posI(2, castleRank)) == pEmpty
 				&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
