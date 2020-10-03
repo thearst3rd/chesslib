@@ -463,10 +463,10 @@ board boardPlayMove(board *b, move m)
 	boardSetPiece(&newBoard, m.from, pEmpty);
 
 	// Should this set the EP target square?
-	uint8_t diffRank = m.to.rank - m.from.rank;
+	int8_t diffRank = m.to.rank - m.from.rank;
 	if (pt == pawn && ((diffRank == 2) || (diffRank == -2)))
 	{
-		uint8_t delta = (b->currentPlayer == white) ? -1 : 1;
+		int8_t delta = (b->currentPlayer == white) ? -1 : 1;
 		newBoard.epTarget = posI(m.to.file, m.to.rank + delta);
 	}
 	else
