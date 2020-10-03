@@ -299,35 +299,38 @@ moveList *boardGenerateMoves(board *b)
 	uint8_t castleOO = b->currentPlayer == white ? (b->castleState & CASTLE_WK) : (b->castleState & CASTLE_BK);
 	uint8_t castleOOO = b->currentPlayer == white ? (b->castleState & CASTLE_WQ) : (b->castleState & CASTLE_BQ);
 
-	uint8_t castleRank = b->currentPlayer == white ? 1 : 8;
-	pieceColor attacker = b->currentPlayer == white ? black : white;
-
-	piece ourKing = b->currentPlayer == white ? pWKing : pBKing;
-	piece ourRook = b->currentPlayer == white ? pWRook : pBRook;
-
-	if (castleOO)
+	if (castleOO || castleOOO)
 	{
-		if (boardGetPiece(b, posI(5, castleRank)) == ourKing
-				&& boardGetPiece(b, posI(8, castleRank)) == ourRook
-				&& boardGetPiece(b, posI(6, castleRank)) == pEmpty
-				&& boardGetPiece(b, posI(7, castleRank)) == pEmpty
-				&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
-				&& !boardIsSquareAttacked(b, posI(6, castleRank), attacker)
-				&& !boardIsSquareAttacked(b, posI(7, castleRank), attacker))
-			addToMoveList(list, movePos(posI(5, castleRank), posI(7, castleRank)));
-	}
+		uint8_t castleRank = b->currentPlayer == white ? 1 : 8;
+		pieceColor attacker = b->currentPlayer == white ? black : white;
 
-	if (castleOOO)
-	{
-		if (boardGetPiece(b, posI(5, castleRank)) == ourKing
-				&& boardGetPiece(b, posI(1, castleRank)) == ourRook
-				&& boardGetPiece(b, posI(4, castleRank)) == pEmpty
-				&& boardGetPiece(b, posI(3, castleRank)) == pEmpty
-				&& boardGetPiece(b, posI(2, castleRank)) == pEmpty
-				&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
-				&& !boardIsSquareAttacked(b, posI(4, castleRank), attacker)
-				&& !boardIsSquareAttacked(b, posI(3, castleRank), attacker))
-			addToMoveList(list, movePos(posI(5, castleRank), posI(3, castleRank)));
+		piece ourKing = b->currentPlayer == white ? pWKing : pBKing;
+		piece ourRook = b->currentPlayer == white ? pWRook : pBRook;
+
+		if (castleOO)
+		{
+			if (boardGetPiece(b, posI(5, castleRank)) == ourKing
+					&& boardGetPiece(b, posI(8, castleRank)) == ourRook
+					&& boardGetPiece(b, posI(6, castleRank)) == pEmpty
+					&& boardGetPiece(b, posI(7, castleRank)) == pEmpty
+					&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
+					&& !boardIsSquareAttacked(b, posI(6, castleRank), attacker)
+					&& !boardIsSquareAttacked(b, posI(7, castleRank), attacker))
+				addToMoveList(list, movePos(posI(5, castleRank), posI(7, castleRank)));
+		}
+
+		if (castleOOO)
+		{
+			if (boardGetPiece(b, posI(5, castleRank)) == ourKing
+					&& boardGetPiece(b, posI(1, castleRank)) == ourRook
+					&& boardGetPiece(b, posI(4, castleRank)) == pEmpty
+					&& boardGetPiece(b, posI(3, castleRank)) == pEmpty
+					&& boardGetPiece(b, posI(2, castleRank)) == pEmpty
+					&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
+					&& !boardIsSquareAttacked(b, posI(4, castleRank), attacker)
+					&& !boardIsSquareAttacked(b, posI(3, castleRank), attacker))
+				addToMoveList(list, movePos(posI(5, castleRank), posI(3, castleRank)));
+		}
 	}
 
 	return list;
