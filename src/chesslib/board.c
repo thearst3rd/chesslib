@@ -468,7 +468,7 @@ board boardPlayMove(board *b, move m)
 	}
 
 	// Move the piece
-	boardSetPiece(&newBoard, m.to, boardGetPiece(b, m.from));
+	boardSetPiece(&newBoard, m.to, m.promotion == empty ? boardGetPiece(b, m.from) : m.promotion);
 	boardSetPiece(&newBoard, m.from, pEmpty);
 
 	// Should this set the EP target square?
