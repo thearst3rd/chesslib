@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "chesslib/move.h"
 
@@ -31,7 +32,7 @@ char *moveGetUci(move m)
 	char p[2] = {0, 0};
 	if (m.promotion)
 	{
-		p[0] = getPieceTypeLetter(m.promotion);
+		p[0] = tolower(pieceTypeGetLetter(m.promotion));
 		str = (char *) malloc(6 * sizeof(char));
 	}
 	else

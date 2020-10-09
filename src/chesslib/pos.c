@@ -76,5 +76,9 @@ const char *posGetStr(pos p)
 
 uint8_t posEq(pos p1, pos p2)
 {
+	if (p1.file < 1 || p1.file > 8 || p1.rank < 1 || p1.rank > 8)
+		p1 = POS_INVALID;
+	if (p2.file < 1 || p2.file > 8 || p2.rank < 1 || p2.rank > 8)
+		p2 = POS_INVALID;
 	return p1.file == p2.file && p1.rank == p2.rank;
 }

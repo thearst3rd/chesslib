@@ -18,7 +18,7 @@ int canMoveHere(board *b, pos p, pieceColor ourColor)
 	if (bPiece == pEmpty)
 		return 1;
 
-	pieceColor theirColor = getPieceColor(bPiece);
+	pieceColor theirColor = pieceGetColor(bPiece);
 
 	return ourColor != theirColor;
 }
@@ -28,10 +28,10 @@ moveList *leaperMoveList(board *b, pos p, pieceType pt, int8_t dirs[][2], size_t
 	moveList *list = createMoveList();
 
 	piece bPiece = boardGetPiece(b, p);
-	if (getPieceType(bPiece) != pt)
+	if (pieceGetType(bPiece) != pt)
 		return list;
 
-	pieceColor color = getPieceColor(bPiece);
+	pieceColor color = pieceGetColor(bPiece);
 
 	pos newPos;
 	for (int i = 0; i < numDirs; i++)
@@ -54,10 +54,10 @@ moveList *riderMoveList(board *b, pos p, pieceType pt, int8_t dirs[][2], size_t 
 	moveList *list = createMoveList();
 
 	piece bPiece = boardGetPiece(b, p);
-	if (getPieceType(bPiece) != pt)
+	if (pieceGetType(bPiece) != pt)
 		return list;
 
-	pieceColor color = getPieceColor(bPiece);
+	pieceColor color = pieceGetColor(bPiece);
 
 	pos newPos;
 	for (int i = 0; i < numDirs; i++)
@@ -113,10 +113,10 @@ moveList *getPawnMoves(board *b, pos p)
 	moveList *list = createMoveList();
 
 	piece bPiece = boardGetPiece(b, p);
-	if (getPieceType(bPiece) != pawn)
+	if (pieceGetType(bPiece) != pawn)
 		return list;
 
-	pieceColor color = getPieceColor(bPiece);
+	pieceColor color = pieceGetColor(bPiece);
 	int delta = color == white ? 1 : -1;
 
 	// Handle forward moves
@@ -164,10 +164,10 @@ moveList *getPawnAttacks(board *b, pos p)
 	moveList *list = createMoveList();
 
 	piece bPiece = boardGetPiece(b, p);
-	if (getPieceType(bPiece) != pawn)
+	if (pieceGetType(bPiece) != pawn)
 		return list;
 
-	pieceColor color = getPieceColor(bPiece);
+	pieceColor color = pieceGetColor(bPiece);
 	int delta = color == white ? 1 : -1;
 
 	if (p.file > 1)

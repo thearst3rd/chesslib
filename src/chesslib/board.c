@@ -11,12 +11,12 @@
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
 
-board createBoard()
+board boardCreate()
 {
-	return createBoardFromFen(INITIAL_FEN);
+	return boardCreateFromFen(INITIAL_FEN);
 }
 
-board createBoardFromFen(const char *fen)
+board boardCreateFromFen(const char *fen)
 {
 	pos currPos = posI(1, 8);
 
@@ -245,10 +245,10 @@ moveList *boardGenerateMoves(board *b)
 		pos p = posIndex(i);
 		piece pe = boardGetPiece(b, p);
 
-		if (getPieceColor(pe) != b->currentPlayer)
+		if (pieceGetColor(pe) != b->currentPlayer)
 			continue;
 
-		pieceType type = getPieceType(pe);
+		pieceType type = pieceGetType(pe);
 		moveList *currMoves = NULL;
 
 		switch (type)
@@ -343,10 +343,10 @@ uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker)
 		pos attackerP = posIndex(i);
 		piece pe = boardGetPiece(b, attackerP);
 
-		if (getPieceColor(pe) != attacker)
+		if (pieceGetColor(pe) != attacker)
 			continue;
 
-		pieceType type = getPieceType(pe);
+		pieceType type = pieceGetType(pe);
 		moveList *currMoves = NULL;
 
 		uint8_t found = 0;
@@ -432,7 +432,7 @@ board boardPlayMove(board *b, move m)
 
 	// CONTEXTUALIZE MOVE - is this a special move of sorts?
 	// Is this a castling move?
-	pieceType pt = getPieceType(boardGetPiece(b, m.from));
+	pieceType pt = pieceGetType(boardGetPiece(b, m.from));
 	if (pt == king)
 	{
 		// TODO - maybe redesign this to work better with Chess 960, though I don't like Fischer castling >:(
@@ -468,7 +468,7 @@ board boardPlayMove(board *b, move m)
 	}
 
 	// Move the piece
-	boardSetPiece(&newBoard, m.to, m.promotion == empty ? boardGetPiece(b, m.from) : m.promotion);
+	boardSetPiece(&newBoard, m.to, m.promotion == empty ? boardGetPiece(b, m.from) : pieceMake(m.promotion, b->currentPlayer));
 	boardSetPiece(&newBoard, m.from, pEmpty);
 
 	// Should this set the EP target square?
@@ -585,7 +585,7 @@ char *boardGetFen(board *b)
 					*c++ = '0' + blanks;
 					blanks = 0;
 				}
-				*c++ = getPieceLetter(pe);
+				*c++ = pieceGetLetter(pe);
 			}
 			else
 			{

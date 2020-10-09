@@ -270,8 +270,8 @@ void assertPiece(piece actual, piece expected)
 {
 	if (actual != expected)
 	{
-		char actualL = getPieceLetter(actual);
-		char expectedL = getPieceLetter(expected);
+		char actualL = pieceGetLetter(actual);
+		char expectedL = pieceGetLetter(expected);
 		char message[45];
 		sprintf(message, "Actual piece '%c' found, expected '%c'", actualL, expectedL);
 		failTest(message);
@@ -280,9 +280,7 @@ void assertPiece(piece actual, piece expected)
 
 void testBoardCreate()
 {
-	board b = createBoard();
-
-	return;
+	board b = boardCreate();
 
 	assertPiece(b.pieces[0], pWRook);
 	assertPiece(b.pieces[1], pWKnight);
@@ -302,14 +300,14 @@ void testBoardCreate()
 	for (int i = 48; i < 56; i++)
 		assertPiece(b.pieces[i], pBPawn);
 
-	assertPiece(b.pieces[56], pWRook);
-	assertPiece(b.pieces[57], pWKnight);
-	assertPiece(b.pieces[58], pWBishop);
-	assertPiece(b.pieces[59], pWQueen);
-	assertPiece(b.pieces[60], pWKing);
-	assertPiece(b.pieces[61], pWBishop);
-	assertPiece(b.pieces[62], pWKnight);
-	assertPiece(b.pieces[63], pWRook);
+	assertPiece(b.pieces[56], pBRook);
+	assertPiece(b.pieces[57], pBKnight);
+	assertPiece(b.pieces[58], pBBishop);
+	assertPiece(b.pieces[59], pBQueen);
+	assertPiece(b.pieces[60], pBKing);
+	assertPiece(b.pieces[61], pBBishop);
+	assertPiece(b.pieces[62], pBKnight);
+	assertPiece(b.pieces[63], pBRook);
 
 	if (b.currentPlayer != white)
 		failTest("Actual: black to play, expected: white to play");
@@ -317,7 +315,7 @@ void testBoardCreate()
 	if (b.castleState != 0b1111)
 		failTest("Not all castling flags enabled");
 
-	if (posEq(b.epTarget, POS_INVALID))
+	if (!posEq(b.epTarget, POS_INVALID))
 		failTest("EP target square was not POS_INVALID");
 
 	if (b.halfMoveClock != 0)
@@ -337,7 +335,7 @@ void testBoardCreate()
 
 void testBoardCreateFromFen()
 {
-	board b = createBoardFromFen("8/8/3k4/8/4Pp2/2K5/8/5QQQ b - e3 0 46");
+	board b = boardCreateFromFen("8/8/3k4/8/4Pp2/2K5/8/5QQQ b - e3 0 46");
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -422,7 +420,7 @@ void testPawnMoves()
 	moveList *list;
 
 	// Lone white pawn on starting rank
-	b = createBoardFromFen("8/8/8/8/8/8/4P3/8 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/8/8/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
@@ -433,7 +431,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn with captures
-	b = createBoardFromFen("8/8/8/8/8/3q1n2/4P3/8 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/8/3q1n2/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
@@ -446,7 +444,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn blocked
-	b = createBoardFromFen("8/8/8/8/8/4N3/4P3/8 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/8/4N3/4P3/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e2"));
 
@@ -455,7 +453,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn not on first rank
-	b = createBoardFromFen("8/8/8/8/4P3/8/8/8 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/4P3/8/8/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("e4"));
 
@@ -465,7 +463,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// White pawn about to promote
-	b = createBoardFromFen("8/6P1/8/8/8/8/8/8 w - - 0 1");
+	b = boardCreateFromFen("8/6P1/8/8/8/8/8/8 w - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -478,7 +476,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Black pawn on first rank
-	b = createBoardFromFen("8/6p1/8/8/8/8/8/8 b - - 0 1");
+	b = boardCreateFromFen("8/6p1/8/8/8/8/8/8 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -489,7 +487,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Pawn blocked with one free spot, opp color
-	b = createBoardFromFen("8/6p1/8/6P1/8/8/8/8 b - - 0 1");
+	b = boardCreateFromFen("8/6p1/8/6P1/8/8/8/8 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("g7"));
 
@@ -499,7 +497,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Black pawn about to promote, with capturing ability
-	b = createBoardFromFen("8/8/8/8/8/8/p7/1Q6 b - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/8/8/p7/1Q6 b - - 0 1");
 
 	list = getPawnMoves(&b, posS("a2"));
 
@@ -516,7 +514,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// White with opportunity to capture en passant
-	b = createBoardFromFen("8/8/8/4Pp2/8/8/8/8 w - f6 0 1");
+	b = boardCreateFromFen("8/8/8/4Pp2/8/8/8/8 w - f6 0 1");
 
 	b.currentPlayer = white;
 	b.epTarget = posS("f6");
@@ -530,7 +528,7 @@ void testPawnMoves()
 	freeMoveList(list);
 
 	// Black with opportunity to capture en passant
-	b = createBoardFromFen("8/8/8/8/6Pp/8/8/8 b - g3 0 1");
+	b = boardCreateFromFen("8/8/8/8/6Pp/8/8/8 b - g3 0 1");
 
 	b.currentPlayer = black;
 	b.epTarget = posS("g3");
@@ -550,7 +548,7 @@ void testKnightMoves()
 	moveList *list;
 
 	// Lone knight
-	b = createBoardFromFen("8/8/8/8/8/2N5/8/8 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/8/2N5/8/8 w - - 0 1");
 
 	list = getKnightMoves(&b, posS("c3"));
 
@@ -567,7 +565,7 @@ void testKnightMoves()
 	freeMoveList(list);
 
 	// Knight near the edge
-	b = createBoardFromFen("8/7n/8/8/8/8/8/8 b - - 0 1");
+	b = boardCreateFromFen("8/7n/8/8/8/8/8/8 b - - 0 1");
 
 	list = getKnightMoves(&b, posS("h7"));
 
@@ -579,7 +577,7 @@ void testKnightMoves()
 	freeMoveList(list);
 
 	// Knight with some blocks
-	b = createBoardFromFen("6N1/3BQQQn/4QnQ1/4QQQ1/4b3/8/8/8 b - - 0 1");
+	b = boardCreateFromFen("6N1/3BQQQn/4QnQ1/4QQQ1/4b3/8/8/8 b - - 0 1");
 
 	list = getKnightMoves(&b, posS("f6"));
 
@@ -600,7 +598,7 @@ void testBishopMoves()
 	moveList *list;
 
 	// Lone bishop
-	b = createBoardFromFen("8/4b3/8/8/8/8/8/8 b - - 0 1");
+	b = boardCreateFromFen("8/4b3/8/8/8/8/8/8 b - - 0 1");
 
 	list = getBishopMoves(&b, posS("e7"));
 
@@ -618,7 +616,7 @@ void testBishopMoves()
 	freeMoveList(list);
 
 	// Position with some blocks captures
-	b = createBoardFromFen("8/8/5n2/8/1r6/2B5/3Q4/N7 w - - 0 1");
+	b = boardCreateFromFen("8/8/5n2/8/1r6/2B5/3Q4/N7 w - - 0 1");
 
 	list = getBishopMoves(&b, posS("c3"));
 
@@ -638,7 +636,7 @@ void testRookMoves()
 	moveList *list;
 
 	// Lone rook
-	b = createBoardFromFen("8/3R4/8/8/8/8/8/8 w - - 0 1");
+	b = boardCreateFromFen("8/3R4/8/8/8/8/8/8 w - - 0 1");
 
 	list = getRookMoves(&b, posS("d7"));
 
@@ -661,7 +659,7 @@ void testRookMoves()
 	freeMoveList(list);
 
 	// Rook with some stuff around
-	b = createBoardFromFen("8/3R4/8/2k1r1BQ/8/8/3n1R2/4b3 b - - 0 1");
+	b = boardCreateFromFen("8/3R4/8/2k1r1BQ/8/8/3n1R2/4b3 b - - 0 1");
 
 	list = getRookMoves(&b, posS("e5"));
 
@@ -684,7 +682,7 @@ void testQueenMoves()
 	moveList *list;
 
 	// Lone queen
-	b = createBoardFromFen("8/8/8/8/8/8/1Q6/8 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/8/8/1Q6/8 w - - 0 1");
 
 	list = getQueenMoves(&b, posS("b2"));
 
@@ -719,7 +717,7 @@ void testQueenMoves()
 	freeMoveList(list);
 
 	// Queen with stuff around
-	b = createBoardFromFen("8/1Q3N2/2br4/2Rq2P1/2Rr4/6p1/5P2/8 b - - 0 1");
+	b = boardCreateFromFen("8/1Q3N2/2br4/2Rq2P1/2Rr4/6p1/5P2/8 b - - 0 1");
 
 	list = getQueenMoves(&b, posS("d5"));
 
@@ -748,7 +746,7 @@ void testKingMoves()
 	moveList *list;
 
 	// Lone king
-	b = createBoardFromFen("8/2k5/8/8/8/8/8/8 b - - 0 1");
+	b = boardCreateFromFen("8/2k5/8/8/8/8/8/8 b - - 0 1");
 
 	list = getKingMoves(&b, posS("c7"));
 
@@ -765,7 +763,7 @@ void testKingMoves()
 	freeMoveList(list);
 
 	// King in corner
-	b = createBoardFromFen("8/8/8/8/8/8/8/K7 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/8/8/8/K7 w - - 0 1");
 
 	list = getKingMoves(&b, posS("a1"));
 
@@ -777,7 +775,7 @@ void testKingMoves()
 	freeMoveList(list);
 
 	// King with stuff around
-	b = createBoardFromFen("8/2B2R2/3nb3/3k4/2BRn3/8/3q4/8 b - - 0 1");
+	b = boardCreateFromFen("8/2B2R2/3nb3/3k4/2BRn3/8/3q4/8 b - - 0 1");
 
 	list = getKingMoves(&b, posS("d5"));
 
@@ -801,7 +799,7 @@ void testIsSquareAttacked()
 	board b;
 
 	// Knight in corner and pawn
-	b = createBoardFromFen("7N/8/8/8/8/8/1P6/8 w - - 0 1");
+	b = boardCreateFromFen("7N/8/8/8/8/8/1P6/8 w - - 0 1");
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -821,7 +819,7 @@ void testIsSquareAttacked()
 	}
 
 	// Lone rook
-	b = createBoardFromFen("8/8/8/3r4/8/8/8/8 b - - 0 1");
+	b = boardCreateFromFen("8/8/8/3r4/8/8/8/8 b - - 0 1");
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -840,7 +838,7 @@ void testIsSquareAttacked()
 	}
 
 	// Rook with blocks/captures
-	b = createBoardFromFen("8/8/8/8/1p6/8/8/1r1R4 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/8/1p6/8/8/1r1R4 w - - 0 1");
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -865,7 +863,7 @@ void testIsInCheck()
 	board b;
 
 	// Simple example - in check by a rook
-	b = createBoardFromFen("8/8/1k6/1r2K3/8/8/8/8 w - - 0 1");
+	b = boardCreateFromFen("8/8/1k6/1r2K3/8/8/8/8 w - - 0 1");
 
 	if (!boardIsInCheck(&b))
 		failTest("Board was not in check, expected board to be in check");
@@ -874,7 +872,7 @@ void testIsInCheck()
 		failTest("Board was in check, expected board to be not in check");
 
 	// Scholar's mate
-	b = createBoardFromFen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4");
+	b = boardCreateFromFen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4");
 
 	if (!boardIsInCheck(&b))
 		failTest("Board was not in check, expected board to be in check");
@@ -883,7 +881,7 @@ void testIsInCheck()
 		failTest("Board was in check, expected board to be not in check");
 
 	// Checks blocked by knights
-	b = createBoardFromFen("7k/3q4/1q3q2/2NNN3/q1NKN1q1/2NNN3/1q3q2/3q4 w - - 0 1");
+	b = boardCreateFromFen("7k/3q4/1q3q2/2NNN3/q1NKN1q1/2NNN3/1q3q2/3q4 w - - 0 1");
 
 	if (boardIsInCheck(&b))
 		failTest("Board was in check, expected board to be not in check");
@@ -899,12 +897,12 @@ void testIsInCheck()
 
 void testBoardPlayMove()
 {
-	board b = createBoard();
+	board b = boardCreate();
 
 	// 1. e4
 	board b1 = boardPlayMove(&b, movePos(posS("e2"), posS("e4")));
-	board b1Check = createBoardFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-	board b1CheckFuzzy = createBoardFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 32 53");
+	board b1Check = boardCreateFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+	board b1CheckFuzzy = boardCreateFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 32 53");
 
 	if (!boardEq(&b1, &b1Check))
 		failTest("Boards were not exactly the same, expected the same board");
@@ -917,7 +915,7 @@ void testBoardPlayMove()
 
 	// 1... Nf6
 	board b2 = boardPlayMove(&b1, movePos(posS("g8"), posS("f6")));
-	board b2Check = createBoardFromFen("rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2");
+	board b2Check = boardCreateFromFen("rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2");
 
 	if (!boardEq(&b2, &b2Check))
 		failTest("Boards were not exactly the same, expected the same board");
@@ -955,7 +953,7 @@ void testBoardGenerateMoves()
 	moveList *list;
 
 	// Test all 20 moves on initial board
-	b = createBoard();
+	b = boardCreate();
 	list = boardGenerateMoves(&b);
 
 	validateListSize(list, 20);
@@ -985,7 +983,7 @@ void testBoardGenerateMoves()
 	freeMoveList(list);
 
 	// Board with some moves played
-	b = createBoardFromFen("r1bqkbnr/ppp2ppp/2np4/4p3/2B1P3/3P4/PPP2PPP/RNBQK1NR w KQkq - 1 4");
+	b = boardCreateFromFen("r1bqkbnr/ppp2ppp/2np4/4p3/2B1P3/3P4/PPP2PPP/RNBQK1NR w KQkq - 1 4");
 	list = boardGenerateMoves(&b);
 
 	validateListSize(list, 12 + 5 + 11 + 6 + 3);
@@ -1037,7 +1035,7 @@ void testBoardGenerateMoves()
 	freeMoveList(list);
 
 	// Less pieces on the board
-	b = createBoardFromFen("8/1k4n1/4n3/8/5P2/6R1/3Q1K2/8 b - - 0 1");
+	b = boardCreateFromFen("8/1k4n1/4n3/8/5P2/6R1/3Q1K2/8 b - - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateListSize(list, 7 + 3 + 8);
@@ -1066,7 +1064,7 @@ void testBoardGenerateMoves()
 	freeMoveList(list);
 
 	// Test a pinned knight - it can't move
-	b = createBoardFromFen("8/8/8/6k1/1K1N2q1/8/8/8 w - - 0 1");
+	b = boardCreateFromFen("8/8/8/6k1/1K1N2q1/8/8/8 w - - 0 1");
 	list = boardGenerateMoves(&b);
 
 	// should ONLY have king moves
@@ -1077,7 +1075,7 @@ void testBoardGenerateMoves()
 	freeMoveList(list);
 
 	// King is in check, but it can be blocked
-	b = createBoardFromFen("3b3k/8/8/8/8/2Q5/4K3/8 b - - 0 1");
+	b = boardCreateFromFen("3b3k/8/8/8/8/2Q5/4K3/8 b - - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateListSize(list, 3);
@@ -1097,7 +1095,7 @@ void testBoardGenerateMovesCastling()
 	moveList *list;
 
 	// White O-O
-	b = createBoardFromFen("rnbqk2r/pppp1ppp/3b1n2/4p3/4P3/3B1N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
+	b = boardCreateFromFen("rnbqk2r/pppp1ppp/3b1n2/4p3/4P3/3B1N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e1g1");
@@ -1121,7 +1119,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// White O-O-O
-	b = createBoardFromFen("r3kbnr/ppp1pppp/2nqb3/3p4/3P4/2NQB3/PPP1PPPP/R3KBNR w KQkq - 6 5");
+	b = boardCreateFromFen("r3kbnr/ppp1pppp/2nqb3/3p4/3P4/2NQB3/PPP1PPPP/R3KBNR w KQkq - 6 5");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e1c1");
@@ -1137,7 +1135,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// King is in check - no castling
-	b = createBoardFromFen("4k3/8/4r3/8/8/8/8/R3K2R w KQ - 0 1");
+	b = boardCreateFromFen("4k3/8/4r3/8/8/8/8/R3K2R w KQ - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsNotInMovelist(list, "e1g1");
@@ -1146,7 +1144,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Rook is checking the f1 square - no O-O but yes O-O-O
-	b = createBoardFromFen("4k3/8/5r2/8/8/8/8/R3K2R w KQ - 0 1");
+	b = boardCreateFromFen("4k3/8/5r2/8/8/8/8/R3K2R w KQ - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsNotInMovelist(list, "e1g1");
@@ -1155,7 +1153,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Rook is checking the g1 square - no O-O but yes O-O-O
-	b = createBoardFromFen("4k3/8/6r1/8/8/8/8/R3K2R w KQ - 0 1");
+	b = boardCreateFromFen("4k3/8/6r1/8/8/8/8/R3K2R w KQ - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsNotInMovelist(list, "e1g1");
@@ -1164,7 +1162,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Rook is attacking the h rook - both castlings allowed
-	b = createBoardFromFen("4k3/8/7r/8/8/8/8/R3K2R w KQ - 0 1");
+	b = boardCreateFromFen("4k3/8/7r/8/8/8/8/R3K2R w KQ - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e1g1");
@@ -1173,7 +1171,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Rook is checking d8, no O-O-O
-	b = createBoardFromFen("r3k2r/8/8/8/8/3R4/8/4K3 b kq - 0 1");
+	b = boardCreateFromFen("r3k2r/8/8/8/8/3R4/8/4K3 b kq - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e8g8");
@@ -1182,7 +1180,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Rook is checking c8, no O-O-O
-	b = createBoardFromFen("r3k2r/8/8/8/8/2R5/8/4K3 b kq - 0 1");
+	b = boardCreateFromFen("r3k2r/8/8/8/8/2R5/8/4K3 b kq - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e8g8");
@@ -1191,7 +1189,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Rook is checking b8, both castlings allowed
-	b = createBoardFromFen("r3k2r/8/8/8/8/1R6/8/4K3 b kq - 0 1");
+	b = boardCreateFromFen("r3k2r/8/8/8/8/1R6/8/4K3 b kq - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e8g8");
@@ -1200,7 +1198,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Rook is attacking a rook, both castlings allowed
-	b = createBoardFromFen("r3k2r/8/8/8/8/R7/8/4K3 b kq - 0 1");
+	b = boardCreateFromFen("r3k2r/8/8/8/8/R7/8/4K3 b kq - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e8g8");
@@ -1209,7 +1207,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Subtle case - PINNED piece is checking d1, but O-O-O still NOT allowed!!
-	b = createBoardFromFen("8/8/8/8/1k6/2n5/3B4/R3K3 w Q - 0 1");
+	b = boardCreateFromFen("8/8/8/8/1k6/2n5/3B4/R3K3 w Q - 0 1");
 	list = boardGenerateMoves(&b);
 
 	validateUciIsNotInMovelist(list, "e8c8");
@@ -1224,7 +1222,7 @@ void testBoardGenerateMovesCastling()
 // HELPER - takes in a FEN string, creates board, validates output
 void validateBoardFen(char *fen)
 {
-	board b = createBoardFromFen(fen);
+	board b = boardCreateFromFen(fen);
 	char *actualFen = boardGetFen(&b);
 
 	validateString(actualFen, fen);

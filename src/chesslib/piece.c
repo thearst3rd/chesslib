@@ -7,47 +7,48 @@
 
 #include "chesslib/piece.h"
 
-pieceType getPieceType(piece p)
+pieceType pieceGetType(piece pe)
 {
-	if (p >= pBPawn)
-		p = p - pBPawn + 1;
+	if (pe >= pBPawn)
+		pe = pe - pBPawn + 1;
 
-	return (pieceType) p;
+	return (pieceType) pe;
 }
 
-pieceColor getPieceColor(piece p)
+pieceColor pieceGetColor(piece pe)
 {
-	if (p >= pWPawn && p <= pWKing)
+	if (pe >= pWPawn && pe <= pWKing)
 		return white;
 
-	if (p >= pBPawn && p <= pBKing)
+	if (pe >= pBPawn && pe <= pBKing)
 		return black;
 
 	return noColor;
 }
 
-char getPieceTypeLetter(pieceType p)
+char pieceTypeGetLetter(pieceType pe)
 {
-	switch (p)
+	switch (pe)
 	{
 		case pawn:
-			return 'p';
+			return 'P';
 
 		case knight:
-			return 'n';
+			return 'N';
 
 		case bishop:
-			return 'b';
+			return 'B';
 
 		case rook:
-			return 'r';
+			return 'R';
 
 		case queen:
-			return 'q';
+			return 'Q';
 
 		case king:
-			return 'k';
+			return 'K';
 
+		// TODO - does this make sense?
 		case empty:
 			return ' ';
 
@@ -56,12 +57,44 @@ char getPieceTypeLetter(pieceType p)
 	}
 }
 
-char getPieceLetter(piece p)
+char pieceGetLetter(piece pe)
 {
-	char c = getPieceTypeLetter(getPieceType(p));
+	char c = pieceTypeGetLetter(pieceGetType(pe));
 
-	if (p < pBPawn)
-		c = toupper(c);
+	if (pieceGetColor(pe) == black)
+		c = tolower(c);
 
 	return c;
+}
+
+piece pieceMake(pieceType type, pieceColor color)
+{
+	if ((color != white) && (color != black))
+	{
+		return pEmpty;
+	}
+
+	switch(type)
+	{
+		case king:
+			return (color == white) ? pWKing : pBKing;
+
+		case queen:
+			return (color == white) ? pWQueen : pBQueen;
+
+		case rook:
+			return (color == white) ? pWRook : pBRook;
+
+		case bishop:
+			return (color == white) ? pWBishop : pBBishop;
+
+		case knight:
+			return (color == white) ? pWKnight : pBKnight;
+
+		case pawn:
+			return (color == white) ? pWPawn : pBPawn;
+
+		default:
+			return pEmpty;
+	}
 }

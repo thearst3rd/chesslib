@@ -40,7 +40,8 @@ typedef enum
 	black
 } pieceColor;
 
-pieceType getPieceType(piece p);
-pieceColor getPieceColor(piece p);
-char getPieceTypeLetter(pieceType p);
-char getPieceLetter(piece p);
+pieceType pieceGetType(piece p);
+pieceColor pieceGetColor(piece p);
+char pieceTypeGetLetter(pieceType p);
+char pieceGetLetter(piece p);
+piece pieceMake(pieceType type, pieceColor color);

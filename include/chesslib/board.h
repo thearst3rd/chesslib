@@ -26,8 +26,8 @@ typedef struct
 	uint32_t moveNumber;
 } board;
 
-board createBoard();
-board createBoardFromFen(const char *fen);
+board boardCreate();
+board boardCreateFromFen(const char *fen);
 
 void boardSetPiece(board *b, pos p, piece pe);
 piece boardGetPiece(board *b, pos p);
