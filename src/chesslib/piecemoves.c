@@ -97,10 +97,10 @@ void addPawnMoveToMoveList(moveList *list, pos oldPos, pos newPos)
 	// Should this be a promotion?
 	if (newPos.rank == 1 || newPos.rank == 8)
 	{
-		addToMoveList(list, movePromote(oldPos, newPos, queen));
-		addToMoveList(list, movePromote(oldPos, newPos, rook));
-		addToMoveList(list, movePromote(oldPos, newPos, bishop));
-		addToMoveList(list, movePromote(oldPos, newPos, knight));
+		addToMoveList(list, movePromote(oldPos, newPos, ptQueen));
+		addToMoveList(list, movePromote(oldPos, newPos, ptRook));
+		addToMoveList(list, movePromote(oldPos, newPos, ptBishop));
+		addToMoveList(list, movePromote(oldPos, newPos, ptKnight));
 	}
 	else
 	{
@@ -113,11 +113,11 @@ moveList *getPawnMoves(board *b, pos p)
 	moveList *list = createMoveList();
 
 	piece bPiece = boardGetPiece(b, p);
-	if (pieceGetType(bPiece) != pawn)
+	if (pieceGetType(bPiece) != ptPawn)
 		return list;
 
 	pieceColor color = pieceGetColor(bPiece);
-	int delta = color == white ? 1 : -1;
+	int delta = color == pcWhite ? 1 : -1;
 
 	// Handle forward moves
 	pos newPos = posI(p.file, p.rank + delta);
@@ -126,7 +126,7 @@ moveList *getPawnMoves(board *b, pos p)
 		addPawnMoveToMoveList(list, p, newPos);
 
 		// Can this piece move two squares?
-		if (color == white ? (p.rank <= 2) : (p.rank >= 7))
+		if (color == pcWhite ? (p.rank <= 2) : (p.rank >= 7))
 		{
 			newPos.rank += delta;
 			if (boardGetPiece(b, newPos) == pEmpty)
@@ -164,11 +164,11 @@ moveList *getPawnAttacks(board *b, pos p)
 	moveList *list = createMoveList();
 
 	piece bPiece = boardGetPiece(b, p);
-	if (pieceGetType(bPiece) != pawn)
+	if (pieceGetType(bPiece) != ptPawn)
 		return list;
 
 	pieceColor color = pieceGetColor(bPiece);
-	int delta = color == white ? 1 : -1;
+	int delta = color == pcWhite ? 1 : -1;
 
 	if (p.file > 1)
 	{
@@ -196,7 +196,7 @@ int8_t knightOffsets[8][2] = {{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -
 
 moveList *getKnightMoves(board *b, pos p)
 {
-	return leaperMoveList(b, p, knight, knightOffsets, 8);
+	return leaperMoveList(b, p, ptKnight, knightOffsets, 8);
 }
 
 
@@ -208,7 +208,7 @@ int8_t bishopOffsets[4][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
 
 moveList *getBishopMoves(board *b, pos p)
 {
-	return riderMoveList(b, p, bishop, bishopOffsets, 4);
+	return riderMoveList(b, p, ptBishop, bishopOffsets, 4);
 }
 
 
@@ -220,7 +220,7 @@ int8_t rookOffsets[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
 moveList *getRookMoves(board *b, pos p)
 {
-	return riderMoveList(b, p, rook, rookOffsets, 4);
+	return riderMoveList(b, p, ptRook, rookOffsets, 4);
 }
 
 
@@ -232,7 +232,7 @@ int8_t royalOffsets[8][2] = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1},
 
 moveList *getQueenMoves(board *b, pos p)
 {
-	return riderMoveList(b, p, queen, royalOffsets, 8);
+	return riderMoveList(b, p, ptQueen, royalOffsets, 8);
 }
 
 
@@ -242,5 +242,5 @@ moveList *getQueenMoves(board *b, pos p)
 
 moveList *getKingMoves(board *b, pos p)
 {
-	return leaperMoveList(b, p, king, royalOffsets, 8);
+	return leaperMoveList(b, p, ptKing, royalOffsets, 8);
 }

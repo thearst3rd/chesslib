@@ -18,38 +18,38 @@ pieceType pieceGetType(piece pe)
 pieceColor pieceGetColor(piece pe)
 {
 	if (pe >= pWPawn && pe <= pWKing)
-		return white;
+		return pcWhite;
 
 	if (pe >= pBPawn && pe <= pBKing)
-		return black;
+		return pcBlack;
 
-	return noColor;
+	return pcNoColor;
 }
 
 char pieceTypeGetLetter(pieceType pe)
 {
 	switch (pe)
 	{
-		case pawn:
+		case ptPawn:
 			return 'P';
 
-		case knight:
+		case ptKnight:
 			return 'N';
 
-		case bishop:
+		case ptBishop:
 			return 'B';
 
-		case rook:
+		case ptRook:
 			return 'R';
 
-		case queen:
+		case ptQueen:
 			return 'Q';
 
-		case king:
+		case ptKing:
 			return 'K';
 
 		// TODO - does this make sense?
-		case empty:
+		case ptEmpty:
 			return ' ';
 
 		default:
@@ -61,7 +61,7 @@ char pieceGetLetter(piece pe)
 {
 	char c = pieceTypeGetLetter(pieceGetType(pe));
 
-	if (pieceGetColor(pe) == black)
+	if (pieceGetColor(pe) == pcBlack)
 		c = tolower(c);
 
 	return c;
@@ -69,30 +69,30 @@ char pieceGetLetter(piece pe)
 
 piece pieceMake(pieceType type, pieceColor color)
 {
-	if ((color != white) && (color != black))
+	if ((color != pcWhite) && (color != pcBlack))
 	{
 		return pEmpty;
 	}
 
 	switch(type)
 	{
-		case king:
-			return (color == white) ? pWKing : pBKing;
+		case ptKing:
+			return (color == pcWhite) ? pWKing : pBKing;
 
-		case queen:
-			return (color == white) ? pWQueen : pBQueen;
+		case ptQueen:
+			return (color == pcWhite) ? pWQueen : pBQueen;
 
-		case rook:
-			return (color == white) ? pWRook : pBRook;
+		case ptRook:
+			return (color == pcWhite) ? pWRook : pBRook;
 
-		case bishop:
-			return (color == white) ? pWBishop : pBBishop;
+		case ptBishop:
+			return (color == pcWhite) ? pWBishop : pBBishop;
 
-		case knight:
-			return (color == white) ? pWKnight : pBKnight;
+		case ptKnight:
+			return (color == pcWhite) ? pWKnight : pBKnight;
 
-		case pawn:
-			return (color == white) ? pWPawn : pBPawn;
+		case ptPawn:
+			return (color == pcWhite) ? pWPawn : pBPawn;
 
 		default:
 			return pEmpty;

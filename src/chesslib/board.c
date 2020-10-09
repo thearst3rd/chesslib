@@ -123,10 +123,10 @@ board boardCreateFromFen(const char *fen)
 	switch (c)
 	{
 		case 'w':
-			board.currentPlayer = white;
+			board.currentPlayer = pcWhite;
 			break;
 		case 'b':
-			board.currentPlayer = black;
+			board.currentPlayer = pcBlack;
 			break;
 		default:
 			fprintf(stderr, "ERROR IN FEN: Expected 'w' or 'b', found '%c'\n", c);
@@ -253,27 +253,27 @@ moveList *boardGenerateMoves(board *b)
 
 		switch (type)
 		{
-			case pawn:
+			case ptPawn:
 				currMoves = getPawnMoves(b, p);
 				break;
 
-			case knight:
+			case ptKnight:
 				currMoves = getKnightMoves(b, p);
 				break;
 
-			case bishop:
+			case ptBishop:
 				currMoves = getBishopMoves(b, p);
 				break;
 
-			case rook:
+			case ptRook:
 				currMoves = getRookMoves(b, p);
 				break;
 
-			case queen:
+			case ptQueen:
 				currMoves = getQueenMoves(b, p);
 				break;
 
-			case king:
+			case ptKing:
 				currMoves = getKingMoves(b, p);
 				break;
 
@@ -296,16 +296,16 @@ moveList *boardGenerateMoves(board *b)
 	}
 
 	// Can we castle?
-	uint8_t castleOO = b->currentPlayer == white ? (b->castleState & CASTLE_WK) : (b->castleState & CASTLE_BK);
-	uint8_t castleOOO = b->currentPlayer == white ? (b->castleState & CASTLE_WQ) : (b->castleState & CASTLE_BQ);
+	uint8_t castleOO = b->currentPlayer == pcWhite ? (b->castleState & CASTLE_WK) : (b->castleState & CASTLE_BK);
+	uint8_t castleOOO = b->currentPlayer == pcWhite ? (b->castleState & CASTLE_WQ) : (b->castleState & CASTLE_BQ);
 
 	if (castleOO || castleOOO)
 	{
-		uint8_t castleRank = b->currentPlayer == white ? 1 : 8;
-		pieceColor attacker = b->currentPlayer == white ? black : white;
+		uint8_t castleRank = b->currentPlayer == pcWhite ? 1 : 8;
+		pieceColor attacker = b->currentPlayer == pcWhite ? pcBlack : pcWhite;
 
-		piece ourKing = b->currentPlayer == white ? pWKing : pBKing;
-		piece ourRook = b->currentPlayer == white ? pWRook : pBRook;
+		piece ourKing = b->currentPlayer == pcWhite ? pWKing : pBKing;
+		piece ourRook = b->currentPlayer == pcWhite ? pWRook : pBRook;
 
 		if (castleOO)
 		{
@@ -353,27 +353,27 @@ uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker)
 
 		switch (type)
 		{
-			case pawn:
+			case ptPawn:
 				currMoves = getPawnAttacks(b, attackerP);
 				break;
 
-			case knight:
+			case ptKnight:
 				currMoves = getKnightMoves(b, attackerP);
 				break;
 
-			case bishop:
+			case ptBishop:
 				currMoves = getBishopMoves(b, attackerP);
 				break;
 
-			case rook:
+			case ptRook:
 				currMoves = getRookMoves(b, attackerP);
 				break;
 
-			case queen:
+			case ptQueen:
 				currMoves = getQueenMoves(b, attackerP);
 				break;
 
-			case king:
+			case ptKing:
 				currMoves = getKingMoves(b, attackerP);
 				break;
 
@@ -407,8 +407,8 @@ uint8_t boardIsInCheck(board *b)
 
 uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 {
-	piece royalPiece = (player == white) ? pWKing : pBKing;
-	pieceColor otherColor = (player == white) ? black : white;
+	piece royalPiece = (player == pcWhite) ? pWKing : pBKing;
+	pieceColor otherColor = (player == pcWhite) ? pcBlack : pcWhite;
 	for (int i = 0; i < 64; i++)
 	{
 		pos p = posIndex(i);
@@ -427,13 +427,13 @@ board boardPlayMove(board *b, move m)
 {
 	board newBoard = *b;
 
-	newBoard.currentPlayer = (b->currentPlayer == white) ? black : white;
+	newBoard.currentPlayer = (b->currentPlayer == pcWhite) ? pcBlack : pcWhite;
 	newBoard.castleState = b->castleState;
 
 	// CONTEXTUALIZE MOVE - is this a special move of sorts?
 	// Is this a castling move?
 	pieceType pt = pieceGetType(boardGetPiece(b, m.from));
-	if (pt == king)
+	if (pt == ptKing)
 	{
 		// TODO - maybe redesign this to work better with Chess 960, though I don't like Fischer castling >:(
 		int8_t diffFile = m.to.file - m.from.file;
@@ -441,41 +441,41 @@ board boardPlayMove(board *b, move m)
 		{
 			// Move rook from h file to correct file
 			boardSetPiece(&newBoard, posI(8, m.to.rank), pEmpty);
-			boardSetPiece(&newBoard, posI(m.to.file - 1, m.to.rank), b->currentPlayer == white ? pWRook : pBRook);
+			boardSetPiece(&newBoard, posI(m.to.file - 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
 		}
 		else if (diffFile == -2) 	// O-O-O
 		{
 			// Move rook from a file to correct file
 			boardSetPiece(&newBoard, posI(1, m.to.rank), pEmpty);
-			boardSetPiece(&newBoard, posI(m.to.file + 1, m.to.rank), b->currentPlayer == white ? pWRook : pBRook);
+			boardSetPiece(&newBoard, posI(m.to.file + 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
 		}
-		newBoard.castleState &= ~((b->currentPlayer == white) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
+		newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
 	}
-	else if (pt == rook)
+	else if (pt == ptRook)
 	{
-		if (posEq(m.from, posI(1, b->currentPlayer == white ? 1 : 8)))
-			newBoard.castleState &= ~((b->currentPlayer == white) ? CASTLE_WQ : CASTLE_BQ);
-		else if (posEq(m.from, posI(8, b->currentPlayer == white ? 1 : 8)))
-			newBoard.castleState &= ~((b->currentPlayer == white) ? CASTLE_WK : CASTLE_BK);
+		if (posEq(m.from, posI(1, b->currentPlayer == pcWhite ? 1 : 8)))
+			newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WQ : CASTLE_BQ);
+		else if (posEq(m.from, posI(8, b->currentPlayer == pcWhite ? 1 : 8)))
+			newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WK : CASTLE_BK);
 	}
 
 	// Is this an en passant capture?
-	if (pt == pawn && posEq(b->epTarget, m.to))
+	if (pt == ptPawn && posEq(b->epTarget, m.to))
 	{
 		// Remove the captured pawn
-		uint8_t delta = (b->currentPlayer == white) ? -1 : 1;
+		uint8_t delta = (b->currentPlayer == pcWhite) ? -1 : 1;
 		boardSetPiece(&newBoard, posI(m.to.file, m.to.rank + delta), pEmpty);
 	}
 
 	// Move the piece
-	boardSetPiece(&newBoard, m.to, m.promotion == empty ? boardGetPiece(b, m.from) : pieceMake(m.promotion, b->currentPlayer));
+	boardSetPiece(&newBoard, m.to, (m.promotion == ptEmpty) ? boardGetPiece(b, m.from) : pieceMake(m.promotion, b->currentPlayer));
 	boardSetPiece(&newBoard, m.from, pEmpty);
 
 	// Should this set the EP target square?
 	int8_t diffRank = m.to.rank - m.from.rank;
-	if (pt == pawn && ((diffRank == 2) || (diffRank == -2)))
+	if (pt == ptPawn && ((diffRank == 2) || (diffRank == -2)))
 	{
-		int8_t delta = (b->currentPlayer == white) ? -1 : 1;
+		int8_t delta = (b->currentPlayer == pcWhite) ? -1 : 1;
 		newBoard.epTarget = posI(m.to.file, m.to.rank + delta);
 	}
 	else
@@ -486,14 +486,14 @@ board boardPlayMove(board *b, move m)
 	// Update the counters
 
 	// Was this an irreversable move?
-	if (pt == pawn || (boardGetPiece(b, m.to) != pEmpty))
+	if (pt == ptPawn || (boardGetPiece(b, m.to) != pEmpty))
 		newBoard.halfMoveClock = 0;
 	else
 		newBoard.halfMoveClock = b->halfMoveClock + 1;
 
 	// Is this the end of a move?
 	newBoard.moveNumber = b->moveNumber;
-	if (b->currentPlayer == black)
+	if (b->currentPlayer == pcBlack)
 		newBoard.moveNumber++;
 
 	return newBoard;
@@ -540,8 +540,8 @@ uint8_t boardEqContext(board *b1, board *b2)
 	if (!posEq(b1EpTarget, POS_INVALID))
 	{
 		// Are there actually any pawns that can attack this square? If not, make it POS_INVALID
-		int delta = b1->currentPlayer == white ? -1 : 1;
-		int pe = b1->currentPlayer == white ? pBPawn : pWPawn;
+		int delta = b1->currentPlayer == pcWhite ? -1 : 1;
+		int pe = b1->currentPlayer == pcWhite ? pBPawn : pWPawn;
 		if (boardGetPiece(b1, posI(b1EpTarget.file - 1, b1EpTarget.rank + delta)) != pe
 				&& boardGetPiece(b1, posI(b1EpTarget.file + 1, b1EpTarget.rank + delta)) != pe)
 			b1EpTarget = POS_INVALID;
@@ -551,8 +551,8 @@ uint8_t boardEqContext(board *b1, board *b2)
 	if (!posEq(b2EpTarget, POS_INVALID))
 	{
 		// Are there actually any pawns that can attack this square? If not, make it POS_INVALID
-		int delta = b2->currentPlayer == white ? -1 : 1;
-		int pe = b2->currentPlayer == white ? pBPawn : pWPawn;
+		int delta = b2->currentPlayer == pcWhite ? -1 : 1;
+		int pe = b2->currentPlayer == pcWhite ? pBPawn : pWPawn;
 		if (boardGetPiece(b2, posI(b2EpTarget.file - 1, b2EpTarget.rank + delta)) != pe
 				&& boardGetPiece(b2, posI(b2EpTarget.file + 1, b2EpTarget.rank + delta)) != pe)
 			b2EpTarget = POS_INVALID;
@@ -607,7 +607,7 @@ char *boardGetFen(board *b)
 	*c++ = ' ';
 
 	// Current player
-	if (b->currentPlayer == white)
+	if (b->currentPlayer == pcWhite)
 		*c++ = 'w';
 	else
 		*c++ = 'b';

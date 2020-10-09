@@ -11,7 +11,7 @@
 
 move movePos(pos from, pos to)
 {
-	return movePromote(from, to, empty);
+	return movePromote(from, to, ptEmpty);
 }
 
 move movePromote(pos from, pos to, pieceType promotion)
@@ -56,31 +56,31 @@ move moveFromUci(char *uci)
 	switch (uci[4])
 	{
 		case 'p': 	// Maybe this should not be here...
-			promotion = pawn;
+			promotion = ptPawn;
 			break;
 
 		case 'n':
-			promotion = knight;
+			promotion = ptKnight;
 			break;
 
 		case 'b':
-			promotion = bishop;
+			promotion = ptBishop;
 			break;
 
 		case 'r':
-			promotion = rook;
+			promotion = ptRook;
 			break;
 
 		case 'q':
-			promotion = queen;
+			promotion = ptQueen;
 			break;
 
 		case 'k': 	// This is here for chess variants
-			promotion = king;
+			promotion = ptKing;
 			break;
 
 		default:
-			promotion = empty;
+			promotion = ptEmpty;
 			break;
 	}
 

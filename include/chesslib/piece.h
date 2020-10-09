@@ -7,13 +7,13 @@
 
 typedef enum
 {
-	empty,
-	pawn,
-	knight,
-	bishop,
-	rook,
-	queen,
-	king
+	ptEmpty,
+	ptPawn,
+	ptKnight,
+	ptBishop,
+	ptRook,
+	ptQueen,
+	ptKing
 } pieceType;
 
 typedef enum
@@ -35,9 +35,9 @@ typedef enum
 
 typedef enum
 {
-	noColor,
-	white,
-	black
+	pcNoColor,
+	pcWhite,
+	pcBlack
 } pieceColor;
 
 pieceType pieceGetType(piece p);

@@ -178,10 +178,10 @@ void testMoveCreate()
 {
 	// maybe TODO - make this test more thorough
 	move m = movePos(posI(5, 8), posI(5, 7));
-	validateMove(m, posI(5, 8), posI(5, 7), empty);
+	validateMove(m, posI(5, 8), posI(5, 7), ptEmpty);
 
-	m = movePromote(posI(3, 2), posI(2, 1), queen);
-	validateMove(m, posI(3, 2), posI(2, 1), queen);
+	m = movePromote(posI(3, 2), posI(2, 1), ptQueen);
+	validateMove(m, posI(3, 2), posI(2, 1), ptQueen);
 }
 
 void testMoveGetUci()
@@ -190,7 +190,7 @@ void testMoveGetUci()
 	move m = movePos(posI(5, 8), posI(5, 7));
 	validateString(moveGetUci(m), "e8e7");
 
-	m = movePromote(posI(3, 2), posI(2, 1), queen);
+	m = movePromote(posI(3, 2), posI(2, 1), ptQueen);
 	validateString(moveGetUci(m), "c2b1q");
 }
 
@@ -198,10 +198,10 @@ void testMoveFromUci()
 {
 	// maybe TODO - make this test more thorough
 	move m = moveFromUci("e8e7");
-	validateMove(m, posI(5, 8), posI(5, 7), empty);
+	validateMove(m, posI(5, 8), posI(5, 7), ptEmpty);
 
 	m = moveFromUci("c2b1q");
-	validateMove(m, posI(3, 2), posI(2, 1), queen);
+	validateMove(m, posI(3, 2), posI(2, 1), ptQueen);
 }
 
 
@@ -309,7 +309,7 @@ void testBoardCreate()
 	assertPiece(b.pieces[62], pBKnight);
 	assertPiece(b.pieces[63], pBRook);
 
-	if (b.currentPlayer != white)
+	if (b.currentPlayer != pcWhite)
 		failTest("Actual: black to play, expected: white to play");
 
 	if (b.castleState != 0b1111)
@@ -354,7 +354,7 @@ void testBoardCreateFromFen()
 	assertPiece(b.pieces[18], pWKing);
 	assertPiece(b.pieces[43], pBKing);
 
-	if (b.currentPlayer != black)
+	if (b.currentPlayer != pcBlack)
 		failTest("Actual: white to play, expected: black to play");
 
 	if (b.castleState != 0b0000)
@@ -516,7 +516,7 @@ void testPawnMoves()
 	// White with opportunity to capture en passant
 	b = boardCreateFromFen("8/8/8/4Pp2/8/8/8/8 w - f6 0 1");
 
-	b.currentPlayer = white;
+	b.currentPlayer = pcWhite;
 	b.epTarget = posS("f6");
 
 	list = getPawnMoves(&b, posS("e5"));
@@ -530,7 +530,7 @@ void testPawnMoves()
 	// Black with opportunity to capture en passant
 	b = boardCreateFromFen("8/8/8/8/6Pp/8/8/8 b - g3 0 1");
 
-	b.currentPlayer = black;
+	b.currentPlayer = pcBlack;
 	b.epTarget = posS("g3");
 
 	list = getPawnMoves(&b, posS("h4"));
@@ -808,7 +808,7 @@ void testIsSquareAttacked()
 		uint8_t expectedAttacked = posEq(p, posS("a3")) || posEq(p, posS("c3")) || posEq(p, posS("f7"))
 				|| posEq(p, posS("g6"));
 
-		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, white);
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, pcWhite);
 
 		if (expectedAttacked != actualAttacked)
 		{
@@ -827,7 +827,7 @@ void testIsSquareAttacked()
 
 		uint8_t expectedAttacked = (p.file == 4) ^ (p.rank == 5);
 
-		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, black);
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, pcBlack);
 
 		if (expectedAttacked != actualAttacked)
 		{
@@ -847,7 +847,7 @@ void testIsSquareAttacked()
 		uint8_t expectedAttacked = posEq(p, posS("a1")) || posEq(p, posS("c1")) || posEq(p, posS("d1"))
 				|| posEq(p, posS("b2")) || posEq(p, posS("b3")) || posEq(p, posS("a3")) || posEq(p, posS("c3"));
 
-		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, black);
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, pcBlack);
 
 		if (expectedAttacked != actualAttacked)
 		{
@@ -868,7 +868,7 @@ void testIsInCheck()
 	if (!boardIsInCheck(&b))
 		failTest("Board was not in check, expected board to be in check");
 
-	if (boardIsPlayerInCheck(&b, black))
+	if (boardIsPlayerInCheck(&b, pcBlack))
 		failTest("Board was in check, expected board to be not in check");
 
 	// Scholar's mate
@@ -877,7 +877,7 @@ void testIsInCheck()
 	if (!boardIsInCheck(&b))
 		failTest("Board was not in check, expected board to be in check");
 
-	if (boardIsPlayerInCheck(&b, white))
+	if (boardIsPlayerInCheck(&b, pcWhite))
 		failTest("Board was in check, expected board to be not in check");
 
 	// Checks blocked by knights
@@ -886,7 +886,7 @@ void testIsInCheck()
 	if (boardIsInCheck(&b))
 		failTest("Board was in check, expected board to be not in check");
 
-	if (boardIsPlayerInCheck(&b, black))
+	if (boardIsPlayerInCheck(&b, pcBlack))
 		failTest("Board was in check, expected board to be not in check");
 }
 
@@ -1111,7 +1111,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Black O-O
-	b.currentPlayer = black;
+	b.currentPlayer = pcBlack;
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e8g8");
@@ -1127,7 +1127,7 @@ void testBoardGenerateMovesCastling()
 	freeMoveList(list);
 
 	// Black O-O-O
-	b.currentPlayer = black;
+	b.currentPlayer = pcBlack;
 	list = boardGenerateMoves(&b);
 
 	validateUciIsInMovelist(list, "e8c8");
