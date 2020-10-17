@@ -895,32 +895,130 @@ void testIsInCheck()
 // TEST PLAYING MOVES //
 ////////////////////////
 
+// HELPER FUNCTION - validates that two boards are equal and fails the test if they are not
+// Do not make message "name" more than 65ish characters pls :)
+void validateBoardEq(const char *name, board *b1, board *b2)
+{
+	if (!boardEq(b1, b2))
+	{
+		char message[100];
+		sprintf(message, "%s boards were not exactly the same", name);
+		failTest(message);
+	}
+}
+
 void testBoardPlayMove()
 {
 	board b = boardCreate();
+	board bCheck;
 
 	// 1. e4
-	board b1 = boardPlayMove(&b, movePos(posS("e2"), posS("e4")));
-	board b1Check = boardCreateFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-	board b1CheckFuzzy = boardCreateFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 32 53");
+	b = boardPlayMove(&b, movePos(posS("e2"), posS("e4")));
+	bCheck = boardCreateFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+	board bCheckFuzzy = boardCreateFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 32 53");
 
-	if (!boardEq(&b1, &b1Check))
-		failTest("Boards were not exactly the same, expected the same board");
+	validateBoardEq("1. e4", &b, &bCheck);
 
-	if (boardEq(&b1, &b1CheckFuzzy))
-		failTest("Boards were EXACTLY equal - they should have differed in EP target and move counts");
+	// Manually check for fuzziness
+	if (boardEq(&b, &bCheckFuzzy))
+		failTest("1. e4 boards were EXACTLY equal - they should have differed in EP target and move counts");
 
-	if (!boardEqContext(&b1, &b1CheckFuzzy))
-		failTest("Boards were not contextually the same, expected the same board");
+	if (!boardEqContext(&b, &bCheckFuzzy))
+		failTest("1. e4 boards were not contextually the same, expected the same board");
 
 	// 1... Nf6
-	board b2 = boardPlayMove(&b1, movePos(posS("g8"), posS("f6")));
-	board b2Check = boardCreateFromFen("rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2");
+	b = boardPlayMove(&b, movePos(posS("g8"), posS("f6")));
+	bCheck = boardCreateFromFen("rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2");
 
-	if (!boardEq(&b2, &b2Check))
-		failTest("Boards were not exactly the same, expected the same board");
+	validateBoardEq("1... Nf6", &b, &bCheck);
 
-	// TODO - test more things: captures, castling, ep, etc
+	// Test capturing
+	// Rook captures rook
+	b = boardCreateFromFen("4k3/8/8/8/2R2r2/8/8/4K3 w - - 0 1");
+
+	b = boardPlayMove(&b, moveFromUci("c4f4"));
+	bCheck = boardCreateFromFen("4k3/8/8/8/5R2/8/8/4K3 b - - 0 1");
+
+	validateBoardEq("Rook captures rook", &b, &bCheck);
+
+	// Bishop captures pawn in opening
+	b = boardCreateFromFen("rnbqkbnr/pppp1ppp/8/4p3/4P3/P7/1PPP1PPP/RNBQKBNR b KQkq - 0 2");
+
+	b = boardPlayMove(&b, moveFromUci("f8a3"));
+	bCheck = boardCreateFromFen("rnbqk1nr/pppp1ppp/8/4p3/4P3/b7/1PPP1PPP/RNBQKBNR w KQkq - 0 3");
+
+	validateBoardEq("Bishop captures pawn", &b, &bCheck);
+
+	// Really bad draw
+	b = boardCreateFromFen("8/5k2/4q3/8/8/8/1K6/8 b - - 0 1");
+
+	b = boardPlayMove(&b, moveFromUci("e6b3"));
+	bCheck = boardCreateFromFen("8/5k2/8/8/8/1q6/1K6/8 w - - 1 2");
+
+	validateBoardEq("Really bad draw move 1", &b, &bCheck);
+
+	b = boardPlayMove(&b, moveFromUci("b2b3"));
+	bCheck = boardCreateFromFen("8/5k2/8/8/8/1K6/8/8 b - - 0 2");
+
+	validateBoardEq("Really bad draw move 2", &b, &bCheck);
+
+	// Check castling
+	// White O-O
+	b = boardCreateFromFen("rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
+
+	b = boardPlayMove(&b, moveFromUci("e1g1"));
+	bCheck = boardCreateFromFen("rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4");
+
+	validateBoardEq("White O-O", &b, &bCheck);
+
+	// Black O-O
+	b = boardPlayMove(&b, moveFromUci("e8g8"));
+	bCheck = boardCreateFromFen("rnbq1rk1/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 w - - 6 5");
+
+	validateBoardEq("Black O-O", &b, &bCheck);
+
+	// White O-O-O
+	b = boardCreateFromFen("r3kbnr/ppp1pppp/2nq4/3p1b2/3P1B2/2NQ4/PPP1PPPP/R3KBNR w KQkq - 6 5");
+
+	b = boardPlayMove(&b, moveFromUci("e1c1"));
+	bCheck = boardCreateFromFen("r3kbnr/ppp1pppp/2nq4/3p1b2/3P1B2/2NQ4/PPP1PPPP/2KR1BNR b kq - 7 5");
+
+	validateBoardEq("White O-O-O", &b, &bCheck);
+
+	// Black O-O-O
+	b = boardPlayMove(&b, moveFromUci("e8c8"));
+	bCheck = boardCreateFromFen("2kr1bnr/ppp1pppp/2nq4/3p1b2/3P1B2/2NQ4/PPP1PPPP/2KR1BNR w - - 8 6");
+
+	validateBoardEq("Black O-O-O", &b, &bCheck);
+
+	// Test En Passant
+	// White EP - black moves
+	b = boardCreateFromFen("rnbqkbnr/ppppppp1/7p/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2");
+
+	b = boardPlayMove(&b, moveFromUci("f7f5"));
+	bCheck = boardCreateFromFen("rnbqkbnr/ppppp1p1/7p/4Pp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3");
+
+	validateBoardEq("White EP - black moves", &b, &bCheck);
+
+	// White EP - capture
+	b = boardPlayMove(&b, moveFromUci("e5f6"));
+	bCheck = boardCreateFromFen("rnbqkbnr/ppppp1p1/5P1p/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3");
+
+	validateBoardEq("White EP - capture", &b, &bCheck);
+
+	// Black EP - black moves
+	b = boardCreateFromFen("rnbqkbnr/pppp1ppp/8/8/4p2P/8/PPPPPPP1/RNBQKBNR w KQkq - 0 3");
+
+	b = boardPlayMove(&b, moveFromUci("d2d4"));
+	bCheck = boardCreateFromFen("rnbqkbnr/pppp1ppp/8/8/3Pp2P/8/PPP1PPP1/RNBQKBNR b KQkq d3 0 3");
+
+	validateBoardEq("Black EP - white moves", &b, &bCheck);
+
+	// Black EP - capture
+	b = boardPlayMove(&b, moveFromUci("e4d3"));
+	bCheck = boardCreateFromFen("rnbqkbnr/pppp1ppp/8/8/7P/3p4/PPP1PPP1/RNBQKBNR w KQkq - 0 4");
+
+	validateBoardEq("Black EP - capture", &b, &bCheck);
 }
 
 
