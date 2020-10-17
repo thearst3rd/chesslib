@@ -23,12 +23,12 @@ typedef struct _moveList
 } moveList;
 
 // Creates an empty moveList/moveListNode with given move
-moveList *createMoveList();
-moveListNode *createMoveListNode(move move);
+moveList *moveListCreate();
+moveListNode *moveListNodeCreate(move move);
 
 // Move list operations
-void addToMoveList(moveList *list, move move);
-move getFromMoveList(moveList *list, unsigned int index);
+void moveListAdd(moveList *list, move move);
+move moveListGet(moveList *list, unsigned int index);
 
 // Frees the movelist and all nodes
-void freeMoveList(moveList *list);
+void moveListFree(moveList *list);

@@ -238,7 +238,7 @@ piece boardGetPiece(board *b, pos p)
 // Generates a list of all legal moves. This list must be freed with freeMoveList
 moveList *boardGenerateMoves(board *b)
 {
-	moveList *list = createMoveList();
+	moveList *list = moveListCreate();
 
 	for (int i = 0; i < 64; i++)
 	{
@@ -254,27 +254,27 @@ moveList *boardGenerateMoves(board *b)
 		switch (type)
 		{
 			case ptPawn:
-				currMoves = getPawnMoves(b, p);
+				currMoves = pmGetPawnMoves(b, p);
 				break;
 
 			case ptKnight:
-				currMoves = getKnightMoves(b, p);
+				currMoves = pmGetKnightMoves(b, p);
 				break;
 
 			case ptBishop:
-				currMoves = getBishopMoves(b, p);
+				currMoves = pmGetBishopMoves(b, p);
 				break;
 
 			case ptRook:
-				currMoves = getRookMoves(b, p);
+				currMoves = pmGetRookMoves(b, p);
 				break;
 
 			case ptQueen:
-				currMoves = getQueenMoves(b, p);
+				currMoves = pmGetQueenMoves(b, p);
 				break;
 
 			case ptKing:
-				currMoves = getKingMoves(b, p);
+				currMoves = pmGetKingMoves(b, p);
 				break;
 
 			default:
@@ -289,9 +289,9 @@ moveList *boardGenerateMoves(board *b)
 				move m = n->move;
 				board bCheck = boardPlayMove(b, m);
 				if (!boardIsPlayerInCheck(&bCheck, b->currentPlayer))
-					addToMoveList(list, m);
+					moveListAdd(list, m);
 			}
-			freeMoveList(currMoves);
+			moveListFree(currMoves);
 		}
 	}
 
@@ -316,7 +316,7 @@ moveList *boardGenerateMoves(board *b)
 					&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
 					&& !boardIsSquareAttacked(b, posI(6, castleRank), attacker)
 					&& !boardIsSquareAttacked(b, posI(7, castleRank), attacker))
-				addToMoveList(list, movePos(posI(5, castleRank), posI(7, castleRank)));
+				moveListAdd(list, movePos(posI(5, castleRank), posI(7, castleRank)));
 		}
 
 		if (castleOOO)
@@ -329,7 +329,7 @@ moveList *boardGenerateMoves(board *b)
 					&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
 					&& !boardIsSquareAttacked(b, posI(4, castleRank), attacker)
 					&& !boardIsSquareAttacked(b, posI(3, castleRank), attacker))
-				addToMoveList(list, movePos(posI(5, castleRank), posI(3, castleRank)));
+				moveListAdd(list, movePos(posI(5, castleRank), posI(3, castleRank)));
 		}
 	}
 
@@ -354,27 +354,27 @@ uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker)
 		switch (type)
 		{
 			case ptPawn:
-				currMoves = getPawnAttacks(b, attackerP);
+				currMoves = pmGetPawnAttacks(b, attackerP);
 				break;
 
 			case ptKnight:
-				currMoves = getKnightMoves(b, attackerP);
+				currMoves = pmGetKnightMoves(b, attackerP);
 				break;
 
 			case ptBishop:
-				currMoves = getBishopMoves(b, attackerP);
+				currMoves = pmGetBishopMoves(b, attackerP);
 				break;
 
 			case ptRook:
-				currMoves = getRookMoves(b, attackerP);
+				currMoves = pmGetRookMoves(b, attackerP);
 				break;
 
 			case ptQueen:
-				currMoves = getQueenMoves(b, attackerP);
+				currMoves = pmGetQueenMoves(b, attackerP);
 				break;
 
 			case ptKing:
-				currMoves = getKingMoves(b, attackerP);
+				currMoves = pmGetKingMoves(b, attackerP);
 				break;
 
 			default:
@@ -392,7 +392,7 @@ uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker)
 					break;
 				}
 			}
-			freeMoveList(currMoves);
+			moveListFree(currMoves);
 			if (found)
 				return 1;
 		}

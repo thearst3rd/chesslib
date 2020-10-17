@@ -7,7 +7,7 @@
 
 #include "chesslib/movelist.h"
 
-moveList *createMoveList()
+moveList *moveListCreate()
 {
 	moveList *list = (moveList *) malloc(sizeof(moveList));
 
@@ -18,7 +18,7 @@ moveList *createMoveList()
 	return list;
 }
 
-moveListNode *createMoveListNode(move move)
+moveListNode *moveListNodeCreate(move move)
 {
 	moveListNode *node = (moveListNode *) malloc(sizeof(moveListNode));
 	node->move = move;
@@ -27,9 +27,9 @@ moveListNode *createMoveListNode(move move)
 	return node;
 }
 
-void addToMoveList(moveList *list, move move)
+void moveListAdd(moveList *list, move move)
 {
-	moveListNode *node = createMoveListNode(move);
+	moveListNode *node = moveListNodeCreate(move);
 
 	if (list->head == NULL)
 	{
@@ -45,7 +45,7 @@ void addToMoveList(moveList *list, move move)
 	list->size++;
 }
 
-move getFromMoveList(moveList *list, unsigned int index)
+move moveListGet(moveList *list, unsigned int index)
 {
 	moveListNode *currNode = list->head;
 	while (index)
@@ -56,7 +56,7 @@ move getFromMoveList(moveList *list, unsigned int index)
 	return currNode->move;
 }
 
-void freeMoveList(moveList *list)
+void moveListFree(moveList *list)
 {
 	moveListNode *node = list->head;
 	while (node)
