@@ -18,7 +18,6 @@ OBJECTS_NO_MAINS = $(filter-out src/cli-chess.o src/tests.o,$(OBJECTS))
 ifeq ($(OS),Windows_NT)
 	CLI_CHESS_EXE = bin/cli-chess.exe
 	TESTS_EXE = bin/tests.exe
-	# TODO - is this next line right? Should we use .dll?
 	CHESS_LIB = bin/libchesslib.a
 else
 	CLI_CHESS_EXE = bin/cli-chess
@@ -29,6 +28,7 @@ endif
 
 all: $(CHESS_LIB)
 
+chesslib: $(CHESS_LIB)
 cli-chess: $(CLI_CHESS_EXE)
 tests: $(TESTS_EXE)
 
@@ -40,7 +40,6 @@ $(OBJECTS): %.o : %.c
 $(CHESS_LIB): $(OBJECTS_NO_MAINS) | bin
 	ar rcs $(CHESS_LIB) $(OBJECTS_NO_MAINS)
 
-# TODO - Figure out why these two exes are being rebuild every time even when there are no changes...
 $(CLI_CHESS_EXE): src/cli-chess.o $(CHESS_LIB) | bin
 	$(CC) $(CFLAGS) -o $(CLI_CHESS_EXE) -Iinclude src/cli-chess.o -Lbin -lchesslib
 
