@@ -27,9 +27,8 @@ else
 endif
 
 
-all: chesslib
+all: $(CHESS_LIB)
 
-chesslib: $(CHESS_LIB)
 cli-chess: $(CLI_CHESS_EXE)
 tests: $(TESTS_EXE)
 
@@ -42,10 +41,10 @@ $(CHESS_LIB): $(OBJECTS_NO_MAINS) | bin
 	ar rcs $(CHESS_LIB) $(OBJECTS_NO_MAINS)
 
 # TODO - Figure out why these two exes are being rebuild every time even when there are no changes...
-$(CLI_CHESS_EXE): src/cli-chess.o chesslib | bin
+$(CLI_CHESS_EXE): src/cli-chess.o $(CHESS_LIB) | bin
 	$(CC) $(CFLAGS) -o $(CLI_CHESS_EXE) -Iinclude src/cli-chess.o -Lbin -lchesslib
 
-$(TESTS_EXE): src/tests.o chesslib | bin
+$(TESTS_EXE): src/tests.o $(CHESS_LIB) | bin
 	$(CC) $(CFLAGS) -o $(TESTS_EXE) -Iinclude src/tests.o -Lbin -lchesslib
 
 
