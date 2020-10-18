@@ -11,18 +11,16 @@
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
 
-board boardCreate()
+void boardInit(board *b)
 {
-	return boardCreateFromFen(INITIAL_FEN);
+	boardInitFromFen(b, INITIAL_FEN);
 }
 
-board boardCreateFromFen(const char *fen)
+int boardInitFromFen(board *b, const char *fen)
 {
 	pos currPos = posI(1, 8);
 
 	char c;
-
-	board board;
 
 	// Read in piece positions
 
@@ -38,11 +36,12 @@ board boardCreateFromFen(const char *fen)
 			if (currPos.file + num > 9)
 			{
 				fprintf(stderr, "ERROR IN FEN: Spacer put file over the end\n");
-				return board;
+				boardInit(b);
+				return 1;
 			}
 			for (int i = 0; i < num; i++)
 			{
-				boardSetPiece(&board, currPos, pEmpty);
+				boardSetPiece(b, currPos, pEmpty);
 				currPos.file++;
 			}
 		}
@@ -51,12 +50,14 @@ board boardCreateFromFen(const char *fen)
 			if (currPos.file != 9)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found '/' at wrong position in rank\n");
-				return board;
+				boardInit(b);
+				return 1;
 			}
 			if (currPos.rank <= 1)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found '/' after the last rank\n");
-				return board;
+				boardInit(b);
+				return 1;
 			}
 			currPos.file = 1;
 			currPos.rank--;
@@ -66,7 +67,8 @@ board boardCreateFromFen(const char *fen)
 			if (currPos.file > 8)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found character '%c' after the end of a rank\n", c);
-				return board;
+				boardInit(b);
+				return 1;
 			}
 
 			char lc = tolower(c);
@@ -75,32 +77,33 @@ board boardCreateFromFen(const char *fen)
 			switch (lc)
 			{
 				case 'p':
-					boardSetPiece(&board, currPos, isBlack ? pBPawn : pWPawn);
+					boardSetPiece(b, currPos, isBlack ? pBPawn : pWPawn);
 					break;
 
 				case 'n':
-					boardSetPiece(&board, currPos, isBlack ? pBKnight : pWKnight);
+					boardSetPiece(b, currPos, isBlack ? pBKnight : pWKnight);
 					break;
 
 				case 'b':
-					boardSetPiece(&board, currPos, isBlack ? pBBishop : pWBishop);
+					boardSetPiece(b, currPos, isBlack ? pBBishop : pWBishop);
 					break;
 
 				case 'r':
-					boardSetPiece(&board, currPos, isBlack ? pBRook : pWRook);
+					boardSetPiece(b, currPos, isBlack ? pBRook : pWRook);
 					break;
 
 				case 'q':
-					boardSetPiece(&board, currPos, isBlack ? pBQueen : pWQueen);
+					boardSetPiece(b, currPos, isBlack ? pBQueen : pWQueen);
 					break;
 
 				case 'k':
-					boardSetPiece(&board, currPos, isBlack ? pBKing : pWKing);
+					boardSetPiece(b, currPos, isBlack ? pBKing : pWKing);
 					break;
 
 				default:
 					fprintf(stderr, "ERROR IN FEN: Unknown character '%c'\n", c);
-					return board;
+					boardInit(b);
+					return 1;
 			}
 
 			currPos.file++;
@@ -112,7 +115,8 @@ board boardCreateFromFen(const char *fen)
 	if ((currPos.rank != 1) || (currPos.file != 9))
 	{
 		fprintf(stderr, "ERROR IN FEN: Ended prematurely\n");
-		return board;
+		boardInit(b);
+		return 1;
 	}
 
 	fen++; 	// Go past the last space
@@ -123,14 +127,15 @@ board boardCreateFromFen(const char *fen)
 	switch (c)
 	{
 		case 'w':
-			board.currentPlayer = pcWhite;
+			b->currentPlayer = pcWhite;
 			break;
 		case 'b':
-			board.currentPlayer = pcBlack;
+			b->currentPlayer = pcBlack;
 			break;
 		default:
 			fprintf(stderr, "ERROR IN FEN: Expected 'w' or 'b', found '%c'\n", c);
-			return board;
+			boardInit(b);
+			return 1;
 	}
 	fen++;
 
@@ -138,7 +143,8 @@ board boardCreateFromFen(const char *fen)
 	if (c != ' ')
 	{
 		fprintf(stderr, "ERROR IN FEN: Expected ' ' after w/b, found '%c'\n", c);
-		return board;
+		boardInit(b);
+		return 1;
 	}
 	fen++;
 
@@ -146,7 +152,7 @@ board boardCreateFromFen(const char *fen)
 	// NOTE: technically this can match abnormal sequences, but it will match all correct sequences
 	// Ex: 'kqqqQQ--k' will function the same as 'Qkq'. This is fine by me
 
-	board.castleState = 0;
+	b->castleState = 0;
 
 	c = *fen;
 	while ((c = *fen))
@@ -161,24 +167,25 @@ board boardCreateFromFen(const char *fen)
 				break;
 
 			case 'K':
-				board.castleState |= CASTLE_WK;
+				b->castleState |= CASTLE_WK;
 				break;
 
 			case 'Q':
-				board.castleState |= CASTLE_WQ;
+				b->castleState |= CASTLE_WQ;
 				break;
 
 			case 'k':
-				board.castleState |= CASTLE_BK;
+				b->castleState |= CASTLE_BK;
 				break;
 
 			case 'q':
-				board.castleState |= CASTLE_BQ;
+				b->castleState |= CASTLE_BQ;
 				break;
 
 			default:
 				fprintf(stderr, "ERROR IN FEN: Expected K/Q/k/q or -, found '%c'\n", c);
-				return board;
+				boardInit(b);
+				return 1;
 		}
 
 		fen++;
@@ -191,7 +198,7 @@ board boardCreateFromFen(const char *fen)
 	c = *fen;
 	if (c == '-')
 	{
-		board.epTarget = POS_INVALID;
+		b->epTarget = POS_INVALID;
 		fen++;
 	}
 	else
@@ -201,9 +208,10 @@ board boardCreateFromFen(const char *fen)
 		if (epTarget.file == -1) 	// It's invalid
 		{
 			fprintf(stderr, "ERROR IN FEN: Invalid EP target square \"%s\"\n", epTargetStr);
-			return board;
+			boardInit(b);
+			return 1;
 		}
-		board.epTarget = epTarget;
+		b->epTarget = epTarget;
 		fen += 2;
 	}
 
@@ -211,16 +219,17 @@ board boardCreateFromFen(const char *fen)
 	if (c != ' ')
 	{
 		fprintf(stderr, "ERROR IN FEN: Expected ' ' after EP target square, found '%c'\n", c);
-		return board;
+		boardInit(b);
+		return 1;
 	}
 	fen++;
 
 	// Read in half move clock and full move count
 	// Note: more error checking should probably be done here
 
-	sscanf(fen, "%u %u", &board.halfMoveClock, &board.moveNumber);
+	sscanf(fen, "%u %u", &b->halfMoveClock, &b->moveNumber);
 
-	return board;
+	return 1;
 }
 
 void boardSetPiece(board *b, pos p, piece pe)

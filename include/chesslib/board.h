@@ -26,8 +26,10 @@ typedef struct
 	uint32_t moveNumber;
 } board;
 
-board boardCreate();
-board boardCreateFromFen(const char *fen);
+// Initializes the given memory into a board
+// boardInitFromFen returns 0 if successful and 1 if not. If not successful, it will init board with default FEN
+void boardInit(board *b);
+int boardInitFromFen(board *b, const char *fen);
 
 void boardSetPiece(board *b, pos p, piece pe);
 piece boardGetPiece(board *b, pos p);

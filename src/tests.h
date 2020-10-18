@@ -23,8 +23,8 @@ void testMoveGetUci();
 void testMoveList();
 
 // Board testing
-void testBoardCreate();
-void testBoardCreateFromFen();
+void testBoardInit();
+void testBoardInitFromFen();
 
 // Piece moves testing
 void testPawnMoves();
