@@ -13,6 +13,7 @@ void validateString(const char *actual, const char *expected);
 void testPosI();
 void testPosS();
 void testPosGetStr();
+void testPosIsDark();
 
 // Move testing
 void testMoveCreate();
@@ -47,3 +48,6 @@ void testBoardGenerateMovesCastling();
 
 // Test FEN generation
 void testBoardGetFen();
+
+// Test draw by insufficient material
+void testBoardIsInsufficientMaterial();

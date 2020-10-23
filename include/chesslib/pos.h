@@ -28,5 +28,8 @@ uint8_t posGetIndex(pos p);
 // Gets the SAN string representing the given pos. Does not need to be freed
 const char *posGetStr(pos p);
 
+// Returns 1 if the square is a dark colored square, 0 if light
+uint8_t posIsDark(pos p);
+
 // Compares two positions, returns true if equal and false otherwise
 uint8_t posEq(pos p1, pos p2);

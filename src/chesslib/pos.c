@@ -74,6 +74,12 @@ const char *posGetStr(pos p)
 	return POS_STRS[index];
 }
 
+// Returns 1 if the square is a dark colored square, 0 if light
+uint8_t posIsDark(pos p)
+{
+	return !((p.rank & 1) ^ (p.file & 1));
+}
+
 uint8_t posEq(pos p1, pos p2)
 {
 	if (p1.file < 1 || p1.file > 8 || p1.rank < 1 || p1.rank > 8)

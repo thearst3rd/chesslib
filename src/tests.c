@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 	RUN_TEST(testPosI);
 	RUN_TEST(testPosS);
 	RUN_TEST(testPosGetStr);
+	RUN_TEST(testPosIsDark);
 
 	// Test Move
 	RUN_TEST(testMoveCreate);
@@ -59,6 +60,9 @@ int main(int argc, char *argv[])
 
 	// Test FEN generation
 	RUN_TEST(testBoardGetFen);
+
+	// Test draw by insufficient material
+	RUN_TEST(testBoardIsInsufficientMaterial);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -153,6 +157,34 @@ void testPosGetStr()
 
 			validateString(posGetStr(p), str);
 		}
+	}
+}
+
+void testPosIsDark()
+{
+	uint8_t expectedIsDark = 1; 	// a1 is expected to be dark
+	for (uint8_t rank = 1; rank <= 8; rank++)
+	{
+		for (uint8_t file = 1; file <= 8; file++)
+		{
+			pos p = posI(file, rank);
+
+			uint8_t actualIsDark = posIsDark(p);
+
+			if (actualIsDark != expectedIsDark)
+			{
+				char message[50];
+				sprintf(message,
+						"Pos %s was %s, expected %s",
+						posGetStr(p),
+						actualIsDark ? "dark" : "light",
+						expectedIsDark ? "dark" : "light");
+				failTest(message);
+			}
+
+			expectedIsDark = !expectedIsDark;
+		}
+		expectedIsDark = !expectedIsDark;
 	}
 }
 
@@ -1317,6 +1349,7 @@ void testBoardGenerateMovesCastling()
 	moveListFree(list);
 }
 
+
 /////////////////////////
 // TEST FEN GENERATION //
 /////////////////////////
@@ -1336,4 +1369,56 @@ void validateBoardFen(char *fen)
 void testBoardGetFen()
 {
 	validateBoardFen(INITIAL_FEN);
+}
+
+
+////////////////////////////////////////
+// TEST DRAW BY INSUFFICIENT MATERIAL //
+////////////////////////////////////////
+
+void validateBoardIsInsufficientMaterial(board *b, uint8_t expected)
+{
+	uint8_t actual = boardIsInsufficientMaterial(b);
+	if (actual != expected)
+	{
+		char message[100];
+		sprintf(message,
+				"Board %s draw insufficient material, expected board %s",
+				actual ? "is" : "is not",
+				expected ? "is" : "is not");
+		failTest(message);
+	}
+}
+
+void testBoardIsInsufficientMaterial()
+{
+	board b;
+
+	// Initial board
+	boardInit(&b);
+	validateBoardIsInsufficientMaterial(&b, 0);
+
+	// Bare kings, true
+	boardInitFromFen(&b, "8/4k3/8/8/2K5/8/8/8 w - - 0 1");
+	validateBoardIsInsufficientMaterial(&b, 1);
+
+	// K vs K+N, true
+	boardInitFromFen(&b, "8/4k3/8/8/2K5/8/8/N7 w - - 0 1");
+	validateBoardIsInsufficientMaterial(&b, 1);
+
+	// K vs K+N+N, false
+	boardInitFromFen(&b, "8/4k1n1/8/7n/2K5/8/8/8 w - - 0 1");
+	validateBoardIsInsufficientMaterial(&b, 0);
+
+	// K+B vs K+B, different colors, false
+	boardInitFromFen(&b, "8/4kb2/8/8/2K5/6B1/8/8 w - - 0 1");
+	validateBoardIsInsufficientMaterial(&b, 0);
+
+	// K+B vs K+B, same colors, true
+	boardInitFromFen(&b, "8/4k1b1/8/8/2K5/6B1/8/8 w - - 0 1");
+	validateBoardIsInsufficientMaterial(&b, 1);
+
+	// K+B+B+B+B vs K+B+B, all same colors, true
+	boardInitFromFen(&b, "3b4/4k1b1/5b2/8/1BK5/6B1/3B1B2/8 w - - 0 1");
+	validateBoardIsInsufficientMaterial(&b, 1);
 }

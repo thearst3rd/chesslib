@@ -430,6 +430,67 @@ uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 	return 0;
 }
 
+uint8_t boardIsInsufficientMaterial(board *b)
+{
+	uint8_t numPieces = 0;
+	uint8_t numKnights = 0;
+	uint8_t numBishopsDark = 0;
+	uint8_t numBishopsLight = 0;
+	// For handling multiple/no kings
+	uint8_t numWhiteKings = 0;
+	uint8_t numBlackKings = 0;
+
+	for (int i = 0; i < 64; i++)
+	{
+		pos p = posIndex(i);
+		piece pe = boardGetPiece(b, p);
+		pieceType pt = pieceGetType(pe);
+
+		if (pt != ptEmpty)
+			numPieces++;
+
+		if (pe == pWKing)
+			numWhiteKings++;
+
+		if (pe == pBKing)
+			numBlackKings++;
+
+		if (pt == ptKnight)
+			numKnights++;
+
+		if (pt == ptBishop)
+		{
+			if (posIsDark(p))
+				numBishopsDark++;
+			else
+				numBishopsLight++;
+		}
+	}
+
+	// Just kings, always a draw
+	if (numPieces == numWhiteKings + numBlackKings)
+		return 1;
+
+	// For now, only handle normal case
+	if (numWhiteKings == 1 && numBlackKings == 1)
+	{
+		// Just kings and minor pieces
+		if (numPieces == (2 + numKnights + numBishopsDark + numBishopsLight))
+		{
+			// Kings + 1 minor is draw
+			if (numPieces == 3)
+				return 1;
+
+			// Kings + only bishops, all on the same color
+			if (numKnights == 0 && (numBishopsLight == 0 || numBishopsDark == 0))
+				return 1;
+		}
+	}
+	// TODO - write an else here. Or just say that's beyond scope...
+
+	return 0;
+}
+
 // Returns a new board on which the given move was played on the given board
 // NOTE - this assumes that the move is legal!
 board boardPlayMove(board *b, move m)
