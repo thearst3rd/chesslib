@@ -1369,6 +1369,10 @@ void validateBoardFen(char *fen)
 void testBoardGetFen()
 {
 	validateBoardFen(INITIAL_FEN);
+	validateBoardFen("rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3"); 	// Fool's mate
+	validateBoardFen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"); 	// Scholar's mate
+	validateBoardFen("r3r1k1/pp3pbp/1qp1b1p1/2B5/2BP4/Q1n2N2/P4PPP/3R1K1R w - - 4 18"); 	// GotC Be6!!
+	validateBoardFen("r1q1k2r/8/8/8/3P4/8/8/R3K2R b Kq d3 0 1"); 	// Misc setup, varying castling states, EP
 }
 
 
