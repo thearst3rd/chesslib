@@ -16,17 +16,17 @@
 // For example: the knights array would be:
 // 		dirs = {{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}}
 // 		numDirs = 8
-moveList *pmLeaperMoveList(board *b, pos p, pieceType pt, int8_t dirs[][2], size_t numDirs);
+moveList *pmLeaperMoveList(board *b, sq s, pieceType pt, int8_t dirs[][2], size_t numDirs);
 // A rider is a leaper that can keep moving in a fixed direction any number of times until it hits something
-moveList *pmRiderMoveList(board *b, pos p, pieceType pt, int8_t dirs[][2], size_t numDirs);
+moveList *pmRiderMoveList(board *b, sq s, pieceType pt, int8_t dirs[][2], size_t numDirs);
 
 // Each of these functions return a moveList of _potential_ moves, but they might leave the current player in check
-moveList *pmGetPawnMoves(board *b, pos p);
-moveList *pmGetKnightMoves(board *b, pos p);
-moveList *pmGetBishopMoves(board *b, pos p);
-moveList *pmGetRookMoves(board *b, pos p);
-moveList *pmGetQueenMoves(board *b, pos p);
-moveList *pmGetKingMoves(board *b, pos p);
+moveList *pmGetPawnMoves(board *b, sq s);
+moveList *pmGetKnightMoves(board *b, sq s);
+moveList *pmGetBishopMoves(board *b, sq s);
+moveList *pmGetRookMoves(board *b, sq s);
+moveList *pmGetQueenMoves(board *b, sq s);
+moveList *pmGetKingMoves(board *b, sq s);
 
 // Pawns are special...
-moveList *pmGetPawnAttacks(board *b, pos p);
+moveList *pmGetPawnAttacks(board *b, sq s);

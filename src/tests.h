@@ -9,11 +9,11 @@
 void failTest(const char *msg);
 void validateString(const char *actual, const char *expected);
 
-// Pos testing
-void testPosI();
-void testPosS();
-void testPosGetStr();
-void testPosIsDark();
+// Square testing
+void testSqI();
+void testSqS();
+void testSqGetStr();
+void testSqIsDark();
 
 // Move testing
 void testMoveCreate();

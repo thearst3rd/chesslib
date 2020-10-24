@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "chesslib/pos.h"
+#include "chesslib/square.h"
 #include "chesslib/piece.h"
 #include "chesslib/movelist.h"
 
@@ -21,7 +21,7 @@ typedef struct
 	piece pieces[64];
 	pieceColor currentPlayer;
 	uint8_t castleState; 	// Bitmask describing castle state
-	pos epTarget;
+	sq epTarget;
 	uint32_t halfMoveClock;
 	uint32_t moveNumber;
 } board;
@@ -31,12 +31,12 @@ typedef struct
 void boardInit(board *b);
 int boardInitFromFen(board *b, const char *fen);
 
-void boardSetPiece(board *b, pos p, piece pe);
-piece boardGetPiece(board *b, pos p);
+void boardSetPiece(board *b, sq s, piece p);
+piece boardGetPiece(board *b, sq s);
 
 moveList *boardGenerateMoves(board *b);
 
-uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker);
+uint8_t boardIsSquareAttacked(board *b, sq s, pieceColor attacker);
 uint8_t boardIsInCheck(board *b);
 uint8_t boardIsPlayerInCheck(board *b, pieceColor player);
 

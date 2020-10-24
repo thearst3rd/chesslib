@@ -5,18 +5,18 @@
 
 #pragma once
 
-#include "chesslib/pos.h"
+#include "chesslib/square.h"
 #include "chesslib/piece.h"
 
 typedef struct
 {
-	pos from;
-	pos to;
+	sq from;
+	sq to;
 	pieceType promotion;
 } move;
 
-move movePos(pos from, pos to);
-move movePromote(pos from, pos to, pieceType promotion);
+move moveSq(sq from, sq to);
+move movePromote(sq from, sq to, pieceType promotion);
 
 // Gets the UCI notation for a move. Must be freed
 char *moveGetUci(move m);

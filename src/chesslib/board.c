@@ -18,11 +18,11 @@ void boardInit(board *b)
 
 int boardInitFromFen(board *b, const char *fen)
 {
-	pos currPos = posI(1, 8);
+	sq currSq = sqI(1, 8);
 
 	char c;
 
-	// Read in piece positions
+	// Read in pieces
 
 	while ((c = *fen))
 	{
@@ -33,7 +33,7 @@ int boardInitFromFen(board *b, const char *fen)
 		else if (c >= '1' && c <= '8')
 		{
 			int num = c - '0';
-			if (currPos.file + num > 9)
+			if (currSq.file + num > 9)
 			{
 				fprintf(stderr, "ERROR IN FEN: Spacer put file over the end\n");
 				boardInit(b);
@@ -41,30 +41,30 @@ int boardInitFromFen(board *b, const char *fen)
 			}
 			for (int i = 0; i < num; i++)
 			{
-				boardSetPiece(b, currPos, pEmpty);
-				currPos.file++;
+				boardSetPiece(b, currSq, pEmpty);
+				currSq.file++;
 			}
 		}
 		else if (c == '/')
 		{
-			if (currPos.file != 9)
+			if (currSq.file != 9)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found '/' at wrong position in rank\n");
 				boardInit(b);
 				return 1;
 			}
-			if (currPos.rank <= 1)
+			if (currSq.rank <= 1)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found '/' after the last rank\n");
 				boardInit(b);
 				return 1;
 			}
-			currPos.file = 1;
-			currPos.rank--;
+			currSq.file = 1;
+			currSq.rank--;
 		}
 		else
 		{
-			if (currPos.file > 8)
+			if (currSq.file > 8)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found character '%c' after the end of a rank\n", c);
 				boardInit(b);
@@ -77,27 +77,27 @@ int boardInitFromFen(board *b, const char *fen)
 			switch (lc)
 			{
 				case 'p':
-					boardSetPiece(b, currPos, isBlack ? pBPawn : pWPawn);
+					boardSetPiece(b, currSq, isBlack ? pBPawn : pWPawn);
 					break;
 
 				case 'n':
-					boardSetPiece(b, currPos, isBlack ? pBKnight : pWKnight);
+					boardSetPiece(b, currSq, isBlack ? pBKnight : pWKnight);
 					break;
 
 				case 'b':
-					boardSetPiece(b, currPos, isBlack ? pBBishop : pWBishop);
+					boardSetPiece(b, currSq, isBlack ? pBBishop : pWBishop);
 					break;
 
 				case 'r':
-					boardSetPiece(b, currPos, isBlack ? pBRook : pWRook);
+					boardSetPiece(b, currSq, isBlack ? pBRook : pWRook);
 					break;
 
 				case 'q':
-					boardSetPiece(b, currPos, isBlack ? pBQueen : pWQueen);
+					boardSetPiece(b, currSq, isBlack ? pBQueen : pWQueen);
 					break;
 
 				case 'k':
-					boardSetPiece(b, currPos, isBlack ? pBKing : pWKing);
+					boardSetPiece(b, currSq, isBlack ? pBKing : pWKing);
 					break;
 
 				default:
@@ -106,13 +106,13 @@ int boardInitFromFen(board *b, const char *fen)
 					return 1;
 			}
 
-			currPos.file++;
+			currSq.file++;
 		}
 
 		fen++;
 	}
 
-	if ((currPos.rank != 1) || (currPos.file != 9))
+	if ((currSq.rank != 1) || (currSq.file != 9))
 	{
 		fprintf(stderr, "ERROR IN FEN: Ended prematurely\n");
 		boardInit(b);
@@ -198,13 +198,13 @@ int boardInitFromFen(board *b, const char *fen)
 	c = *fen;
 	if (c == '-')
 	{
-		b->epTarget = POS_INVALID;
+		b->epTarget = SQ_INVALID;
 		fen++;
 	}
 	else
 	{
 		char epTargetStr[3] = {fen[0], fen[1], 0};
-		pos epTarget = posS(epTargetStr);
+		sq epTarget = sqS(epTargetStr);
 		if (epTarget.file == -1) 	// It's invalid
 		{
 			fprintf(stderr, "ERROR IN FEN: Invalid EP target square \"%s\"\n", epTargetStr);
@@ -232,15 +232,15 @@ int boardInitFromFen(board *b, const char *fen)
 	return 1;
 }
 
-void boardSetPiece(board *b, pos p, piece pe)
+void boardSetPiece(board *b, sq s, piece p)
 {
-	int index = posGetIndex(p);
-	b->pieces[index] = pe;
+	int index = sqGetIndex(s);
+	b->pieces[index] = p;
 }
 
-piece boardGetPiece(board *b, pos p)
+piece boardGetPiece(board *b, sq s)
 {
-	int index = posGetIndex(p);
+	int index = sqGetIndex(s);
 	return b->pieces[index];
 }
 
@@ -251,39 +251,39 @@ moveList *boardGenerateMoves(board *b)
 
 	for (int i = 0; i < 64; i++)
 	{
-		pos p = posIndex(i);
-		piece pe = boardGetPiece(b, p);
+		sq s = sqIndex(i);
+		piece p = boardGetPiece(b, s);
 
-		if (pieceGetColor(pe) != b->currentPlayer)
+		if (pieceGetColor(p) != b->currentPlayer)
 			continue;
 
-		pieceType type = pieceGetType(pe);
+		pieceType type = pieceGetType(p);
 		moveList *currMoves = NULL;
 
 		switch (type)
 		{
 			case ptPawn:
-				currMoves = pmGetPawnMoves(b, p);
+				currMoves = pmGetPawnMoves(b, s);
 				break;
 
 			case ptKnight:
-				currMoves = pmGetKnightMoves(b, p);
+				currMoves = pmGetKnightMoves(b, s);
 				break;
 
 			case ptBishop:
-				currMoves = pmGetBishopMoves(b, p);
+				currMoves = pmGetBishopMoves(b, s);
 				break;
 
 			case ptRook:
-				currMoves = pmGetRookMoves(b, p);
+				currMoves = pmGetRookMoves(b, s);
 				break;
 
 			case ptQueen:
-				currMoves = pmGetQueenMoves(b, p);
+				currMoves = pmGetQueenMoves(b, s);
 				break;
 
 			case ptKing:
-				currMoves = pmGetKingMoves(b, p);
+				currMoves = pmGetKingMoves(b, s);
 				break;
 
 			default:
@@ -318,44 +318,44 @@ moveList *boardGenerateMoves(board *b)
 
 		if (castleOO)
 		{
-			if (boardGetPiece(b, posI(5, castleRank)) == ourKing
-					&& boardGetPiece(b, posI(8, castleRank)) == ourRook
-					&& boardGetPiece(b, posI(6, castleRank)) == pEmpty
-					&& boardGetPiece(b, posI(7, castleRank)) == pEmpty
-					&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
-					&& !boardIsSquareAttacked(b, posI(6, castleRank), attacker)
-					&& !boardIsSquareAttacked(b, posI(7, castleRank), attacker))
-				moveListAdd(list, movePos(posI(5, castleRank), posI(7, castleRank)));
+			if (boardGetPiece(b, sqI(5, castleRank)) == ourKing
+					&& boardGetPiece(b, sqI(8, castleRank)) == ourRook
+					&& boardGetPiece(b, sqI(6, castleRank)) == pEmpty
+					&& boardGetPiece(b, sqI(7, castleRank)) == pEmpty
+					&& !boardIsSquareAttacked(b, sqI(5, castleRank), attacker)
+					&& !boardIsSquareAttacked(b, sqI(6, castleRank), attacker)
+					&& !boardIsSquareAttacked(b, sqI(7, castleRank), attacker))
+				moveListAdd(list, moveSq(sqI(5, castleRank), sqI(7, castleRank)));
 		}
 
 		if (castleOOO)
 		{
-			if (boardGetPiece(b, posI(5, castleRank)) == ourKing
-					&& boardGetPiece(b, posI(1, castleRank)) == ourRook
-					&& boardGetPiece(b, posI(4, castleRank)) == pEmpty
-					&& boardGetPiece(b, posI(3, castleRank)) == pEmpty
-					&& boardGetPiece(b, posI(2, castleRank)) == pEmpty
-					&& !boardIsSquareAttacked(b, posI(5, castleRank), attacker)
-					&& !boardIsSquareAttacked(b, posI(4, castleRank), attacker)
-					&& !boardIsSquareAttacked(b, posI(3, castleRank), attacker))
-				moveListAdd(list, movePos(posI(5, castleRank), posI(3, castleRank)));
+			if (boardGetPiece(b, sqI(5, castleRank)) == ourKing
+					&& boardGetPiece(b, sqI(1, castleRank)) == ourRook
+					&& boardGetPiece(b, sqI(4, castleRank)) == pEmpty
+					&& boardGetPiece(b, sqI(3, castleRank)) == pEmpty
+					&& boardGetPiece(b, sqI(2, castleRank)) == pEmpty
+					&& !boardIsSquareAttacked(b, sqI(5, castleRank), attacker)
+					&& !boardIsSquareAttacked(b, sqI(4, castleRank), attacker)
+					&& !boardIsSquareAttacked(b, sqI(3, castleRank), attacker))
+				moveListAdd(list, moveSq(sqI(5, castleRank), sqI(3, castleRank)));
 		}
 	}
 
 	return list;
 }
 
-uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker)
+uint8_t boardIsSquareAttacked(board *b, sq s, pieceColor attacker)
 {
 	for (int i = 0; i < 64; i++)
 	{
-		pos attackerP = posIndex(i);
-		piece pe = boardGetPiece(b, attackerP);
+		sq attackerSq = sqIndex(i);
+		piece p = boardGetPiece(b, attackerSq);
 
-		if (pieceGetColor(pe) != attacker)
+		if (pieceGetColor(p) != attacker)
 			continue;
 
-		pieceType type = pieceGetType(pe);
+		pieceType type = pieceGetType(p);
 		moveList *currMoves = NULL;
 
 		uint8_t found = 0;
@@ -363,27 +363,27 @@ uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker)
 		switch (type)
 		{
 			case ptPawn:
-				currMoves = pmGetPawnAttacks(b, attackerP);
+				currMoves = pmGetPawnAttacks(b, attackerSq);
 				break;
 
 			case ptKnight:
-				currMoves = pmGetKnightMoves(b, attackerP);
+				currMoves = pmGetKnightMoves(b, attackerSq);
 				break;
 
 			case ptBishop:
-				currMoves = pmGetBishopMoves(b, attackerP);
+				currMoves = pmGetBishopMoves(b, attackerSq);
 				break;
 
 			case ptRook:
-				currMoves = pmGetRookMoves(b, attackerP);
+				currMoves = pmGetRookMoves(b, attackerSq);
 				break;
 
 			case ptQueen:
-				currMoves = pmGetQueenMoves(b, attackerP);
+				currMoves = pmGetQueenMoves(b, attackerSq);
 				break;
 
 			case ptKing:
-				currMoves = pmGetKingMoves(b, attackerP);
+				currMoves = pmGetKingMoves(b, attackerSq);
 				break;
 
 			default:
@@ -395,7 +395,7 @@ uint8_t boardIsSquareAttacked(board *b, pos p, pieceColor attacker)
 		{
 			for (moveListNode *n = currMoves->head; n; n = n->next)
 			{
-				if (posEq(p, n->move.to))
+				if (sqEq(s, n->move.to))
 				{
 					found = 1;
 					break;
@@ -420,10 +420,10 @@ uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 	pieceColor otherColor = (player == pcWhite) ? pcBlack : pcWhite;
 	for (int i = 0; i < 64; i++)
 	{
-		pos p = posIndex(i);
-		if (boardGetPiece(b, p) == royalPiece)
+		sq s = sqIndex(i);
+		if (boardGetPiece(b, s) == royalPiece)
 		{
-			if (boardIsSquareAttacked(b, p, otherColor))
+			if (boardIsSquareAttacked(b, s, otherColor))
 				return 1;
 		}
 	}
@@ -442,17 +442,17 @@ uint8_t boardIsInsufficientMaterial(board *b)
 
 	for (int i = 0; i < 64; i++)
 	{
-		pos p = posIndex(i);
-		piece pe = boardGetPiece(b, p);
-		pieceType pt = pieceGetType(pe);
+		sq s = sqIndex(i);
+		piece p = boardGetPiece(b, s);
+		pieceType pt = pieceGetType(p);
 
 		if (pt != ptEmpty)
 			numPieces++;
 
-		if (pe == pWKing)
+		if (p == pWKing)
 			numWhiteKings++;
 
-		if (pe == pBKing)
+		if (p == pBKing)
 			numBlackKings++;
 
 		if (pt == ptKnight)
@@ -460,7 +460,7 @@ uint8_t boardIsInsufficientMaterial(board *b)
 
 		if (pt == ptBishop)
 		{
-			if (posIsDark(p))
+			if (sqIsDark(s))
 				numBishopsDark++;
 			else
 				numBishopsLight++;
@@ -510,35 +510,37 @@ board boardPlayMove(board *b, move m)
 		if (diffFile == 2) 	// O-O
 		{
 			// Move rook from h file to correct file
-			boardSetPiece(&newBoard, posI(8, m.to.rank), pEmpty);
-			boardSetPiece(&newBoard, posI(m.to.file - 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
+			boardSetPiece(&newBoard, sqI(8, m.to.rank), pEmpty);
+			boardSetPiece(&newBoard, sqI(m.to.file - 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
 		}
 		else if (diffFile == -2) 	// O-O-O
 		{
 			// Move rook from a file to correct file
-			boardSetPiece(&newBoard, posI(1, m.to.rank), pEmpty);
-			boardSetPiece(&newBoard, posI(m.to.file + 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
+			boardSetPiece(&newBoard, sqI(1, m.to.rank), pEmpty);
+			boardSetPiece(&newBoard, sqI(m.to.file + 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
 		}
 		newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
 	}
 	else if (pt == ptRook)
 	{
-		if (posEq(m.from, posI(1, b->currentPlayer == pcWhite ? 1 : 8)))
+		if (sqEq(m.from, sqI(1, b->currentPlayer == pcWhite ? 1 : 8)))
 			newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WQ : CASTLE_BQ);
-		else if (posEq(m.from, posI(8, b->currentPlayer == pcWhite ? 1 : 8)))
+		else if (sqEq(m.from, sqI(8, b->currentPlayer == pcWhite ? 1 : 8)))
 			newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WK : CASTLE_BK);
 	}
 
 	// Is this an en passant capture?
-	if (pt == ptPawn && posEq(b->epTarget, m.to))
+	if (pt == ptPawn && sqEq(b->epTarget, m.to))
 	{
 		// Remove the captured pawn
 		uint8_t delta = (b->currentPlayer == pcWhite) ? -1 : 1;
-		boardSetPiece(&newBoard, posI(m.to.file, m.to.rank + delta), pEmpty);
+		boardSetPiece(&newBoard, sqI(m.to.file, m.to.rank + delta), pEmpty);
 	}
 
 	// Move the piece
-	boardSetPiece(&newBoard, m.to, (m.promotion == ptEmpty) ? boardGetPiece(b, m.from) : pieceMake(m.promotion, b->currentPlayer));
+	boardSetPiece(&newBoard,
+			m.to,
+			(m.promotion == ptEmpty) ? boardGetPiece(b, m.from) : pieceMake(m.promotion, b->currentPlayer));
 	boardSetPiece(&newBoard, m.from, pEmpty);
 
 	// Should this set the EP target square?
@@ -546,11 +548,11 @@ board boardPlayMove(board *b, move m)
 	if (pt == ptPawn && ((diffRank == 2) || (diffRank == -2)))
 	{
 		int8_t delta = (b->currentPlayer == pcWhite) ? -1 : 1;
-		newBoard.epTarget = posI(m.to.file, m.to.rank + delta);
+		newBoard.epTarget = sqI(m.to.file, m.to.rank + delta);
 	}
 	else
 	{
-		newBoard.epTarget = POS_INVALID;
+		newBoard.epTarget = SQ_INVALID;
 	}
 
 	// Update the counters
@@ -581,7 +583,7 @@ uint8_t boardEq(board *b1, board *b2)
 	if (b1->castleState != b2->castleState)
 		return 0;
 
-	if (!posEq(b1->epTarget, b2->epTarget))
+	if (!sqEq(b1->epTarget, b2->epTarget))
 		return 0;
 
 	if (b1->halfMoveClock != b2->halfMoveClock)
@@ -606,29 +608,29 @@ uint8_t boardEqContext(board *b1, board *b2)
 		return 0;
 
 	// Filter EP target squares
-	pos b1EpTarget = b1->epTarget;
-	if (!posEq(b1EpTarget, POS_INVALID))
+	sq b1EpTarget = b1->epTarget;
+	if (!sqEq(b1EpTarget, SQ_INVALID))
 	{
-		// Are there actually any pawns that can attack this square? If not, make it POS_INVALID
+		// Are there actually any pawns that can attack this square? If not, make it SQ_INVALID
 		int delta = b1->currentPlayer == pcWhite ? -1 : 1;
 		int pe = b1->currentPlayer == pcWhite ? pBPawn : pWPawn;
-		if (boardGetPiece(b1, posI(b1EpTarget.file - 1, b1EpTarget.rank + delta)) != pe
-				&& boardGetPiece(b1, posI(b1EpTarget.file + 1, b1EpTarget.rank + delta)) != pe)
-			b1EpTarget = POS_INVALID;
+		if (boardGetPiece(b1, sqI(b1EpTarget.file - 1, b1EpTarget.rank + delta)) != pe
+				&& boardGetPiece(b1, sqI(b1EpTarget.file + 1, b1EpTarget.rank + delta)) != pe)
+			b1EpTarget = SQ_INVALID;
 	}
 
-	pos b2EpTarget = b2->epTarget;
-	if (!posEq(b2EpTarget, POS_INVALID))
+	sq b2EpTarget = b2->epTarget;
+	if (!sqEq(b2EpTarget, SQ_INVALID))
 	{
-		// Are there actually any pawns that can attack this square? If not, make it POS_INVALID
+		// Are there actually any pawns that can attack this square? If not, make it SQ_INVALID
 		int delta = b2->currentPlayer == pcWhite ? -1 : 1;
 		int pe = b2->currentPlayer == pcWhite ? pBPawn : pWPawn;
-		if (boardGetPiece(b2, posI(b2EpTarget.file - 1, b2EpTarget.rank + delta)) != pe
-				&& boardGetPiece(b2, posI(b2EpTarget.file + 1, b2EpTarget.rank + delta)) != pe)
-			b2EpTarget = POS_INVALID;
+		if (boardGetPiece(b2, sqI(b2EpTarget.file - 1, b2EpTarget.rank + delta)) != pe
+				&& boardGetPiece(b2, sqI(b2EpTarget.file + 1, b2EpTarget.rank + delta)) != pe)
+			b2EpTarget = SQ_INVALID;
 	}
 
-	if (!posEq(b1EpTarget, b2EpTarget))
+	if (!sqEq(b1EpTarget, b2EpTarget))
 		return 0;
 
 	return 1;
@@ -646,16 +648,16 @@ char *boardGetFen(board *b)
 		uint8_t blanks = 0;
 		for (uint8_t file = 1; file <= 8; file++)
 		{
-			pos p = posI(file, rank);
-			piece pe = boardGetPiece(b, p);
-			if (pe)
+			sq s = sqI(file, rank);
+			piece p = boardGetPiece(b, s);
+			if (p)
 			{
 				if (blanks > 0)
 				{
 					*c++ = '0' + blanks;
 					blanks = 0;
 				}
-				*c++ = pieceGetLetter(pe);
+				*c++ = pieceGetLetter(p);
 			}
 			else
 			{
@@ -704,13 +706,13 @@ char *boardGetFen(board *b)
 	*c++ = ' ';
 
 	// EP target
-	if (posEq(b->epTarget, POS_INVALID))
+	if (sqEq(b->epTarget, SQ_INVALID))
 	{
 		*c++ = '-';
 	}
 	else
 	{
-		const char *ep = posGetStr(b->epTarget);
+		const char *ep = sqGetStr(b->epTarget);
 		*c++ = ep[0];
 		*c++ = ep[1];
 	}

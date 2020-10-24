@@ -9,12 +9,12 @@
 
 #include "chesslib/move.h"
 
-move movePos(pos from, pos to)
+move moveSq(sq from, sq to)
 {
 	return movePromote(from, to, ptEmpty);
 }
 
-move movePromote(pos from, pos to, pieceType promotion)
+move movePromote(sq from, sq to, pieceType promotion)
 {
 	move m;
 
@@ -40,7 +40,7 @@ char *moveGetUci(move m)
 		str = (char *) malloc(5 * sizeof(char));
 	}
 
-	sprintf(str, "%s%s%s", posGetStr(m.from), posGetStr(m.to), p);
+	sprintf(str, "%s%s%s", sqGetStr(m.from), sqGetStr(m.to), p);
 
 	return str;
 }
@@ -85,8 +85,8 @@ move moveFromUci(char *uci)
 	}
 
 	move m;
-	m.from = posS(from);
-	m.to = posS(to);
+	m.from = sqS(from);
+	m.to = sqS(to);
 	m.promotion = promotion;
 	return m;
 }

@@ -11,71 +11,71 @@
 // HELPER FUNCTIONS //
 //////////////////////
 
-// Returns false if there is a piece of the same color at pos
-int canMoveHere(board *b, pos p, pieceColor ourColor)
+// Returns false if there is a piece of the same color at square
+int canMoveHere(board *b, sq s, pieceColor ourColor)
 {
-	piece bPiece = boardGetPiece(b, p);
-	if (bPiece == pEmpty)
+	piece p = boardGetPiece(b, s);
+	if (p == pEmpty)
 		return 1;
 
-	pieceColor theirColor = pieceGetColor(bPiece);
+	pieceColor theirColor = pieceGetColor(p);
 
 	return ourColor != theirColor;
 }
 
-moveList *pmLeaperMoveList(board *b, pos p, pieceType pt, int8_t dirs[][2], size_t numDirs)
+moveList *pmLeaperMoveList(board *b, sq s, pieceType pt, int8_t dirs[][2], size_t numDirs)
 {
 	moveList *list = moveListCreate();
 
-	piece bPiece = boardGetPiece(b, p);
-	if (pieceGetType(bPiece) != pt)
+	piece p = boardGetPiece(b, s);
+	if (pieceGetType(p) != pt)
 		return list;
 
-	pieceColor color = pieceGetColor(bPiece);
+	pieceColor color = pieceGetColor(p);
 
-	pos newPos;
+	sq newSq;
 	for (int i = 0; i < numDirs; i++)
 	{
-		newPos.file = p.file + dirs[i][0];
-		newPos.rank = p.rank + dirs[i][1];
+		newSq.file = s.file + dirs[i][0];
+		newSq.rank = s.rank + dirs[i][1];
 
-		if (newPos.file < 1 || newPos.file > 8 || newPos.rank < 1 || newPos.rank > 8)
+		if (newSq.file < 1 || newSq.file > 8 || newSq.rank < 1 || newSq.rank > 8)
 			continue;
 
-		if (canMoveHere(b, newPos, color))
-			moveListAdd(list, movePos(p, newPos));
+		if (canMoveHere(b, newSq, color))
+			moveListAdd(list, moveSq(s, newSq));
 	}
 
 	return list;
 }
 
-moveList *pmRiderMoveList(board *b, pos p, pieceType pt, int8_t dirs[][2], size_t numDirs)
+moveList *pmRiderMoveList(board *b, sq s, pieceType pt, int8_t dirs[][2], size_t numDirs)
 {
 	moveList *list = moveListCreate();
 
-	piece bPiece = boardGetPiece(b, p);
-	if (pieceGetType(bPiece) != pt)
+	piece p = boardGetPiece(b, s);
+	if (pieceGetType(p) != pt)
 		return list;
 
-	pieceColor color = pieceGetColor(bPiece);
+	pieceColor color = pieceGetColor(p);
 
-	pos newPos;
+	sq newSq;
 	for (int i = 0; i < numDirs; i++)
 	{
-		newPos = p;
+		newSq = s;
 
 		while (1)
 		{
-			newPos.file += dirs[i][0];
-			newPos.rank += dirs[i][1];
+			newSq.file += dirs[i][0];
+			newSq.rank += dirs[i][1];
 
-			if (newPos.file < 1 || newPos.file > 8 || newPos.rank < 1 || newPos.rank > 8)
+			if (newSq.file < 1 || newSq.file > 8 || newSq.rank < 1 || newSq.rank > 8)
 				break;
 
-			piece capturePiece = boardGetPiece(b, newPos);
+			piece capturePiece = boardGetPiece(b, newSq);
 
-			if (canMoveHere(b, newPos, color))
-				moveListAdd(list, movePos(p, newPos));
+			if (canMoveHere(b, newSq, color))
+				moveListAdd(list, moveSq(s, newSq));
 
 			if (capturePiece != pEmpty)
 				break;
@@ -92,66 +92,66 @@ moveList *pmRiderMoveList(board *b, pos p, pieceType pt, int8_t dirs[][2], size_
 
 // HELPER FUNCTION:
 // Same as moveListAdd, but will automatically add promotion moves as well
-void addPawnMoveToMoveList(moveList *list, pos oldPos, pos newPos)
+void addPawnMoveToMoveList(moveList *list, sq oldSq, sq newSq)
 {
 	// Should this be a promotion?
-	if (newPos.rank == 1 || newPos.rank == 8)
+	if (newSq.rank == 1 || newSq.rank == 8)
 	{
-		moveListAdd(list, movePromote(oldPos, newPos, ptQueen));
-		moveListAdd(list, movePromote(oldPos, newPos, ptRook));
-		moveListAdd(list, movePromote(oldPos, newPos, ptBishop));
-		moveListAdd(list, movePromote(oldPos, newPos, ptKnight));
+		moveListAdd(list, movePromote(oldSq, newSq, ptQueen));
+		moveListAdd(list, movePromote(oldSq, newSq, ptRook));
+		moveListAdd(list, movePromote(oldSq, newSq, ptBishop));
+		moveListAdd(list, movePromote(oldSq, newSq, ptKnight));
 	}
 	else
 	{
-		moveListAdd(list, movePos(oldPos, newPos));
+		moveListAdd(list, moveSq(oldSq, newSq));
 	}
 }
 
-moveList *pmGetPawnMoves(board *b, pos p)
+moveList *pmGetPawnMoves(board *b, sq s)
 {
 	moveList *list = moveListCreate();
 
-	piece bPiece = boardGetPiece(b, p);
-	if (pieceGetType(bPiece) != ptPawn)
+	piece p = boardGetPiece(b, s);
+	if (pieceGetType(p) != ptPawn)
 		return list;
 
-	pieceColor color = pieceGetColor(bPiece);
+	pieceColor color = pieceGetColor(p);
 	int delta = color == pcWhite ? 1 : -1;
 
 	// Handle forward moves
-	pos newPos = posI(p.file, p.rank + delta);
-	if (boardGetPiece(b, newPos) == pEmpty)
+	sq newSq = sqI(s.file, s.rank + delta);
+	if (boardGetPiece(b, newSq) == pEmpty)
 	{
-		addPawnMoveToMoveList(list, p, newPos);
+		addPawnMoveToMoveList(list, s, newSq);
 
 		// Can this piece move two squares?
-		if (color == pcWhite ? (p.rank <= 2) : (p.rank >= 7))
+		if (color == pcWhite ? (s.rank <= 2) : (s.rank >= 7))
 		{
-			newPos.rank += delta;
-			if (boardGetPiece(b, newPos) == pEmpty)
-				addPawnMoveToMoveList(list, p, newPos);
+			newSq.rank += delta;
+			if (boardGetPiece(b, newSq) == pEmpty)
+				addPawnMoveToMoveList(list, s, newSq);
 		}
 	}
 
 	// Handle captures
 	piece capturePiece;
-	if (p.file > 1)
+	if (s.file > 1)
 	{
-		newPos = posI(p.file - 1, p.rank + delta);
-		capturePiece = boardGetPiece(b, newPos);
-		if (((capturePiece != pEmpty) && canMoveHere(b, newPos, color))
-				|| posEq(newPos, b->epTarget))
-			addPawnMoveToMoveList(list, p, newPos);
+		newSq = sqI(s.file - 1, s.rank + delta);
+		capturePiece = boardGetPiece(b, newSq);
+		if (((capturePiece != pEmpty) && canMoveHere(b, newSq, color))
+				|| sqEq(newSq, b->epTarget))
+			addPawnMoveToMoveList(list, s, newSq);
 	}
 
-	if (p.file < 8)
+	if (s.file < 8)
 	{
-		newPos = posI(p.file + 1, p.rank + delta);
-		capturePiece = boardGetPiece(b, newPos);
-		if (((capturePiece != pEmpty) && canMoveHere(b, newPos, color))
-				|| posEq(newPos, b->epTarget))
-			addPawnMoveToMoveList(list, p, newPos);
+		newSq = sqI(s.file + 1, s.rank + delta);
+		capturePiece = boardGetPiece(b, newSq);
+		if (((capturePiece != pEmpty) && canMoveHere(b, newSq, color))
+				|| sqEq(newSq, b->epTarget))
+			addPawnMoveToMoveList(list, s, newSq);
 	}
 
 	return list;
@@ -159,29 +159,29 @@ moveList *pmGetPawnMoves(board *b, pos p)
 
 // Pawns are special...
 // Note, this is not getting the squares a pawn is CURRENTLY attacking, just where it COULD attack were there a piece
-moveList *pmGetPawnAttacks(board *b, pos p)
+moveList *pmGetPawnAttacks(board *b, sq s)
 {
 	moveList *list = moveListCreate();
 
-	piece bPiece = boardGetPiece(b, p);
-	if (pieceGetType(bPiece) != ptPawn)
+	piece p = boardGetPiece(b, s);
+	if (pieceGetType(p) != ptPawn)
 		return list;
 
-	pieceColor color = pieceGetColor(bPiece);
+	pieceColor color = pieceGetColor(p);
 	int delta = color == pcWhite ? 1 : -1;
 
-	if (p.file > 1)
+	if (s.file > 1)
 	{
-		pos newPos = posI(p.file - 1, p.rank + delta);
-		if (canMoveHere(b, newPos, color))
-			moveListAdd(list, movePos(p, newPos));
+		sq newSq = sqI(s.file - 1, s.rank + delta);
+		if (canMoveHere(b, newSq, color))
+			moveListAdd(list, moveSq(s, newSq));
 	}
 
-	if (p.file < 8)
+	if (s.file < 8)
 	{
-		pos newPos = posI(p.file + 1, p.rank + delta);
-		if (canMoveHere(b, newPos, color))
-			moveListAdd(list, movePos(p, newPos));
+		sq newSq = sqI(s.file + 1, s.rank + delta);
+		if (canMoveHere(b, newSq, color))
+			moveListAdd(list, moveSq(s, newSq));
 	}
 
 	return list;
@@ -194,9 +194,9 @@ moveList *pmGetPawnAttacks(board *b, pos p)
 
 int8_t knightOffsets[8][2] = {{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}};
 
-moveList *pmGetKnightMoves(board *b, pos p)
+moveList *pmGetKnightMoves(board *b, sq s)
 {
-	return pmLeaperMoveList(b, p, ptKnight, knightOffsets, 8);
+	return pmLeaperMoveList(b, s, ptKnight, knightOffsets, 8);
 }
 
 
@@ -206,9 +206,9 @@ moveList *pmGetKnightMoves(board *b, pos p)
 
 int8_t bishopOffsets[4][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
 
-moveList *pmGetBishopMoves(board *b, pos p)
+moveList *pmGetBishopMoves(board *b, sq s)
 {
-	return pmRiderMoveList(b, p, ptBishop, bishopOffsets, 4);
+	return pmRiderMoveList(b, s, ptBishop, bishopOffsets, 4);
 }
 
 
@@ -218,9 +218,9 @@ moveList *pmGetBishopMoves(board *b, pos p)
 
 int8_t rookOffsets[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
-moveList *pmGetRookMoves(board *b, pos p)
+moveList *pmGetRookMoves(board *b, sq s)
 {
-	return pmRiderMoveList(b, p, ptRook, rookOffsets, 4);
+	return pmRiderMoveList(b, s, ptRook, rookOffsets, 4);
 }
 
 
@@ -230,9 +230,9 @@ moveList *pmGetRookMoves(board *b, pos p)
 
 int8_t royalOffsets[8][2] = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
 
-moveList *pmGetQueenMoves(board *b, pos p)
+moveList *pmGetQueenMoves(board *b, sq s)
 {
-	return pmRiderMoveList(b, p, ptQueen, royalOffsets, 8);
+	return pmRiderMoveList(b, s, ptQueen, royalOffsets, 8);
 }
 
 
@@ -240,7 +240,7 @@ moveList *pmGetQueenMoves(board *b, pos p)
 // KING //
 //////////
 
-moveList *pmGetKingMoves(board *b, pos p)
+moveList *pmGetKingMoves(board *b, sq s)
 {
-	return pmLeaperMoveList(b, p, ptKing, royalOffsets, 8);
+	return pmLeaperMoveList(b, s, ptKing, royalOffsets, 8);
 }

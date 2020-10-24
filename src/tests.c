@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "tests.h"
-#include "chesslib/pos.h"
+#include "chesslib/square.h"
 #include "chesslib/movelist.h"
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
@@ -21,11 +21,11 @@ const char *currTest;
 // Runs tests. Will halt when one is failed
 int main(int argc, char *argv[])
 {
-	// Test Pos
-	RUN_TEST(testPosI);
-	RUN_TEST(testPosS);
-	RUN_TEST(testPosGetStr);
-	RUN_TEST(testPosIsDark);
+	// Test Square
+	RUN_TEST(testSqI);
+	RUN_TEST(testSqS);
+	RUN_TEST(testSqGetStr);
+	RUN_TEST(testSqIsDark);
 
 	// Test Move
 	RUN_TEST(testMoveCreate);
@@ -103,29 +103,29 @@ void validateString(const char *actual, const char *expected)
 }
 
 
-//////////////
-// TEST POS //
-//////////////
+/////////////////
+// TEST SQUARE //
+/////////////////
 
-void testPosI()
+void testSqI()
 {
 	for (uint8_t rank = 1; rank <= 8; rank++)
 	{
 		for (uint8_t file = 1; file <= 8; file++)
 		{
-			pos p = posI(file, rank);
+			sq s = sqI(file, rank);
 
-			if (p.file != file || p.rank != rank)
+			if (s.file != file || s.rank != rank)
 			{
 				char msg[50];
-				sprintf(msg, "Actual (%d, %d), but expected (%d, %d)", p.file, p.rank, file, rank);
+				sprintf(msg, "Actual (%d, %d), but expected (%d, %d)", s.file, s.rank, file, rank);
 				failTest(msg);
 			}
 		}
 	}
 }
 
-void testPosS()
+void testSqS()
 {
 	for (uint8_t rank = 1; rank <= 8; rank++)
 	{
@@ -133,50 +133,50 @@ void testPosS()
 		{
 			char str[3] = {'a' + file - 1, '0' + rank, 0};
 
-			pos p = posS(str);
+			sq s = sqS(str);
 
-			if (p.file != file || p.rank != rank)
+			if (s.file != file || s.rank != rank)
 			{
 				char msg[60];
-				sprintf(msg, "Actual (%d, %d), but expected (%d, %d) from \"%s\"", p.file, p.rank, file, rank, str);
+				sprintf(msg, "Actual (%d, %d), but expected (%d, %d) from \"%s\"", s.file, s.rank, file, rank, str);
 				failTest(msg);
 			}
 		}
 	}
 }
 
-void testPosGetStr()
+void testSqGetStr()
 {
 	for (uint8_t rank = 1; rank <= 8; rank++)
 	{
 		for (uint8_t file = 1; file <= 8; file++)
 		{
-			pos p = posI(file, rank);
+			sq s = sqI(file, rank);
 
 			char str[3] = {'a' + file - 1, '0' + rank, 0};
 
-			validateString(posGetStr(p), str);
+			validateString(sqGetStr(s), str);
 		}
 	}
 }
 
-void testPosIsDark()
+void testSqIsDark()
 {
 	uint8_t expectedIsDark = 1; 	// a1 is expected to be dark
 	for (uint8_t rank = 1; rank <= 8; rank++)
 	{
 		for (uint8_t file = 1; file <= 8; file++)
 		{
-			pos p = posI(file, rank);
+			sq s = sqI(file, rank);
 
-			uint8_t actualIsDark = posIsDark(p);
+			uint8_t actualIsDark = sqIsDark(s);
 
 			if (actualIsDark != expectedIsDark)
 			{
 				char message[50];
 				sprintf(message,
-						"Pos %s was %s, expected %s",
-						posGetStr(p),
+						"Square %s was %s, expected %s",
+						sqGetStr(s),
 						actualIsDark ? "dark" : "light",
 						expectedIsDark ? "dark" : "light");
 				failTest(message);
@@ -193,15 +193,15 @@ void testPosIsDark()
 // TEST MOVE //
 ///////////////
 
-void validateMove(move m, pos expectedFrom, pos expectedTo, pieceType expectedPromotion)
+void validateMove(move m, sq expectedFrom, sq expectedTo, pieceType expectedPromotion)
 {
-	if (!posEq(m.from, expectedFrom) || !posEq(m.to, expectedTo)
+	if (!sqEq(m.from, expectedFrom) || !sqEq(m.to, expectedTo)
 			|| m.promotion != expectedPromotion)
 	{
 		char msg[55];
 		sprintf(msg, "Actual (%s, %s, %d), but expected (%s, %s, %d)",
-				posGetStr(m.from), posGetStr(m.to), m.promotion,
-				posGetStr(expectedFrom), posGetStr(expectedTo), expectedPromotion);
+				sqGetStr(m.from), sqGetStr(m.to), m.promotion,
+				sqGetStr(expectedFrom), sqGetStr(expectedTo), expectedPromotion);
 		failTest(msg);
 	}
 }
@@ -209,20 +209,20 @@ void validateMove(move m, pos expectedFrom, pos expectedTo, pieceType expectedPr
 void testMoveCreate()
 {
 	// maybe TODO - make this test more thorough
-	move m = movePos(posI(5, 8), posI(5, 7));
-	validateMove(m, posI(5, 8), posI(5, 7), ptEmpty);
+	move m = moveSq(sqI(5, 8), sqI(5, 7));
+	validateMove(m, sqI(5, 8), sqI(5, 7), ptEmpty);
 
-	m = movePromote(posI(3, 2), posI(2, 1), ptQueen);
-	validateMove(m, posI(3, 2), posI(2, 1), ptQueen);
+	m = movePromote(sqI(3, 2), sqI(2, 1), ptQueen);
+	validateMove(m, sqI(3, 2), sqI(2, 1), ptQueen);
 }
 
 void testMoveGetUci()
 {
 	// maybe TODO - make this test more thorough
-	move m = movePos(posI(5, 8), posI(5, 7));
+	move m = moveSq(sqI(5, 8), sqI(5, 7));
 	validateString(moveGetUci(m), "e8e7");
 
-	m = movePromote(posI(3, 2), posI(2, 1), ptQueen);
+	m = movePromote(sqI(3, 2), sqI(2, 1), ptQueen);
 	validateString(moveGetUci(m), "c2b1q");
 }
 
@@ -230,10 +230,10 @@ void testMoveFromUci()
 {
 	// maybe TODO - make this test more thorough
 	move m = moveFromUci("e8e7");
-	validateMove(m, posI(5, 8), posI(5, 7), ptEmpty);
+	validateMove(m, sqI(5, 8), sqI(5, 7), ptEmpty);
 
 	m = moveFromUci("c2b1q");
-	validateMove(m, posI(3, 2), posI(2, 1), ptQueen);
+	validateMove(m, sqI(3, 2), sqI(2, 1), ptQueen);
 }
 
 
@@ -348,8 +348,8 @@ void testBoardInit()
 	if (b.castleState != 0b1111)
 		failTest("Not all castling flags enabled");
 
-	if (!posEq(b.epTarget, POS_INVALID))
-		failTest("EP target square was not POS_INVALID");
+	if (!sqEq(b.epTarget, SQ_INVALID))
+		failTest("EP target square was not SQ_INVALID");
 
 	if (b.halfMoveClock != 0)
 	{
@@ -394,10 +394,10 @@ void testBoardInitFromFen()
 	if (b.castleState != 0b0000)
 		failTest("Not all castling flags disabled");
 
-	if (!posEq(b.epTarget, posI(5, 3)))
+	if (!sqEq(b.epTarget, sqI(5, 3)))
 	{
 		char message[50];
-		sprintf(message, "Actual EP target square: %s, expected: e3", posGetStr(b.epTarget));
+		sprintf(message, "Actual EP target square: %s, expected: e3", sqGetStr(b.epTarget));
 		failTest(message);
 	}
 
@@ -456,7 +456,7 @@ void testPawnMoves()
 	// Lone white pawn on starting rank
 	boardInitFromFen(&b, "8/8/8/8/8/8/4P3/8 w - - 0 1");
 
-	list = pmGetPawnMoves(&b, posS("e2"));
+	list = pmGetPawnMoves(&b, sqS("e2"));
 
 	validateListSize(list, 2);
 	validateUciIsInMovelist(list, "e2e3");
@@ -467,7 +467,7 @@ void testPawnMoves()
 	// Pawn with captures
 	boardInitFromFen(&b, "8/8/8/8/8/3q1n2/4P3/8 w - - 0 1");
 
-	list = pmGetPawnMoves(&b, posS("e2"));
+	list = pmGetPawnMoves(&b, sqS("e2"));
 
 	validateListSize(list, 4);
 	validateUciIsInMovelist(list, "e2e3");
@@ -480,7 +480,7 @@ void testPawnMoves()
 	// Pawn blocked
 	boardInitFromFen(&b, "8/8/8/8/8/4N3/4P3/8 w - - 0 1");
 
-	list = pmGetPawnMoves(&b, posS("e2"));
+	list = pmGetPawnMoves(&b, sqS("e2"));
 
 	validateListSize(list, 0);
 
@@ -489,7 +489,7 @@ void testPawnMoves()
 	// Pawn not on first rank
 	boardInitFromFen(&b, "8/8/8/8/4P3/8/8/8 w - - 0 1");
 
-	list = pmGetPawnMoves(&b, posS("e4"));
+	list = pmGetPawnMoves(&b, sqS("e4"));
 
 	validateListSize(list, 1);
 	validateUciIsInMovelist(list, "e4e5");
@@ -499,7 +499,7 @@ void testPawnMoves()
 	// White pawn about to promote
 	boardInitFromFen(&b, "8/6P1/8/8/8/8/8/8 w - - 0 1");
 
-	list = pmGetPawnMoves(&b, posS("g7"));
+	list = pmGetPawnMoves(&b, sqS("g7"));
 
 	validateListSize(list, 4);
 	validateUciIsInMovelist(list, "g7g8q");
@@ -512,7 +512,7 @@ void testPawnMoves()
 	// Black pawn on first rank
 	boardInitFromFen(&b, "8/6p1/8/8/8/8/8/8 b - - 0 1");
 
-	list = pmGetPawnMoves(&b, posS("g7"));
+	list = pmGetPawnMoves(&b, sqS("g7"));
 
 	validateListSize(list, 2);
 	validateUciIsInMovelist(list, "g7g6");
@@ -523,7 +523,7 @@ void testPawnMoves()
 	// Pawn blocked with one free spot, opp color
 	boardInitFromFen(&b, "8/6p1/8/6P1/8/8/8/8 b - - 0 1");
 
-	list = pmGetPawnMoves(&b, posS("g7"));
+	list = pmGetPawnMoves(&b, sqS("g7"));
 
 	validateListSize(list, 1);
 	validateUciIsInMovelist(list, "g7g6");
@@ -533,7 +533,7 @@ void testPawnMoves()
 	// Black pawn about to promote, with capturing ability
 	boardInitFromFen(&b, "8/8/8/8/8/8/p7/1Q6 b - - 0 1");
 
-	list = pmGetPawnMoves(&b, posS("a2"));
+	list = pmGetPawnMoves(&b, sqS("a2"));
 
 	validateListSize(list, 8);
 	validateUciIsInMovelist(list, "a2a1q");
@@ -551,9 +551,9 @@ void testPawnMoves()
 	boardInitFromFen(&b, "8/8/8/4Pp2/8/8/8/8 w - f6 0 1");
 
 	b.currentPlayer = pcWhite;
-	b.epTarget = posS("f6");
+	b.epTarget = sqS("f6");
 
-	list = pmGetPawnMoves(&b, posS("e5"));
+	list = pmGetPawnMoves(&b, sqS("e5"));
 
 	validateListSize(list, 2);
 	validateUciIsInMovelist(list, "e5e6");
@@ -565,9 +565,9 @@ void testPawnMoves()
 	boardInitFromFen(&b, "8/8/8/8/6Pp/8/8/8 b - g3 0 1");
 
 	b.currentPlayer = pcBlack;
-	b.epTarget = posS("g3");
+	b.epTarget = sqS("g3");
 
-	list = pmGetPawnMoves(&b, posS("h4"));
+	list = pmGetPawnMoves(&b, sqS("h4"));
 
 	validateListSize(list, 2);
 	validateUciIsInMovelist(list, "h4h3");
@@ -584,7 +584,7 @@ void testKnightMoves()
 	// Lone knight
 	boardInitFromFen(&b, "8/8/8/8/8/2N5/8/8 w - - 0 1");
 
-	list = pmGetKnightMoves(&b, posS("c3"));
+	list = pmGetKnightMoves(&b, sqS("c3"));
 
 	validateListSize(list, 8);
 	validateUciIsInMovelist(list, "c3d5");
@@ -601,7 +601,7 @@ void testKnightMoves()
 	// Knight near the edge
 	boardInitFromFen(&b, "8/7n/8/8/8/8/8/8 b - - 0 1");
 
-	list = pmGetKnightMoves(&b, posS("h7"));
+	list = pmGetKnightMoves(&b, sqS("h7"));
 
 	validateListSize(list, 3);
 	validateUciIsInMovelist(list, "h7g5");
@@ -613,7 +613,7 @@ void testKnightMoves()
 	// Knight with some blocks
 	boardInitFromFen(&b, "6N1/3BQQQn/4QnQ1/4QQQ1/4b3/8/8/8 b - - 0 1");
 
-	list = pmGetKnightMoves(&b, posS("f6"));
+	list = pmGetKnightMoves(&b, sqS("f6"));
 
 	validateListSize(list, 6);
 	validateUciIsInMovelist(list, "f6g8");
@@ -634,7 +634,7 @@ void testBishopMoves()
 	// Lone bishop
 	boardInitFromFen(&b, "8/4b3/8/8/8/8/8/8 b - - 0 1");
 
-	list = pmGetBishopMoves(&b, posS("e7"));
+	list = pmGetBishopMoves(&b, sqS("e7"));
 
 	validateListSize(list, 9);
 	validateUciIsInMovelist(list, "e7f8");
@@ -652,7 +652,7 @@ void testBishopMoves()
 	// Position with some blocks captures
 	boardInitFromFen(&b, "8/8/5n2/8/1r6/2B5/3Q4/N7 w - - 0 1");
 
-	list = pmGetBishopMoves(&b, posS("c3"));
+	list = pmGetBishopMoves(&b, sqS("c3"));
 
 	validateListSize(list, 5);
 	validateUciIsInMovelist(list, "c3d4");
@@ -672,7 +672,7 @@ void testRookMoves()
 	// Lone rook
 	boardInitFromFen(&b, "8/3R4/8/8/8/8/8/8 w - - 0 1");
 
-	list = pmGetRookMoves(&b, posS("d7"));
+	list = pmGetRookMoves(&b, sqS("d7"));
 
 	validateListSize(list, 14);
 	validateUciIsInMovelist(list, "d7d8");
@@ -695,7 +695,7 @@ void testRookMoves()
 	// Rook with some stuff around
 	boardInitFromFen(&b, "8/3R4/8/2k1r1BQ/8/8/3n1R2/4b3 b - - 0 1");
 
-	list = pmGetRookMoves(&b, posS("e5"));
+	list = pmGetRookMoves(&b, sqS("e5"));
 
 	validateListSize(list, 9);
 	validateUciIsInMovelist(list, "e5e6");
@@ -718,7 +718,7 @@ void testQueenMoves()
 	// Lone queen
 	boardInitFromFen(&b, "8/8/8/8/8/8/1Q6/8 w - - 0 1");
 
-	list = pmGetQueenMoves(&b, posS("b2"));
+	list = pmGetQueenMoves(&b, sqS("b2"));
 
 	validateListSize(list, 23);
 	validateUciIsInMovelist(list, "b2b3");
@@ -753,7 +753,7 @@ void testQueenMoves()
 	// Queen with stuff around
 	boardInitFromFen(&b, "8/1Q3N2/2br4/2Rq2P1/2Rr4/6p1/5P2/8 b - - 0 1");
 
-	list = pmGetQueenMoves(&b, posS("d5"));
+	list = pmGetQueenMoves(&b, sqS("d5"));
 
 	validateListSize(list, 11);
 	validateUciIsInMovelist(list, "d5e6");
@@ -782,7 +782,7 @@ void testKingMoves()
 	// Lone king
 	boardInitFromFen(&b, "8/2k5/8/8/8/8/8/8 b - - 0 1");
 
-	list = pmGetKingMoves(&b, posS("c7"));
+	list = pmGetKingMoves(&b, sqS("c7"));
 
 	validateListSize(list, 8);
 	validateUciIsInMovelist(list, "c7c8");
@@ -799,7 +799,7 @@ void testKingMoves()
 	// King in corner
 	boardInitFromFen(&b, "8/8/8/8/8/8/8/K7 w - - 0 1");
 
-	list = pmGetKingMoves(&b, posS("a1"));
+	list = pmGetKingMoves(&b, sqS("a1"));
 
 	validateListSize(list, 3);
 	validateUciIsInMovelist(list, "a1a2");
@@ -811,7 +811,7 @@ void testKingMoves()
 	// King with stuff around
 	boardInitFromFen(&b, "8/2B2R2/3nb3/3k4/2BRn3/8/3q4/8 b - - 0 1");
 
-	list = pmGetKingMoves(&b, posS("d5"));
+	list = pmGetKingMoves(&b, sqS("d5"));
 
 	validateListSize(list, 5);
 	validateUciIsInMovelist(list, "d5e5");
@@ -837,17 +837,17 @@ void testIsSquareAttacked()
 
 	for (int i = 0; i < 64; i++)
 	{
-		pos p = posIndex(i);
+		sq s = sqIndex(i);
 
-		uint8_t expectedAttacked = posEq(p, posS("a3")) || posEq(p, posS("c3")) || posEq(p, posS("f7"))
-				|| posEq(p, posS("g6"));
+		uint8_t expectedAttacked = sqEq(s, sqS("a3")) || sqEq(s, sqS("c3")) || sqEq(s, sqS("f7"))
+				|| sqEq(s, sqS("g6"));
 
-		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, pcWhite);
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, s, pcWhite);
 
 		if (expectedAttacked != actualAttacked)
 		{
 			char message[50];
-			sprintf(message, "Actual %s attacked: %u, expected: %u", posGetStr(p), actualAttacked, expectedAttacked);
+			sprintf(message, "Actual %s attacked: %u, expected: %u", sqGetStr(s), actualAttacked, expectedAttacked);
 			failTest(message);
 		}
 	}
@@ -857,16 +857,16 @@ void testIsSquareAttacked()
 
 	for (int i = 0; i < 64; i++)
 	{
-		pos p = posIndex(i);
+		sq s = sqIndex(i);
 
-		uint8_t expectedAttacked = (p.file == 4) ^ (p.rank == 5);
+		uint8_t expectedAttacked = (s.file == 4) ^ (s.rank == 5);
 
-		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, pcBlack);
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, s, pcBlack);
 
 		if (expectedAttacked != actualAttacked)
 		{
 			char message[50];
-			sprintf(message, "Actual %s attacked: %u, expected: %u", posGetStr(p), actualAttacked, expectedAttacked);
+			sprintf(message, "Actual %s attacked: %u, expected: %u", sqGetStr(s), actualAttacked, expectedAttacked);
 			failTest(message);
 		}
 	}
@@ -876,17 +876,17 @@ void testIsSquareAttacked()
 
 	for (int i = 0; i < 64; i++)
 	{
-		pos p = posIndex(i);
+		sq s = sqIndex(i);
 
-		uint8_t expectedAttacked = posEq(p, posS("a1")) || posEq(p, posS("c1")) || posEq(p, posS("d1"))
-				|| posEq(p, posS("b2")) || posEq(p, posS("b3")) || posEq(p, posS("a3")) || posEq(p, posS("c3"));
+		uint8_t expectedAttacked = sqEq(s, sqS("a1")) || sqEq(s, sqS("c1")) || sqEq(s, sqS("d1"))
+				|| sqEq(s, sqS("b2")) || sqEq(s, sqS("b3")) || sqEq(s, sqS("a3")) || sqEq(s, sqS("c3"));
 
-		uint8_t actualAttacked = boardIsSquareAttacked(&b, p, pcBlack);
+		uint8_t actualAttacked = boardIsSquareAttacked(&b, s, pcBlack);
 
 		if (expectedAttacked != actualAttacked)
 		{
 			char message[50];
-			sprintf(message, "Actual %s attacked: %u, expected: %u", posGetStr(p), actualAttacked, expectedAttacked);
+			sprintf(message, "Actual %s attacked: %u, expected: %u", sqGetStr(s), actualAttacked, expectedAttacked);
 			failTest(message);
 		}
 	}
@@ -948,7 +948,7 @@ void testBoardPlayMove()
 	boardInit(&b);
 
 	// 1. e4
-	b = boardPlayMove(&b, movePos(posS("e2"), posS("e4")));
+	b = boardPlayMove(&b, moveSq(sqS("e2"), sqS("e4")));
 	boardInitFromFen(&bCheck, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
 	board bCheckFuzzy;
 	boardInitFromFen(&bCheckFuzzy, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 32 53");
@@ -963,7 +963,7 @@ void testBoardPlayMove()
 		failTest("1. e4 boards were not contextually the same, expected the same board");
 
 	// 1... Nf6
-	b = boardPlayMove(&b, movePos(posS("g8"), posS("f6")));
+	b = boardPlayMove(&b, moveSq(sqS("g8"), sqS("f6")));
 	boardInitFromFen(&bCheck, "rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2");
 
 	validateBoardEq("1... Nf6", &b, &bCheck);

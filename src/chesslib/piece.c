@@ -7,20 +7,20 @@
 
 #include "chesslib/piece.h"
 
-pieceType pieceGetType(piece pe)
+pieceType pieceGetType(piece p)
 {
-	if (pe >= pBPawn)
-		pe = pe - pBPawn + 1;
+	if (p >= pBPawn)
+		p = p - pBPawn + 1;
 
-	return (pieceType) pe;
+	return (pieceType) p;
 }
 
-pieceColor pieceGetColor(piece pe)
+pieceColor pieceGetColor(piece p)
 {
-	if (pe >= pWPawn && pe <= pWKing)
+	if (p >= pWPawn && p <= pWKing)
 		return pcWhite;
 
-	if (pe >= pBPawn && pe <= pBKing)
+	if (p >= pBPawn && p <= pBKing)
 		return pcBlack;
 
 	return pcNoColor;
@@ -57,11 +57,11 @@ char pieceTypeGetLetter(pieceType pe)
 	}
 }
 
-char pieceGetLetter(piece pe)
+char pieceGetLetter(piece p)
 {
-	char c = pieceTypeGetLetter(pieceGetType(pe));
+	char c = pieceTypeGetLetter(pieceGetType(p));
 
-	if (pieceGetColor(pe) == pcBlack)
+	if (pieceGetColor(p) == pcBlack)
 		c = tolower(c);
 
 	return c;
