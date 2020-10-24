@@ -1387,7 +1387,7 @@ void validateBoardIsInsufficientMaterial(board *b, uint8_t expected)
 	{
 		char message[100];
 		sprintf(message,
-				"Board %s draw insufficient material, expected board %s",
+				"Board %s draw by insufficient material, expected board %s",
 				actual ? "is" : "is not",
 				expected ? "is" : "is not");
 		failTest(message);
@@ -1422,7 +1422,7 @@ void testBoardIsInsufficientMaterial()
 	boardInitFromFen(&b, "8/4k1b1/8/8/2K5/6B1/8/8 w - - 0 1");
 	validateBoardIsInsufficientMaterial(&b, 1);
 
-	// K+B+B+B+B vs K+B+B, all same colors, true
+	// K+B+B+B+B vs K+B+B+B, all same colors, true
 	boardInitFromFen(&b, "3b4/4k1b1/5b2/8/1BK5/6B1/3B1B2/8 w - - 0 1");
 	validateBoardIsInsufficientMaterial(&b, 1);
 }
