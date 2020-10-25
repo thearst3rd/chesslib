@@ -51,3 +51,6 @@ void testBoardGetFen();
 
 // Test draw by insufficient material
 void testBoardIsInsufficientMaterial();
+
+// Test board list
+void testBoardList();

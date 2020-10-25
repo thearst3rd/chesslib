@@ -25,6 +25,11 @@ move movePromote(sq from, sq to, pieceType promotion)
 	return m;
 }
 
+uint8_t moveEq(move m1, move m2)
+{
+	return sqEq(m1.from, m2.from) && sqEq(m1.to, m2.to) && (m1.promotion == m2.promotion);
+}
+
 // Returns the UCI string of the given move. Must be freed.
 char *moveGetUci(move m)
 {
