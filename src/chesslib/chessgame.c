@@ -120,6 +120,8 @@ void chessGameCalculateFields(chessGame *g)
 			g->terminal = tsDrawFivefold;
 		else if (currentBoard.halfMoveClock >= 150)
 			g->terminal = tsDraw75MoveRule;
+		else if (boardIsInsufficientMaterial(&currentBoard))
+			g->terminal = tsDrawInsufficient;
 		else if ((g->terminal != tsDrawClaimed50MoveRule) && (g->terminal != tsDrawClaimedThreefold))
 			g->terminal = tsOngoing;
 	}

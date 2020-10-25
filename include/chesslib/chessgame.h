@@ -16,7 +16,8 @@ typedef enum
 	tsDrawClaimed50MoveRule,
 	tsDraw75MoveRule,
 	tsDrawClaimedThreefold,
-	tsDrawFivefold
+	tsDrawFivefold,
+	tsDrawInsufficient
 } terminalState;
 
 typedef struct
