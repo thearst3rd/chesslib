@@ -25,6 +25,8 @@ uint8_t chessGameInitFromFen(chessGame *g, const char *fen)
 
 	boardListAdd(g->boardHistory, b);
 
+	g->moveHistory = moveListCreate();
+
 	g->currentLegalMoves = NULL;
 	g->repetitions = 1;
 	g->terminal = tsOngoing;
@@ -38,6 +40,7 @@ uint8_t chessGameInitFromFen(chessGame *g, const char *fen)
 void chessGameFreeComponents(chessGame *g)
 {
 	boardListFree(g->boardHistory);
+	moveListFree(g->moveHistory);
 	moveListFree(g->currentLegalMoves);
 }
 
@@ -65,10 +68,10 @@ uint8_t chessGamePlayMove(chessGame *g, move m)
 	if (!found)
 		return 1;
 
-	board oldBoard = chessGameGetCurrentBoard(g);
-	board newBoard = boardPlayMove(&oldBoard, m);
+	board newBoard = boardPlayMove(&(g->boardHistory->tail->board), m);
 
 	boardListAdd(g->boardHistory, newBoard);
+	moveListAdd(g->moveHistory, m);
 
 	chessGameCalculateFields(g);
 
@@ -82,6 +85,7 @@ uint8_t chessGameUndo(chessGame *g)
 		return 1;
 
 	boardListUndo(g->boardHistory);
+	moveListUndo(g->moveHistory);
 
 	if (g->terminal == tsDrawClaimed50MoveRule || g->terminal == tsDrawClaimedThreefold)
 		g->terminal = tsOngoing;

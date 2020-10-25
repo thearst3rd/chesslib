@@ -29,6 +29,7 @@ moveListNode *moveListNodeCreate(move move);
 // Move list operations
 void moveListAdd(moveList *list, move move);
 move moveListGet(moveList *list, unsigned int index);
+void moveListUndo(moveList *list);
 
 // Frees the movelist and all nodes
 void moveListFree(moveList *list);

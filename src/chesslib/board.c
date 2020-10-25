@@ -574,9 +574,6 @@ board boardPlayMove(board *b, move m)
 // Board equality - returns true if boards are fully equal
 uint8_t boardEq(board *b1, board *b2)
 {
-	if (memcmp(b1, b2, 64 * sizeof(piece)))
-		return 0;
-
 	if (b1->currentPlayer != b2->currentPlayer)
 		return 0;
 
@@ -592,19 +589,22 @@ uint8_t boardEq(board *b1, board *b2)
 	if (b1->moveNumber != b2->moveNumber)
 		return 0;
 
+	if (memcmp(b1, b2, 64 * sizeof(piece)))
+		return 0;
+
 	return 1;
 }
 
 // Contextual board equality - doesn't consider counters, and filters out EP target square
 uint8_t boardEqContext(board *b1, board *b2)
 {
-	if (memcmp(b1, b2, 64 * sizeof(piece)))
-		return 0;
-
 	if (b1->currentPlayer != b2->currentPlayer)
 		return 0;
 
 	if (b1->castleState != b2->castleState)
+		return 0;
+
+	if (memcmp(b1, b2, 64 * sizeof(piece)))
 		return 0;
 
 	// Filter EP target squares

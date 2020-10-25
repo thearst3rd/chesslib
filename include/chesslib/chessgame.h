@@ -23,6 +23,7 @@ typedef enum
 typedef struct
 {
 	boardList *boardHistory;
+	moveList *moveHistory;
 	moveList *currentLegalMoves;
 	uint8_t repetitions; 	// How many times we have seen the current position
 	terminalState terminal;

@@ -56,6 +56,37 @@ move moveListGet(moveList *list, unsigned int index)
 	return currNode->move;
 }
 
+void moveListUndo(moveList *list)
+{
+	// This would be easier if I made this a doubly linked...
+	if (list == NULL || list->head == NULL)
+		return;
+
+	if (list->head->next == NULL)
+	{
+		free(list->head);
+		list->head = NULL;
+		list->tail = NULL;
+	}
+	else
+	{
+		moveListNode *prev = list->head;
+		moveListNode *curr = prev->next;
+
+		while (curr->next)
+		{
+			prev = curr;
+			curr = curr->next;
+		}
+
+		free(curr);
+		prev->next = NULL;
+		list->tail = prev;
+	}
+
+	list->size--;
+}
+
 void moveListFree(moveList *list)
 {
 	moveListNode *node = list->head;
