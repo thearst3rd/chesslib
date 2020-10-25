@@ -229,7 +229,7 @@ int boardInitFromFen(board *b, const char *fen)
 
 	sscanf(fen, "%u %u", &b->halfMoveClock, &b->moveNumber);
 
-	return 1;
+	return 0;
 }
 
 void boardSetPiece(board *b, sq s, piece p)
