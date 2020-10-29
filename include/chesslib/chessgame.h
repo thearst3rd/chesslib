@@ -38,8 +38,8 @@ void chessGameInitInPlace(chessGame *g);
 // Returns 0 if successful, 1 if invalid FEN (and does not init)
 uint8_t chessGameInitFromFenInPlace(chessGame *g, const char *fen);
 
-// Frees all the components of a chessGame
-void chessGameFreeComponents(chessGame *g);
+// Frees a chessGame and all components
+void chessGameFree(chessGame *g);
 
 board *chessGameGetCurrentBoard(chessGame *g);
 

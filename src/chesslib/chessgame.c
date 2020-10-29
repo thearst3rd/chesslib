@@ -52,11 +52,12 @@ uint8_t chessGameInitFromFenInPlace(chessGame *g, const char *fen)
 	return 0;
 }
 
-void chessGameFreeComponents(chessGame *g)
+void chessGameFree(chessGame *g)
 {
 	boardListFree(g->boardHistory);
 	moveListFree(g->moveHistory);
 	moveListFree(g->currentLegalMoves);
+	free(g);
 }
 
 board *chessGameGetCurrentBoard(chessGame *g)
