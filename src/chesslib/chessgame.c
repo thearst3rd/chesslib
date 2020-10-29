@@ -3,26 +3,41 @@
  * Created by thearst3rd on 10/24/2020
  */
 
+#include <stdlib.h>
+
 #include "chesslib/chessgame.h"
 #include "chesslib/move.h"
 
-void chessGameInit(chessGame *g)
+chessGame *chessGameCreate()
 {
-	chessGameInitFromFen(g, INITIAL_FEN);
+	return chessGameCreateFromFen(INITIAL_FEN);
 }
 
-uint8_t chessGameInitFromFen(chessGame *g, const char *fen)
+chessGame *chessGameCreateFromFen(const char *fen)
 {
-	g->boardHistory = boardListCreate();
+	chessGame *g = (chessGame *) malloc(sizeof(chessGame));
 
-	board b;
-	if (boardInitFromFen(&b, fen))
+	if (chessGameInitFromFenInPlace(g, fen))
 	{
-		boardListFree(g->boardHistory);
-		chessGameInit(g);
-		return 1;
+		free(g);
+		return NULL;
 	}
 
+	return g;
+}
+
+void chessGameInitInPlace(chessGame *g)
+{
+	chessGameInitFromFenInPlace(g, INITIAL_FEN);
+}
+
+uint8_t chessGameInitFromFenInPlace(chessGame *g, const char *fen)
+{
+	board *b = boardCreateFromFen(fen);
+	if (b == NULL)
+		return 1;
+
+	g->boardHistory = boardListCreate();
 	boardListAdd(g->boardHistory, b);
 
 	g->moveHistory = moveListCreate();
@@ -44,7 +59,7 @@ void chessGameFreeComponents(chessGame *g)
 	moveListFree(g->currentLegalMoves);
 }
 
-board chessGameGetCurrentBoard(chessGame *g)
+board *chessGameGetCurrentBoard(chessGame *g)
 {
 	return g->boardHistory->tail->board;
 }
@@ -68,7 +83,7 @@ uint8_t chessGamePlayMove(chessGame *g, move m)
 	if (!found)
 		return 1;
 
-	board newBoard = boardPlayMove(&(g->boardHistory->tail->board), m);
+	board *newBoard = boardPlayMove(chessGameGetCurrentBoard(g), m);
 
 	boardListAdd(g->boardHistory, newBoard);
 	moveListAdd(g->moveHistory, m);
@@ -97,23 +112,23 @@ uint8_t chessGameUndo(chessGame *g)
 
 void chessGameCalculateFields(chessGame *g)
 {
-	board currentBoard = chessGameGetCurrentBoard(g);
+	board *currentBoard = chessGameGetCurrentBoard(g);
 
 	g->repetitions = 0;
 	for (boardListNode *n = g->boardHistory->head; n; n = n->next)
 	{
-		if (boardEqContext(&currentBoard, &(n->board)))
+		if (boardEqContext(currentBoard, n->board))
 			g->repetitions++;
 	}
 
 	if (g->currentLegalMoves)
 		moveListFree(g->currentLegalMoves);
 
-	g->currentLegalMoves = boardGenerateMoves(&currentBoard);
+	g->currentLegalMoves = boardGenerateMoves(currentBoard);
 
 	if (g->currentLegalMoves->size == 0)
 	{
-		if (boardIsInCheck(&currentBoard))
+		if (boardIsInCheck(currentBoard))
 			g->terminal = tsCheckmate;
 		else
 			g->terminal = tsDrawStalemate;
@@ -122,9 +137,9 @@ void chessGameCalculateFields(chessGame *g)
 	{
 		if (g->repetitions >= 5)
 			g->terminal = tsDrawFivefold;
-		else if (currentBoard.halfMoveClock >= 150)
+		else if (currentBoard->halfMoveClock >= 150)
 			g->terminal = tsDraw75MoveRule;
-		else if (boardIsInsufficientMaterial(&currentBoard))
+		else if (boardIsInsufficientMaterial(currentBoard))
 			g->terminal = tsDrawInsufficient;
 		else if ((g->terminal != tsDrawClaimed50MoveRule) && (g->terminal != tsDrawClaimedThreefold))
 			g->terminal = tsOngoing;

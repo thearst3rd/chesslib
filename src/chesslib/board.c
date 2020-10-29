@@ -11,12 +11,30 @@
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
 
-void boardInit(board *b)
+board *boardCreate()
 {
-	boardInitFromFen(b, INITIAL_FEN);
+	return boardCreateFromFen(INITIAL_FEN);
 }
 
-int boardInitFromFen(board *b, const char *fen)
+board *boardCreateFromFen(const char *fen)
+{
+	board *b = (board *) malloc(sizeof(board));
+
+	if (boardInitFromFenInPlace(b, fen))
+	{
+		free(b);
+		return NULL;
+	}
+
+	return b;
+}
+
+void boardInitInPlace(board *b)
+{
+	boardInitFromFenInPlace(b, INITIAL_FEN);
+}
+
+uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 {
 	sq currSq = sqI(1, 8);
 
@@ -36,7 +54,6 @@ int boardInitFromFen(board *b, const char *fen)
 			if (currSq.file + num > 9)
 			{
 				fprintf(stderr, "ERROR IN FEN: Spacer put file over the end\n");
-				boardInit(b);
 				return 1;
 			}
 			for (int i = 0; i < num; i++)
@@ -50,13 +67,11 @@ int boardInitFromFen(board *b, const char *fen)
 			if (currSq.file != 9)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found '/' at wrong position in rank\n");
-				boardInit(b);
 				return 1;
 			}
 			if (currSq.rank <= 1)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found '/' after the last rank\n");
-				boardInit(b);
 				return 1;
 			}
 			currSq.file = 1;
@@ -67,7 +82,6 @@ int boardInitFromFen(board *b, const char *fen)
 			if (currSq.file > 8)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found character '%c' after the end of a rank\n", c);
-				boardInit(b);
 				return 1;
 			}
 
@@ -102,7 +116,6 @@ int boardInitFromFen(board *b, const char *fen)
 
 				default:
 					fprintf(stderr, "ERROR IN FEN: Unknown character '%c'\n", c);
-					boardInit(b);
 					return 1;
 			}
 
@@ -115,7 +128,6 @@ int boardInitFromFen(board *b, const char *fen)
 	if ((currSq.rank != 1) || (currSq.file != 9))
 	{
 		fprintf(stderr, "ERROR IN FEN: Ended prematurely\n");
-		boardInit(b);
 		return 1;
 	}
 
@@ -134,7 +146,6 @@ int boardInitFromFen(board *b, const char *fen)
 			break;
 		default:
 			fprintf(stderr, "ERROR IN FEN: Expected 'w' or 'b', found '%c'\n", c);
-			boardInit(b);
 			return 1;
 	}
 	fen++;
@@ -143,7 +154,6 @@ int boardInitFromFen(board *b, const char *fen)
 	if (c != ' ')
 	{
 		fprintf(stderr, "ERROR IN FEN: Expected ' ' after w/b, found '%c'\n", c);
-		boardInit(b);
 		return 1;
 	}
 	fen++;
@@ -184,7 +194,6 @@ int boardInitFromFen(board *b, const char *fen)
 
 			default:
 				fprintf(stderr, "ERROR IN FEN: Expected K/Q/k/q or -, found '%c'\n", c);
-				boardInit(b);
 				return 1;
 		}
 
@@ -208,7 +217,6 @@ int boardInitFromFen(board *b, const char *fen)
 		if (epTarget.file == -1) 	// It's invalid
 		{
 			fprintf(stderr, "ERROR IN FEN: Invalid EP target square \"%s\"\n", epTargetStr);
-			boardInit(b);
 			return 1;
 		}
 		b->epTarget = epTarget;
@@ -219,7 +227,6 @@ int boardInitFromFen(board *b, const char *fen)
 	if (c != ' ')
 	{
 		fprintf(stderr, "ERROR IN FEN: Expected ' ' after EP target square, found '%c'\n", c);
-		boardInit(b);
 		return 1;
 	}
 	fen++;
@@ -293,10 +300,12 @@ moveList *boardGenerateMoves(board *b)
 
 		if (currMoves)
 		{
+			board bCheck;
 			for (moveListNode *n = currMoves->head; n; n = n->next)
 			{
+				memcpy(&bCheck, b, sizeof(board)); 	// Done this way so less malloc+freeing required
 				move m = n->move;
-				board bCheck = boardPlayMove(b, m);
+				boardPlayMoveInPlace(&bCheck, m);
 				if (!boardIsPlayerInCheck(&bCheck, b->currentPlayer))
 					moveListAdd(list, m);
 			}
@@ -493,16 +502,32 @@ uint8_t boardIsInsufficientMaterial(board *b)
 
 // Returns a new board on which the given move was played on the given board
 // NOTE - this assumes that the move is legal!
-board boardPlayMove(board *b, move m)
+board *boardPlayMove(board *b, move m)
 {
-	board newBoard = *b;
+	board *newBoard = (board *) malloc(sizeof(board));
+	memcpy(newBoard, b, sizeof(board));
 
-	newBoard.currentPlayer = (b->currentPlayer == pcWhite) ? pcBlack : pcWhite;
-	newBoard.castleState = b->castleState;
+	boardPlayMoveInPlace(newBoard, m);
 
-	// CONTEXTUALIZE MOVE - is this a special move of sorts?
-	// Is this a castling move?
+	return newBoard;
+}
+
+// Plays the given move on the given board, modifying the given board's memory in place
+// NOTE - this assumes that the move is legal!
+void boardPlayMoveInPlace(board *b, move m)
+{
+	// Update the counters
+	if (b->currentPlayer == pcBlack)
+		b->moveNumber++;
+
+	// Was this in irreversable move?
 	pieceType pt = pieceGetType(boardGetPiece(b, m.from));
+	if (pt == ptPawn || (boardGetPiece(b, m.to) != pEmpty))
+		b->halfMoveClock = 0;
+	else
+		b->halfMoveClock++;
+
+	// Is this a castling move?
 	if (pt == ptKing)
 	{
 		// TODO - maybe redesign this to work better with Chess 960, though I don't like Fischer castling >:(
@@ -510,23 +535,23 @@ board boardPlayMove(board *b, move m)
 		if (diffFile == 2) 	// O-O
 		{
 			// Move rook from h file to correct file
-			boardSetPiece(&newBoard, sqI(8, m.to.rank), pEmpty);
-			boardSetPiece(&newBoard, sqI(m.to.file - 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
+			boardSetPiece(b, sqI(8, m.to.rank), pEmpty);
+			boardSetPiece(b, sqI(m.to.file - 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
 		}
 		else if (diffFile == -2) 	// O-O-O
 		{
 			// Move rook from a file to correct file
-			boardSetPiece(&newBoard, sqI(1, m.to.rank), pEmpty);
-			boardSetPiece(&newBoard, sqI(m.to.file + 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
+			boardSetPiece(b, sqI(1, m.to.rank), pEmpty);
+			boardSetPiece(b, sqI(m.to.file + 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
 		}
-		newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
+		b->castleState &= ~((b->currentPlayer == pcWhite) ? (CASTLE_WK | CASTLE_WQ) : (CASTLE_BK | CASTLE_BQ));
 	}
 	else if (pt == ptRook)
 	{
 		if (sqEq(m.from, sqI(1, b->currentPlayer == pcWhite ? 1 : 8)))
-			newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WQ : CASTLE_BQ);
+			b->castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WQ : CASTLE_BQ);
 		else if (sqEq(m.from, sqI(8, b->currentPlayer == pcWhite ? 1 : 8)))
-			newBoard.castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WK : CASTLE_BK);
+			b->castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WK : CASTLE_BK);
 	}
 
 	// Is this an en passant capture?
@@ -534,41 +559,29 @@ board boardPlayMove(board *b, move m)
 	{
 		// Remove the captured pawn
 		uint8_t delta = (b->currentPlayer == pcWhite) ? -1 : 1;
-		boardSetPiece(&newBoard, sqI(m.to.file, m.to.rank + delta), pEmpty);
+		boardSetPiece(b, sqI(m.to.file, m.to.rank + delta), pEmpty);
 	}
 
 	// Move the piece
-	boardSetPiece(&newBoard,
+	boardSetPiece(b,
 			m.to,
 			(m.promotion == ptEmpty) ? boardGetPiece(b, m.from) : pieceMake(m.promotion, b->currentPlayer));
-	boardSetPiece(&newBoard, m.from, pEmpty);
+	boardSetPiece(b, m.from, pEmpty);
 
 	// Should this set the EP target square?
 	int8_t diffRank = m.to.rank - m.from.rank;
 	if (pt == ptPawn && ((diffRank == 2) || (diffRank == -2)))
 	{
 		int8_t delta = (b->currentPlayer == pcWhite) ? -1 : 1;
-		newBoard.epTarget = sqI(m.to.file, m.to.rank + delta);
+		b->epTarget = sqI(m.to.file, m.to.rank + delta);
 	}
 	else
 	{
-		newBoard.epTarget = SQ_INVALID;
+		b->epTarget = SQ_INVALID;
 	}
 
-	// Update the counters
-
-	// Was this an irreversable move?
-	if (pt == ptPawn || (boardGetPiece(b, m.to) != pEmpty))
-		newBoard.halfMoveClock = 0;
-	else
-		newBoard.halfMoveClock = b->halfMoveClock + 1;
-
-	// Is this the end of a move?
-	newBoard.moveNumber = b->moveNumber;
-	if (b->currentPlayer == pcBlack)
-		newBoard.moveNumber++;
-
-	return newBoard;
+	// Switch current player
+	b->currentPlayer = (b->currentPlayer == pcWhite) ? pcBlack : pcWhite;
 }
 
 // Board equality - returns true if boards are fully equal

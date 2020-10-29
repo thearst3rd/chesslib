@@ -11,7 +11,7 @@
 
 typedef struct _boardListNode
 {
-	board board;
+	board *board;
 	struct _boardListNode *next;
 } boardListNode;
 
@@ -24,11 +24,11 @@ typedef struct
 
 // Creates an empty boardList/boardListNode with given board
 boardList *boardListCreate();
-boardListNode *boardListNodeCreate(board b);
+boardListNode *boardListNodeCreate(board *b);
 
 // Board list operations
-void boardListAdd(boardList *list, board b);
-board boardListGet(boardList *list, unsigned int index);
+void boardListAdd(boardList *list, board *b);
+board *boardListGet(boardList *list, unsigned int index);
 void boardListUndo(boardList *list);
 
 // Frees the boardList and all nodes

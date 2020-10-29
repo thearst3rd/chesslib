@@ -18,7 +18,7 @@ boardList *boardListCreate()
 	return list;
 }
 
-boardListNode *boardListNodeCreate(board b)
+boardListNode *boardListNodeCreate(board *b)
 {
 	boardListNode *node = (boardListNode *) malloc(sizeof(boardListNode));
 	node->board = b;
@@ -27,7 +27,7 @@ boardListNode *boardListNodeCreate(board b)
 	return node;
 }
 
-void boardListAdd(boardList *list, board b)
+void boardListAdd(boardList *list, board *b)
 {
 	boardListNode *node = boardListNodeCreate(b);
 
@@ -45,7 +45,7 @@ void boardListAdd(boardList *list, board b)
 	list->size++;
 }
 
-board boardListGet(boardList *list, unsigned int index)
+board *boardListGet(boardList *list, unsigned int index)
 {
 	boardListNode *currNode = list->head;
 	while (index)
@@ -64,6 +64,7 @@ void boardListUndo(boardList *list)
 
 	if (list->head->next == NULL)
 	{
+		free(list->head->board);
 		free(list->head);
 		list->head = NULL;
 		list->tail = NULL;
@@ -79,6 +80,7 @@ void boardListUndo(boardList *list)
 			curr = curr->next;
 		}
 
+		free(curr->board);
 		free(curr);
 		prev->next = NULL;
 		list->tail = prev;
@@ -93,6 +95,7 @@ void boardListFree(boardList *list)
 	while (node)
 	{
 		boardListNode *next = node->next;
+		free(node->board);
 		free(node);
 		node = next;
 	}

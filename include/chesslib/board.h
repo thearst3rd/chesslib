@@ -26,10 +26,14 @@ typedef struct
 	uint32_t moveNumber;
 } board;
 
-// Initializes the given memory into a board
-// boardInitFromFen returns 0 if successful and 1 if not. If not successful, it will init board with default FEN
-void boardInit(board *b);
-int boardInitFromFen(board *b, const char *fen);
+// Allocates and initializes a board and returns a pointer. Must be freed
+// boardCreateFromFen returns NULL on failure
+board *boardCreate();
+board *boardCreateFromFen(const char *fen);
+
+// Initializes the given board in place. In FromFen: return 0 if successful, 1 if not
+void boardInitInPlace(board *b);
+uint8_t boardInitFromFenInPlace(board *b, const char *fen);
 
 void boardSetPiece(board *b, sq s, piece p);
 piece boardGetPiece(board *b, sq s);
@@ -43,7 +47,9 @@ uint8_t boardIsPlayerInCheck(board *b, pieceColor player);
 uint8_t boardIsInsufficientMaterial(board *b);
 
 // Returns a new board on which the given move was played on the given board
-board boardPlayMove(board *b, move m);
+board *boardPlayMove(board *b, move m);
+// Plays the given move on the given board, modifying the given board in place
+void boardPlayMoveInPlace(board *b, move m);
 
 // Returns if two boards are equal in all ways
 uint8_t boardEq(board *b1, board *b2);

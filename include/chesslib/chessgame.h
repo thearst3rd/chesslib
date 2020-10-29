@@ -29,15 +29,19 @@ typedef struct
 	terminalState terminal;
 } chessGame;
 
+// Creates and initializes a chessGame. Must be freed. In FromFen: if invalid FEN, then NULL is returned.
+chessGame *chessGameCreate();
+chessGame *chessGameCreateFromFen(const char *fen);
+
 // Initializes the chessGame
-void chessGameInit(chessGame *g);
-// Returns 0 if successful, 1 if invalid FEN (and inits a normal chess game instead)
-uint8_t chessGameInitFromFen(chessGame *g, const char *fen);
+void chessGameInitInPlace(chessGame *g);
+// Returns 0 if successful, 1 if invalid FEN (and does not init)
+uint8_t chessGameInitFromFenInPlace(chessGame *g, const char *fen);
 
 // Frees all the components of a chessGame
 void chessGameFreeComponents(chessGame *g);
 
-board chessGameGetCurrentBoard(chessGame *g);
+board *chessGameGetCurrentBoard(chessGame *g);
 
 // Plays the given move. Returns 0 if successful, 1 if unsuccessful (move was illegal)
 uint8_t chessGamePlayMove(chessGame *g, move m);

@@ -24,8 +24,8 @@ void testMoveGetUci();
 void testMoveList();
 
 // Board testing
-void testBoardInit();
-void testBoardInitFromFen();
+void testBoardCreate();
+void testBoardCreateFromFen();
 
 // Piece moves testing
 void testPawnMoves();
