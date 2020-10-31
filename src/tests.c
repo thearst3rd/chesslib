@@ -69,7 +69,8 @@ int main(int argc, char *argv[])
 	RUN_TEST(testBoardList);
 
 	// Test square set
-	RUN_TEST(testSqSet);
+	RUN_TEST(testSqSetSet);
+	RUN_TEST(testSqSetGet);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -1482,31 +1483,66 @@ void testBoardList()
 // TEST SQUARE SET //
 /////////////////////
 
-void testSqSet()
+void testSqSetSet()
 {
-	sqSet ss = 0;
+	uint64_t ss = 0;
 
 	sqSetSet(&ss, sqS("e4"), 1);
-	printf("0x%016lx\n", ss);
 
-	if (ss != 0x0000000010000000)
+	if (ss != (uint64_t) 0x0000000010000000)
 		failTest("Setting e4 didn't work");
 
 	sqSetSet(&ss, sqS("d5"), 1);
-	printf("0x%016lx\n", ss);
 
-	if (ss != 0x0000000810000000)
+	if (ss != (uint64_t) 0x0000000810000000)
 		failTest("Setting d5 didn't work");
 
 	sqSetSet(&ss, sqS("a1"), 1);
-	printf("0x%016lx\n", ss);
 
-	if (ss != 0x0000000810000001)
+	if (ss != (uint64_t) 0x0000000810000001)
 		failTest("Setting a1 didn't work");
 
 	sqSetSet(&ss, sqS("h8"), 1);
-	printf("0x%016lx\n", ss);
 
-	if (ss != 0x8000000810000001)
+	if (ss != (uint64_t) 0x8000000810000001)
 		failTest("Setting h8 didn't work");
+}
+
+void testSqSetGet()
+{
+	// The diagonal from a1 to h8
+	uint64_t ss = 0x8040201008040201;
+
+	for (int i = 0; i < 64; i++)
+	{
+		sq s = sqIndex(i);
+
+		uint8_t expected = (s.file == s.rank);
+		uint8_t actual = sqSetGet(&ss, s);
+
+		if (expected != actual)
+		{
+			char message[100];
+			sprintf("Square %s was %d in the set, expected %d", sqGetStr(s), actual, expected);
+			failTest(message);
+		}
+	}
+
+	// Entire c file, f file, 3 rank, and 6 rank
+	ss = 0x2424FF2424FF2424;
+
+	for (int i = 0; i < 64; i++)
+	{
+		sq s = sqIndex(i);
+
+		uint8_t expected = (s.file == 3 || s.rank == 3 || s.file == 6 || s.rank == 6);
+		uint8_t actual = sqSetGet(&ss, s);
+
+		if (expected != actual)
+		{
+			char message[100];
+			sprintf("Square %s was %d in the set, expected %d", sqGetStr(s), actual, expected);
+			failTest(message);
+		}
+	}
 }
