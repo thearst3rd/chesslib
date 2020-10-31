@@ -1487,25 +1487,25 @@ void testSqSet()
 	sqSet ss = 0;
 
 	sqSetSet(&ss, sqS("e4"), 1);
-	printf("0x%016llx\n", ss);
+	printf("0x%016lx\n", ss);
 
 	if (ss != 0x0000000010000000)
 		failTest("Setting e4 didn't work");
 
 	sqSetSet(&ss, sqS("d5"), 1);
-	printf("0x%016llx\n", ss);
+	printf("0x%016lx\n", ss);
 
 	if (ss != 0x0000000810000000)
 		failTest("Setting d5 didn't work");
 
 	sqSetSet(&ss, sqS("a1"), 1);
-	printf("0x%016llx\n", ss);
+	printf("0x%016lx\n", ss);
 
 	if (ss != 0x0000000810000001)
 		failTest("Setting a1 didn't work");
 
 	sqSetSet(&ss, sqS("h8"), 1);
-	printf("0x%016llx\n", ss);
+	printf("0x%016lx\n", ss);
 
 	if (ss != 0x8000000810000001)
 		failTest("Setting h8 didn't work");
