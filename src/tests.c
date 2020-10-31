@@ -12,6 +12,7 @@
 #include "chesslib/movelist.h"
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
+#include "chesslib/boardlist.h"
 
 const char *currTest;
 
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
 	RUN_TEST(testBoardIsInsufficientMaterial);
 
 	// Test board list
-	//RUN_TEST(testBoardList);
+	RUN_TEST(testBoardList);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -1450,5 +1451,25 @@ void testBoardIsInsufficientMaterial()
 
 void testBoardList()
 {
-	failTest("Not yet implemented");
+	board *b1 = boardCreate();
+	board *b2 = boardPlayMove(b1, moveFromUci("e2e4"));
+	board *b3 = boardPlayMove(b1, moveFromUci("c7c5"));
+
+	boardList *l = boardListCreate();
+
+	boardListAdd(l, b1);
+	boardListAdd(l, b2);
+	boardListAdd(l, b3);
+
+	if (boardListGet(l, 0) != b1)
+		failTest("boardListGet(l, 0) didn't return b1");
+
+	if (boardListGet(l, 1) != b2)
+		failTest("boardListGet(l, 1) didn't return b2");
+
+	if (boardListGet(l, 2) != b3)
+		failTest("boardListGet(l, 2) didn't return b3");
+
+	// This also frees all boards
+	boardListFree(l);
 }
