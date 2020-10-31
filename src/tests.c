@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "tests.h"
-#include "chesslib/square.h"
+#include "chesslib/squareset.h"
 #include "chesslib/movelist.h"
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
@@ -67,6 +67,9 @@ int main(int argc, char *argv[])
 
 	// Test board list
 	RUN_TEST(testBoardList);
+
+	// Test square set
+	RUN_TEST(testSqSet);
 
 	// We made it to the end
 	printf("Success - all tests passed!\n");
@@ -1472,4 +1475,38 @@ void testBoardList()
 
 	// This also frees all boards
 	boardListFree(l);
+}
+
+
+/////////////////////
+// TEST SQUARE SET //
+/////////////////////
+
+void testSqSet()
+{
+	sqSet ss = 0;
+
+	sqSetSet(&ss, sqS("e4"), 1);
+	printf("0x%016llx\n", ss);
+
+	if (ss != 0x0000000010000000)
+		failTest("Setting e4 didn't work");
+
+	sqSetSet(&ss, sqS("d5"), 1);
+	printf("0x%016llx\n", ss);
+
+	if (ss != 0x0000000810000000)
+		failTest("Setting d5 didn't work");
+
+	sqSetSet(&ss, sqS("a1"), 1);
+	printf("0x%016llx\n", ss);
+
+	if (ss != 0x0000000810000001)
+		failTest("Setting a1 didn't work");
+
+	sqSetSet(&ss, sqS("h8"), 1);
+	printf("0x%016llx\n", ss);
+
+	if (ss != 0x8000000810000001)
+		failTest("Setting h8 didn't work");
 }

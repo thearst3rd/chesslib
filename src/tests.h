@@ -54,3 +54,6 @@ void testBoardIsInsufficientMaterial();
 
 // Test board list
 void testBoardList();
+
+// Test square set
+void testSqSet();
