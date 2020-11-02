@@ -626,9 +626,9 @@ uint8_t boardEqContext(board *b1, board *b2)
 	{
 		// Are there actually any pawns that can attack this square? If not, make it SQ_INVALID
 		int delta = b1->currentPlayer == pcWhite ? -1 : 1;
-		int pe = b1->currentPlayer == pcWhite ? pBPawn : pWPawn;
-		if (boardGetPiece(b1, sqI(b1EpTarget.file - 1, b1EpTarget.rank + delta)) != pe
-				&& boardGetPiece(b1, sqI(b1EpTarget.file + 1, b1EpTarget.rank + delta)) != pe)
+		piece p = b1->currentPlayer == pcWhite ? pWPawn : pBPawn;
+		if (boardGetPiece(b1, sqI(b1EpTarget.file - 1, b1EpTarget.rank + delta)) != p
+				&& boardGetPiece(b1, sqI(b1EpTarget.file + 1, b1EpTarget.rank + delta)) != p)
 			b1EpTarget = SQ_INVALID;
 	}
 
@@ -637,9 +637,9 @@ uint8_t boardEqContext(board *b1, board *b2)
 	{
 		// Are there actually any pawns that can attack this square? If not, make it SQ_INVALID
 		int delta = b2->currentPlayer == pcWhite ? -1 : 1;
-		int pe = b2->currentPlayer == pcWhite ? pBPawn : pWPawn;
-		if (boardGetPiece(b2, sqI(b2EpTarget.file - 1, b2EpTarget.rank + delta)) != pe
-				&& boardGetPiece(b2, sqI(b2EpTarget.file + 1, b2EpTarget.rank + delta)) != pe)
+		piece p = b2->currentPlayer == pcWhite ? pWPawn : pBPawn;
+		if (boardGetPiece(b2, sqI(b2EpTarget.file - 1, b2EpTarget.rank + delta)) != p
+				&& boardGetPiece(b2, sqI(b2EpTarget.file + 1, b2EpTarget.rank + delta)) != p)
 			b2EpTarget = SQ_INVALID;
 	}
 

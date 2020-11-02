@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 	// Test Board
 	RUN_TEST(testBoardCreate);
 	RUN_TEST(testBoardCreateFromFen);
+	//RUN_TEST(testBoardEq);
 
 	// Test Piece Moves
 	RUN_TEST(testPawnMoves);
@@ -430,6 +431,13 @@ void testBoardCreateFromFen()
 	}
 
 	free(b);
+}
+
+void testBoardEq()
+{
+	failTest("Not yet implemented");
+	// TODO
+	//board *b1 = boardCreateFromFen("")
 }
 
 
