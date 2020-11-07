@@ -7,7 +7,7 @@
 
 #include "chesslib/squareset.h"
 
-void sqSetSet(uint64_t *ss, sq s, uint8_t value)
+void sqSetSet(sqSet *ss, sq s, uint8_t value)
 {
 	if (sqEq(s, SQ_INVALID))
 		return;
@@ -20,7 +20,7 @@ void sqSetSet(uint64_t *ss, sq s, uint8_t value)
 		*ss &= ~bit;
 }
 
-uint8_t sqSetGet(uint64_t *ss, sq s)
+uint8_t sqSetGet(sqSet *ss, sq s)
 {
 	if (sqEq(s, SQ_INVALID))
 		return 0;
