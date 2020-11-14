@@ -117,7 +117,7 @@ piece chessGetPiece(chess *g, sq s)
 	return boardGetPiece(chessGetBoard(g), s);
 }
 
-pieceColor chessGetPlayer(chess *g, sq s)
+pieceColor chessGetPlayer(chess *g)
 {
 	return chessGetBoard(g)->currentPlayer;
 }
