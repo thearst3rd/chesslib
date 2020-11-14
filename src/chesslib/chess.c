@@ -111,6 +111,54 @@ uint8_t chessUndo(chess *g)
 	return 0;
 }
 
+// Functions that mirror the board struct
+piece chessGetPiece(chess *g, sq s)
+{
+	return boardGetPiece(chessGetBoard(g), s);
+}
+
+pieceColor chessGetPlayer(chess *g, sq s)
+{
+	return chessGetBoard(g)->currentPlayer;
+}
+
+uint8_t chessGetCastleState(chess *g)
+{
+	return chessGetBoard(g)->castleState;
+}
+
+sq chessGetEpTarget(chess *g)
+{
+	return chessGetBoard(g)->epTarget;
+}
+
+uint32_t chessGetHalfMoveClock(chess *g)
+{
+	return chessGetBoard(g)->halfMoveClock;
+}
+
+uint32_t chessGetMoveNumber(chess *g)
+{
+	return chessGetBoard(g)->moveNumber;
+}
+
+uint8_t chessIsInCheck(chess *g)
+{
+	return boardIsInCheck(chessGetBoard(g));
+}
+
+// TODO, refactor to use sqSet attacked instead
+uint8_t chessIsSquareAttacked(chess *g, sq s)
+{
+	board *b = chessGetBoard(g);
+	return boardIsSquareAttacked(b, s, b->currentPlayer == pcWhite ? pcBlack : pcWhite);
+}
+
+char *chessGetFen(chess *g)
+{
+	return boardGetFen(chessGetBoard(g));
+}
+
 void chessCalculateFields(chess *g)
 {
 	board *currentBoard = chessGetBoard(g);
