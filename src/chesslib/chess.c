@@ -5,19 +5,19 @@
 
 #include <stdlib.h>
 
-#include "chesslib/chessgame.h"
+#include "chesslib/chess.h"
 #include "chesslib/move.h"
 
-chessGame *chessGameCreate()
+chess *chessCreate()
 {
-	return chessGameCreateFromFen(INITIAL_FEN);
+	return chessCreateFen(INITIAL_FEN);
 }
 
-chessGame *chessGameCreateFromFen(const char *fen)
+chess *chessCreateFen(const char *fen)
 {
-	chessGame *g = (chessGame *) malloc(sizeof(chessGame));
+	chess *g = (chess *) malloc(sizeof(chess));
 
-	if (chessGameInitFromFenInPlace(g, fen))
+	if (chessInitFenInPlace(g, fen))
 	{
 		free(g);
 		return NULL;
@@ -26,12 +26,12 @@ chessGame *chessGameCreateFromFen(const char *fen)
 	return g;
 }
 
-void chessGameInitInPlace(chessGame *g)
+void chessInitInPlace(chess *g)
 {
-	chessGameInitFromFenInPlace(g, INITIAL_FEN);
+	chessInitFenInPlace(g, INITIAL_FEN);
 }
 
-uint8_t chessGameInitFromFenInPlace(chessGame *g, const char *fen)
+uint8_t chessInitFenInPlace(chess *g, const char *fen)
 {
 	board *b = boardCreateFromFen(fen);
 	if (b == NULL)
@@ -47,12 +47,12 @@ uint8_t chessGameInitFromFenInPlace(chessGame *g, const char *fen)
 	g->terminal = tsOngoing;
 
 	// Calculates repetitions and terminal state
-	chessGameCalculateFields(g);
+	chessCalculateFields(g);
 
 	return 0;
 }
 
-void chessGameFree(chessGame *g)
+void chessFree(chess *g)
 {
 	boardListFree(g->boardHistory);
 	moveListFree(g->moveHistory);
@@ -60,12 +60,12 @@ void chessGameFree(chessGame *g)
 	free(g);
 }
 
-board *chessGameGetCurrentBoard(chessGame *g)
+board *chessGetBoard(chess *g)
 {
 	return g->boardHistory->tail->board;
 }
 
-uint8_t chessGamePlayMove(chessGame *g, move m)
+uint8_t chessPlayMove(chess *g, move m)
 {
 	if (g->terminal != tsOngoing)
 		return 1;
@@ -84,17 +84,17 @@ uint8_t chessGamePlayMove(chessGame *g, move m)
 	if (!found)
 		return 1;
 
-	board *newBoard = boardPlayMove(chessGameGetCurrentBoard(g), m);
+	board *newBoard = boardPlayMove(chessGetBoard(g), m);
 
 	boardListAdd(g->boardHistory, newBoard);
 	moveListAdd(g->moveHistory, m);
 
-	chessGameCalculateFields(g);
+	chessCalculateFields(g);
 
 	return 0;
 }
 
-uint8_t chessGameUndo(chessGame *g)
+uint8_t chessUndo(chess *g)
 {
 	// If there's only one board (so, no moves), return failure
 	if (g->boardHistory->head == g->boardHistory->tail)
@@ -106,14 +106,14 @@ uint8_t chessGameUndo(chessGame *g)
 	if (g->terminal == tsDrawClaimed50MoveRule || g->terminal == tsDrawClaimedThreefold)
 		g->terminal = tsOngoing;
 
-	chessGameCalculateFields(g);
+	chessCalculateFields(g);
 
 	return 0;
 }
 
-void chessGameCalculateFields(chessGame *g)
+void chessCalculateFields(chess *g)
 {
-	board *currentBoard = chessGameGetCurrentBoard(g);
+	board *currentBoard = chessGetBoard(g);
 
 	g->repetitions = 0;
 	for (boardListNode *n = g->boardHistory->head; n; n = n->next)
