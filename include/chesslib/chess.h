@@ -51,7 +51,7 @@ uint8_t chessUndo(chess *g);
 
 // THESE FUNCTIONS MIRROR THE FUNCTIONS IN THE board STRUCT FOR CONVENIENCE
 piece chessGetPiece(chess *g, sq s);
-pieceColor chessGetPlayer(chess *g, sq s);
+pieceColor chessGetPlayer(chess *g);
 uint8_t chessGetCastleState(chess *g);
 sq chessGetEpTarget(chess *g);
 uint32_t chessGetHalfMoveClock(chess *g);
