@@ -627,8 +627,30 @@ uint8_t boardEqContext(board *b1, board *b2)
 		// Are there actually any pawns that can attack this square? If not, make it SQ_INVALID
 		int delta = b1->currentPlayer == pcWhite ? -1 : 1;
 		piece p = b1->currentPlayer == pcWhite ? pWPawn : pBPawn;
-		if (boardGetPiece(b1, sqI(b1EpTarget.file - 1, b1EpTarget.rank + delta)) != p
-				&& boardGetPiece(b1, sqI(b1EpTarget.file + 1, b1EpTarget.rank + delta)) != p)
+
+		int found = 0;
+
+		sq from = sqI(b1EpTarget.file - 1, b1EpTarget.rank + delta);
+		if (boardGetPiece(b1, from) == p)
+		{
+			board b;
+			memcpy(&b, b1, sizeof(board));
+			boardPlayMoveInPlace(&b, moveSq(from, b1EpTarget));
+			if (!boardIsPlayerInCheck(&b, b1->currentPlayer))
+				found = 1;
+		}
+
+		from = sqI(b1EpTarget.file + 1, b1EpTarget.rank + delta);
+		if ((!found) && (boardGetPiece(b1, from) == p))
+		{
+			board b;
+			memcpy(&b, b1, sizeof(board));
+			boardPlayMoveInPlace(&b, moveSq(from, b1EpTarget));
+			if (!boardIsPlayerInCheck(&b, b1->currentPlayer))
+				found = 1;
+		}
+
+		if (!found)
 			b1EpTarget = SQ_INVALID;
 	}
 
@@ -638,8 +660,30 @@ uint8_t boardEqContext(board *b1, board *b2)
 		// Are there actually any pawns that can attack this square? If not, make it SQ_INVALID
 		int delta = b2->currentPlayer == pcWhite ? -1 : 1;
 		piece p = b2->currentPlayer == pcWhite ? pWPawn : pBPawn;
-		if (boardGetPiece(b2, sqI(b2EpTarget.file - 1, b2EpTarget.rank + delta)) != p
-				&& boardGetPiece(b2, sqI(b2EpTarget.file + 1, b2EpTarget.rank + delta)) != p)
+
+		int found = 0;
+
+		sq from = sqI(b2EpTarget.file - 1, b2EpTarget.rank + delta);
+		if (boardGetPiece(b2, from) == p)
+		{
+			board b;
+			memcpy(&b, b2, sizeof(board));
+			boardPlayMoveInPlace(&b, moveSq(from, b2EpTarget));
+			if (!boardIsPlayerInCheck(&b, b2->currentPlayer))
+				found = 1;
+		}
+
+		from = sqI(b2EpTarget.file + 1, b2EpTarget.rank + delta);
+		if ((!found) && (boardGetPiece(b2, from) == p))
+		{
+			board b;
+			memcpy(&b, b2, sizeof(board));
+			boardPlayMoveInPlace(&b, moveSq(from, b2EpTarget));
+			if (!boardIsPlayerInCheck(&b, b2->currentPlayer))
+				found = 1;
+		}
+
+		if (!found)
 			b2EpTarget = SQ_INVALID;
 	}
 
