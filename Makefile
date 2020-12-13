@@ -12,24 +12,21 @@ endif
 
 SOURCES = $(wildcard src/chesslib/*.c) $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
-OBJECTS_NO_MAINS = $(filter-out src/cli-chess.o src/tests.o,$(OBJECTS))
+OBJECTS_NO_MAINS = $(filter-out src/tests.o,$(OBJECTS))
 
 # Platform independance
 ifeq ($(OS),Windows_NT)
-	CLI_CHESS_EXE = bin/cli-chess.exe
 	TESTS_EXE = bin/tests.exe
-	CHESS_LIB = bin/libchesslib.a
+	CHESSLIB = bin/libchesslib.a
 else
-	CLI_CHESS_EXE = bin/cli-chess
 	TESTS_EXE = bin/tests
-	CHESS_LIB = bin/libchesslib.a
+	CHESSLIB = bin/libchesslib.a
 endif
 
 
-all: $(CHESS_LIB)
+all: $(CHESSLIB)
 
-chesslib: $(CHESS_LIB)
-cli-chess: $(CLI_CHESS_EXE)
+chesslib: $(CHESSLIB)
 tests: $(TESTS_EXE)
 
 
@@ -37,13 +34,10 @@ $(OBJECTS): %.o : %.c
 	$(CC) $(CFLAGS) -o $@ -Iinclude -c $<
 
 
-$(CHESS_LIB): $(OBJECTS_NO_MAINS) | bin
-	ar rcs $(CHESS_LIB) $(OBJECTS_NO_MAINS)
+$(CHESSLIB): $(OBJECTS_NO_MAINS) | bin
+	ar rcs $(CHESSLIB) $(OBJECTS_NO_MAINS)
 
-$(CLI_CHESS_EXE): src/cli-chess.o $(CHESS_LIB) | bin
-	$(CC) $(CFLAGS) -o $(CLI_CHESS_EXE) -Iinclude src/cli-chess.o -Lbin -lchesslib
-
-$(TESTS_EXE): src/tests.o $(CHESS_LIB) | bin
+$(TESTS_EXE): src/tests.o $(CHESSLIB) | bin
 	$(CC) $(CFLAGS) -o $(TESTS_EXE) -Iinclude src/tests.o -Lbin -lchesslib
 
 
@@ -55,6 +49,3 @@ clean:
 
 test: $(TESTS_EXE)
 	./$(TESTS_EXE)
-
-run: $(CLI_CHESS_EXE)
-	./$(CLI_CHESS_EXE)

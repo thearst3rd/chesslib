@@ -23,11 +23,11 @@ typedef enum
 
 typedef struct
 {
+	moveList *currentLegalMoves;
+	terminalState terminal;
 	boardList *boardHistory;
 	moveList *moveHistory;
-	moveList *currentLegalMoves;
 	uint8_t repetitions; 	// How many times we have seen the current position
-	terminalState terminal;
 } chess;
 
 // Creates and initializes a chess game. Must be freed. In FromFen: if invalid FEN, then NULL is returned.
@@ -42,11 +42,18 @@ uint8_t chessInitFenInPlace(chess *g, const char *fen);
 // Frees a chess game and all components
 void chessFree(chess *g);
 
+// Getters for game struct
 board *chessGetBoard(chess *g);
+moveList *chessGetLegalMoves(chess *g);
+terminalState chessGetTerminalState(chess *g);
+
+boardList *chessGetBoardHistory(chess *g);
+moveList *chessGetMoveHistory(chess *g);
+uint8_t chessGetRepetitions(chess *g);
 
 // Plays the given move. Returns 0 if successful, 1 if unsuccessful (move was illegal)
 uint8_t chessPlayMove(chess *g, move m);
-// Undoes the last move played. Returns 0 if successful, 1 if unsuccessful (no moves left)
+// Undoes the last move played or draw claim. Returns 0 if successful, 1 if unsuccessful (no moves left)
 uint8_t chessUndo(chess *g);
 
 // THESE FUNCTIONS MIRROR THE FUNCTIONS IN THE board STRUCT FOR CONVENIENCE
@@ -60,6 +67,13 @@ uint32_t chessGetMoveNumber(chess *g);
 uint8_t chessIsInCheck(chess *g);
 uint8_t chessIsSquareAttacked(chess *g, sq s);
 char *chessGetFen(chess *g); 	// Returns a string containing FEN, MUST be freed
+
+
+// Handle claiming draws
+uint8_t chessCanClaimDraw50(chess *g);
+uint8_t chessCanClaimDrawThreefold(chess *g);
+void chessClaimDraw50(chess *g);
+void chessClaimDrawThreefold(chess *g);
 
 // Internal - updates the currentLegalMoves, repetitions, and terminalState fields. Called (interally) every move
 void chessCalculateFields(chess *g);

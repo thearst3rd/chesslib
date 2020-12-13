@@ -65,6 +65,31 @@ board *chessGetBoard(chess *g)
 	return g->boardHistory->tail->board;
 }
 
+moveList *chessGetLegalMoves(chess *g)
+{
+	return g->currentLegalMoves;
+}
+
+terminalState chessGetTerminalState(chess *g)
+{
+	return g->terminal;
+}
+
+boardList *chessGetBoardHistory(chess *g)
+{
+	return g->boardHistory;
+}
+
+moveList *chessGetMoveHistory(chess *g)
+{
+	return g->moveHistory;
+}
+
+uint8_t chessGetRepetitions(chess *g)
+{
+	return g->repetitions;
+}
+
 uint8_t chessPlayMove(chess *g, move m)
 {
 	if (g->terminal != tsOngoing)
@@ -100,11 +125,15 @@ uint8_t chessUndo(chess *g)
 	if (g->boardHistory->head == g->boardHistory->tail)
 		return 1;
 
-	boardListUndo(g->boardHistory);
-	moveListUndo(g->moveHistory);
-
-	if (g->terminal == tsDrawClaimed50MoveRule || g->terminal == tsDrawClaimedThreefold)
+	if (g->terminal == tsDrawClaimedThreefold || g->terminal == tsDrawClaimed50MoveRule)
+	{
 		g->terminal = tsOngoing;
+	}
+	else
+	{
+		boardListUndo(g->boardHistory);
+		moveListUndo(g->moveHistory);
+	}
 
 	chessCalculateFields(g);
 
@@ -157,6 +186,28 @@ uint8_t chessIsSquareAttacked(chess *g, sq s)
 char *chessGetFen(chess *g)
 {
 	return boardGetFen(chessGetBoard(g));
+}
+
+uint8_t chessCanClaimDraw50(chess *g)
+{
+	return (g->terminal == tsOngoing) && (chessGetBoard(g)->halfMoveClock >= 100);
+}
+
+uint8_t chessCanClaimDrawThreefold(chess *g)
+{
+	return (g->terminal == tsOngoing) && (g->repetitions >= 3);
+}
+
+void chessClaimDraw50(chess *g)
+{
+	if (chessCanClaimDraw50(g))
+		g->terminal = tsDrawClaimed50MoveRule;
+}
+
+void chessClaimDrawThreefold(chess *g)
+{
+	if (chessCanClaimDrawThreefold(g))
+		g->terminal = tsDrawClaimedThreefold;
 }
 
 void chessCalculateFields(chess *g)
