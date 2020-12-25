@@ -177,19 +177,23 @@ uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 				break;
 
 			case 'K':
-				b->castleState |= CASTLE_WK;
+				if (boardGetPiece(b, sqI(5, 1)) == pWKing && boardGetPiece(b, sqI(8, 1)) == pWRook)
+					b->castleState |= CASTLE_WK;
 				break;
 
 			case 'Q':
-				b->castleState |= CASTLE_WQ;
+				if (boardGetPiece(b, sqI(5, 1)) == pWKing && boardGetPiece(b, sqI(1, 1)) == pWRook)
+					b->castleState |= CASTLE_WQ;
 				break;
 
 			case 'k':
-				b->castleState |= CASTLE_BK;
+				if (boardGetPiece(b, sqI(5, 8)) == pBKing && boardGetPiece(b, sqI(8, 8)) == pBRook)
+					b->castleState |= CASTLE_BK;
 				break;
 
 			case 'q':
-				b->castleState |= CASTLE_BQ;
+				if (boardGetPiece(b, sqI(5, 8)) == pBKing && boardGetPiece(b, sqI(1, 8)) == pBRook)
+					b->castleState |= CASTLE_BQ;
 				break;
 
 			default:
@@ -548,11 +552,26 @@ void boardPlayMoveInPlace(board *b, move m)
 	}
 	else if (pt == ptRook)
 	{
-		if (sqEq(m.from, sqI(1, b->currentPlayer == pcWhite ? 1 : 8)))
-			b->castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WQ : CASTLE_BQ);
-		else if (sqEq(m.from, sqI(8, b->currentPlayer == pcWhite ? 1 : 8)))
-			b->castleState &= ~((b->currentPlayer == pcWhite) ? CASTLE_WK : CASTLE_BK);
+		// Did a rook just move that should clear a castling flag?
+		if (sqEq(m.from, sqI(8, 1)))
+			b->castleState &= ~CASTLE_WK;
+		if (sqEq(m.from, sqI(1, 1)))
+			b->castleState &= ~CASTLE_WQ;
+		if (sqEq(m.from, sqI(8, 8)))
+			b->castleState &= ~CASTLE_BK;
+		if (sqEq(m.from, sqI(1, 8)))
+			b->castleState &= ~CASTLE_BQ;
 	}
+
+	// Did a rook just get captured that should clear a castling flag?
+	if (sqEq(m.to, sqI(8, 1)))
+		b->castleState &= ~CASTLE_WK;
+	if (sqEq(m.to, sqI(1, 1)))
+		b->castleState &= ~CASTLE_WQ;
+	if (sqEq(m.to, sqI(8, 8)))
+		b->castleState &= ~CASTLE_BK;
+	if (sqEq(m.to, sqI(1, 8)))
+		b->castleState &= ~CASTLE_BQ;
 
 	// Is this an en passant capture?
 	if (pt == ptPawn && sqEq(b->epTarget, m.to))
