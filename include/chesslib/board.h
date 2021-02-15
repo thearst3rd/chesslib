@@ -22,8 +22,8 @@ typedef struct
 	pieceColor currentPlayer;
 	uint8_t castleState; 	// Bitmask describing castle state
 	sq epTarget;
-	uint32_t halfMoveClock;
-	uint32_t moveNumber;
+	unsigned int halfMoveClock;
+	unsigned int moveNumber;
 } board;
 
 // Allocates and initializes a board and returns a pointer. Must be freed
