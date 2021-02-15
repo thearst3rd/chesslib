@@ -171,6 +171,11 @@ uint32_t chessGetMoveNumber(chess *g)
 	return chessGetBoard(g)->moveNumber;
 }
 
+char *chessGetMoveHistoryUci(chess *g)
+{
+	return moveListGetUciString(chessGetMoveHistory(g));
+}
+
 uint8_t chessIsInCheck(chess *g)
 {
 	return boardIsInCheck(chessGetBoard(g));

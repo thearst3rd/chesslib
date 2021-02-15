@@ -64,6 +64,9 @@ sq chessGetEpTarget(chess *g);
 uint32_t chessGetHalfMoveClock(chess *g);
 uint32_t chessGetMoveNumber(chess *g);
 
+// Returns a string of all moves in the games history in UCI. Must be freed
+char *chessGetMoveHistoryUci(chess *g);
+
 uint8_t chessIsInCheck(chess *g);
 uint8_t chessIsSquareAttacked(chess *g, sq s);
 char *chessGetFen(chess *g); 	// Returns a string containing FEN, MUST be freed
