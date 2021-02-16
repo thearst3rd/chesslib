@@ -35,48 +35,48 @@ chess *chessCreate();
 chess *chessCreateFen(const char *fen);
 
 // Initializes the chess game
-void chessInitInPlace(chess *g);
+void chessInitInPlace(chess *c);
 // Returns 0 if successful, 1 if invalid FEN (and does not init)
-uint8_t chessInitFenInPlace(chess *g, const char *fen);
+uint8_t chessInitFenInPlace(chess *c, const char *fen);
 
 // Frees a chess game and all components
-void chessFree(chess *g);
+void chessFree(chess *c);
 
 // Getters for game struct
-board *chessGetBoard(chess *g);
-moveList *chessGetLegalMoves(chess *g);
-terminalState chessGetTerminalState(chess *g);
+board *chessGetBoard(chess *c);
+moveList *chessGetLegalMoves(chess *c);
+terminalState chessGetTerminalState(chess *c);
 
-boardList *chessGetBoardHistory(chess *g);
-moveList *chessGetMoveHistory(chess *g);
-uint8_t chessGetRepetitions(chess *g);
+boardList *chessGetBoardHistory(chess *c);
+moveList *chessGetMoveHistory(chess *c);
+uint8_t chessGetRepetitions(chess *c);
 
 // Plays the given move. Returns 0 if successful, 1 if unsuccessful (move was illegal)
-uint8_t chessPlayMove(chess *g, move m);
+uint8_t chessPlayMove(chess *c, move m);
 // Undoes the last move played or draw claim. Returns 0 if successful, 1 if unsuccessful (no moves left)
-uint8_t chessUndo(chess *g);
+uint8_t chessUndo(chess *c);
 
 // THESE FUNCTIONS MIRROR THE FUNCTIONS IN THE board STRUCT FOR CONVENIENCE
-piece chessGetPiece(chess *g, sq s);
-pieceColor chessGetPlayer(chess *g);
-uint8_t chessGetCastleState(chess *g);
-sq chessGetEpTarget(chess *g);
-uint32_t chessGetHalfMoveClock(chess *g);
-uint32_t chessGetMoveNumber(chess *g);
+piece chessGetPiece(chess *c, sq s);
+pieceColor chessGetPlayer(chess *c);
+uint8_t chessGetCastleState(chess *c);
+sq chessGetEpTarget(chess *c);
+uint32_t chessGetHalfMoveClock(chess *c);
+uint32_t chessGetMoveNumber(chess *c);
 
 // Returns a string of all moves in the games history in UCI. Must be freed
-char *chessGetMoveHistoryUci(chess *g);
+char *chessGetMoveHistoryUci(chess *c);
 
-uint8_t chessIsInCheck(chess *g);
-uint8_t chessIsSquareAttacked(chess *g, sq s);
-char *chessGetFen(chess *g); 	// Returns a string containing FEN, MUST be freed
+uint8_t chessIsInCheck(chess *c);
+uint8_t chessIsSquareAttacked(chess *c, sq s);
+char *chessGetFen(chess *c); 	// Returns a string containing FEN, MUST be freed
 
 
 // Handle claiming draws
-uint8_t chessCanClaimDraw50(chess *g);
-uint8_t chessCanClaimDrawThreefold(chess *g);
-void chessClaimDraw50(chess *g);
-void chessClaimDrawThreefold(chess *g);
+uint8_t chessCanClaimDraw50(chess *c);
+uint8_t chessCanClaimDrawThreefold(chess *c);
+void chessClaimDraw50(chess *c);
+void chessClaimDrawThreefold(chess *c);
 
 // Internal - updates the currentLegalMoves, repetitions, and terminalState fields. Called (interally) every move
-void chessCalculateFields(chess *g);
+void chessCalculateFields(chess *c);

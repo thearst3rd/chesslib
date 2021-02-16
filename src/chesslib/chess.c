@@ -15,89 +15,89 @@ chess *chessCreate()
 
 chess *chessCreateFen(const char *fen)
 {
-	chess *g = (chess *) malloc(sizeof(chess));
+	chess *c = (chess *) malloc(sizeof(chess));
 
-	if (chessInitFenInPlace(g, fen))
+	if (chessInitFenInPlace(c, fen))
 	{
-		free(g);
+		free(c);
 		return NULL;
 	}
 
-	return g;
+	return c;
 }
 
-void chessInitInPlace(chess *g)
+void chessInitInPlace(chess *c)
 {
-	chessInitFenInPlace(g, INITIAL_FEN);
+	chessInitFenInPlace(c, INITIAL_FEN);
 }
 
-uint8_t chessInitFenInPlace(chess *g, const char *fen)
+uint8_t chessInitFenInPlace(chess *c, const char *fen)
 {
 	board *b = boardCreateFromFen(fen);
 	if (b == NULL)
 		return 1;
 
-	g->boardHistory = boardListCreate();
-	boardListAdd(g->boardHistory, b);
+	c->boardHistory = boardListCreate();
+	boardListAdd(c->boardHistory, b);
 
-	g->moveHistory = moveListCreate();
+	c->moveHistory = moveListCreate();
 
-	g->currentLegalMoves = NULL;
-	g->repetitions = 1;
-	g->terminal = tsOngoing;
+	c->currentLegalMoves = NULL;
+	c->repetitions = 1;
+	c->terminal = tsOngoing;
 
 	// Calculates repetitions and terminal state
-	chessCalculateFields(g);
+	chessCalculateFields(c);
 
 	return 0;
 }
 
-void chessFree(chess *g)
+void chessFree(chess *c)
 {
-	boardListFree(g->boardHistory);
-	moveListFree(g->moveHistory);
-	moveListFree(g->currentLegalMoves);
-	free(g);
+	boardListFree(c->boardHistory);
+	moveListFree(c->moveHistory);
+	moveListFree(c->currentLegalMoves);
+	free(c);
 }
 
-board *chessGetBoard(chess *g)
+board *chessGetBoard(chess *c)
 {
-	return g->boardHistory->tail->board;
+	return c->boardHistory->tail->board;
 }
 
-moveList *chessGetLegalMoves(chess *g)
+moveList *chessGetLegalMoves(chess *c)
 {
-	return g->currentLegalMoves;
+	return c->currentLegalMoves;
 }
 
-terminalState chessGetTerminalState(chess *g)
+terminalState chessGetTerminalState(chess *c)
 {
-	return g->terminal;
+	return c->terminal;
 }
 
-boardList *chessGetBoardHistory(chess *g)
+boardList *chessGetBoardHistory(chess *c)
 {
-	return g->boardHistory;
+	return c->boardHistory;
 }
 
-moveList *chessGetMoveHistory(chess *g)
+moveList *chessGetMoveHistory(chess *c)
 {
-	return g->moveHistory;
+	return c->moveHistory;
 }
 
-uint8_t chessGetRepetitions(chess *g)
+uint8_t chessGetRepetitions(chess *c)
 {
-	return g->repetitions;
+	return c->repetitions;
 }
 
-uint8_t chessPlayMove(chess *g, move m)
+uint8_t chessPlayMove(chess *c, move m)
 {
-	if (g->terminal != tsOngoing)
+	if (c->terminal != tsOngoing)
 		return 1;
 
 	uint8_t found = 0;
 
-	for (moveListNode *n = g->currentLegalMoves->head; n; n = n->next)
+	for (moveListNode *n = c->currentLegalMoves->head; n; n = n->next)
 	{
 		if (moveEq(m, n->move))
 		{
@@ -109,144 +109,144 @@ uint8_t chessPlayMove(chess *g, move m)
 	if (!found)
 		return 1;
 
-	board *newBoard = boardPlayMove(chessGetBoard(g), m);
+	board *newBoard = boardPlayMove(chessGetBoard(c), m);
 
-	boardListAdd(g->boardHistory, newBoard);
-	moveListAdd(g->moveHistory, m);
+	boardListAdd(c->boardHistory, newBoard);
+	moveListAdd(c->moveHistory, m);
 
-	chessCalculateFields(g);
+	chessCalculateFields(c);
 
 	return 0;
 }
 
-uint8_t chessUndo(chess *g)
+uint8_t chessUndo(chess *c)
 {
 	// If there's only one board (so, no moves), return failure
-	if (g->boardHistory->head == g->boardHistory->tail)
+	if (c->boardHistory->head == c->boardHistory->tail)
 		return 1;
 
-	if (g->terminal == tsDrawClaimedThreefold || g->terminal == tsDrawClaimed50MoveRule)
+	if (c->terminal == tsDrawClaimedThreefold || c->terminal == tsDrawClaimed50MoveRule)
 	{
-		g->terminal = tsOngoing;
+		c->terminal = tsOngoing;
 	}
 	else
 	{
-		boardListUndo(g->boardHistory);
-		moveListUndo(g->moveHistory);
+		boardListUndo(c->boardHistory);
+		moveListUndo(c->moveHistory);
 	}
 
-	chessCalculateFields(g);
+	chessCalculateFields(c);
 
 	return 0;
 }
 
 // Functions that mirror the board struct
-piece chessGetPiece(chess *g, sq s)
+piece chessGetPiece(chess *c, sq s)
 {
-	return boardGetPiece(chessGetBoard(g), s);
+	return boardGetPiece(chessGetBoard(c), s);
 }
 
-pieceColor chessGetPlayer(chess *g)
+pieceColor chessGetPlayer(chess *c)
 {
-	return chessGetBoard(g)->currentPlayer;
+	return chessGetBoard(c)->currentPlayer;
 }
 
-uint8_t chessGetCastleState(chess *g)
+uint8_t chessGetCastleState(chess *c)
 {
-	return chessGetBoard(g)->castleState;
+	return chessGetBoard(c)->castleState;
 }
 
-sq chessGetEpTarget(chess *g)
+sq chessGetEpTarget(chess *c)
 {
-	return chessGetBoard(g)->epTarget;
+	return chessGetBoard(c)->epTarget;
 }
 
-uint32_t chessGetHalfMoveClock(chess *g)
+unsigned int chessGetHalfMoveClock(chess *c)
 {
-	return chessGetBoard(g)->halfMoveClock;
+	return chessGetBoard(c)->halfMoveClock;
 }
 
-uint32_t chessGetMoveNumber(chess *g)
+unsigned int chessGetMoveNumber(chess *c)
 {
-	return chessGetBoard(g)->moveNumber;
+	return chessGetBoard(c)->moveNumber;
 }
 
-char *chessGetMoveHistoryUci(chess *g)
+char *chessGetMoveHistoryUci(chess *c)
 {
-	return moveListGetUciString(chessGetMoveHistory(g));
+	return moveListGetUciString(chessGetMoveHistory(c));
 }
 
-uint8_t chessIsInCheck(chess *g)
+uint8_t chessIsInCheck(chess *c)
 {
-	return boardIsInCheck(chessGetBoard(g));
+	return boardIsInCheck(chessGetBoard(c));
 }
 
 // TODO, refactor to use sqSet attacked instead
-uint8_t chessIsSquareAttacked(chess *g, sq s)
+uint8_t chessIsSquareAttacked(chess *c, sq s)
 {
-	board *b = chessGetBoard(g);
+	board *b = chessGetBoard(c);
 	return boardIsSquareAttacked(b, s, b->currentPlayer == pcWhite ? pcBlack : pcWhite);
 }
 
-char *chessGetFen(chess *g)
+char *chessGetFen(chess *c)
 {
-	return boardGetFen(chessGetBoard(g));
+	return boardGetFen(chessGetBoard(c));
 }
 
-uint8_t chessCanClaimDraw50(chess *g)
+uint8_t chessCanClaimDraw50(chess *c)
 {
-	return (g->terminal == tsOngoing) && (chessGetBoard(g)->halfMoveClock >= 100);
+	return (c->terminal == tsOngoing) && (chessGetBoard(c)->halfMoveClock >= 100);
 }
 
-uint8_t chessCanClaimDrawThreefold(chess *g)
+uint8_t chessCanClaimDrawThreefold(chess *c)
 {
-	return (g->terminal == tsOngoing) && (g->repetitions >= 3);
+	return (c->terminal == tsOngoing) && (c->repetitions >= 3);
 }
 
-void chessClaimDraw50(chess *g)
+void chessClaimDraw50(chess *c)
 {
-	if (chessCanClaimDraw50(g))
-		g->terminal = tsDrawClaimed50MoveRule;
+	if (chessCanClaimDraw50(c))
+		c->terminal = tsDrawClaimed50MoveRule;
 }
 
-void chessClaimDrawThreefold(chess *g)
+void chessClaimDrawThreefold(chess *c)
 {
-	if (chessCanClaimDrawThreefold(g))
-		g->terminal = tsDrawClaimedThreefold;
+	if (chessCanClaimDrawThreefold(c))
+		c->terminal = tsDrawClaimedThreefold;
 }
 
-void chessCalculateFields(chess *g)
+void chessCalculateFields(chess *c)
 {
-	board *currentBoard = chessGetBoard(g);
+	board *currentBoard = chessGetBoard(c);
 
-	g->repetitions = 0;
-	for (boardListNode *n = g->boardHistory->head; n; n = n->next)
+	c->repetitions = 0;
+	for (boardListNode *n = c->boardHistory->head; n; n = n->next)
 	{
 		if (boardEqContext(currentBoard, n->board))
-			g->repetitions++;
+			c->repetitions++;
 	}
 
-	if (g->currentLegalMoves)
-		moveListFree(g->currentLegalMoves);
+	if (c->currentLegalMoves)
+		moveListFree(c->currentLegalMoves);
 
-	g->currentLegalMoves = boardGenerateMoves(currentBoard);
+	c->currentLegalMoves = boardGenerateMoves(currentBoard);
 
-	if (g->currentLegalMoves->size == 0)
+	if (c->currentLegalMoves->size == 0)
 	{
 		if (boardIsInCheck(currentBoard))
-			g->terminal = tsCheckmate;
+			c->terminal = tsCheckmate;
 		else
-			g->terminal = tsDrawStalemate;
+			c->terminal = tsDrawStalemate;
 	}
 	else
 	{
-		if (g->repetitions >= 5)
-			g->terminal = tsDrawFivefold;
+		if (c->repetitions >= 5)
+			c->terminal = tsDrawFivefold;
 		else if (currentBoard->halfMoveClock >= 150)
-			g->terminal = tsDraw75MoveRule;
+			c->terminal = tsDraw75MoveRule;
 		else if (boardIsInsufficientMaterial(currentBoard))
-			g->terminal = tsDrawInsufficient;
-		else if ((g->terminal != tsDrawClaimed50MoveRule) && (g->terminal != tsDrawClaimedThreefold))
-			g->terminal = tsOngoing;
+			c->terminal = tsDrawInsufficient;
+		else if ((c->terminal != tsDrawClaimed50MoveRule) && (c->terminal != tsDrawClaimedThreefold))
+			c->terminal = tsOngoing;
 	}
 }
