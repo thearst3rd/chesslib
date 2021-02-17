@@ -61,8 +61,8 @@ piece chessGetPiece(chess *c, sq s);
 pieceColor chessGetPlayer(chess *c);
 uint8_t chessGetCastleState(chess *c);
 sq chessGetEpTarget(chess *c);
-uint32_t chessGetHalfMoveClock(chess *c);
-uint32_t chessGetMoveNumber(chess *c);
+unsigned int chessGetHalfMoveClock(chess *c);
+unsigned int chessGetMoveNumber(chess *c);
 
 // Returns a string of all moves in the games history in UCI. Must be freed
 char *chessGetMoveHistoryUci(chess *c);
