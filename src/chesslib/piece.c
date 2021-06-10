@@ -10,17 +10,17 @@
 pieceType pieceGetType(piece p)
 {
 	if (p >= pBPawn)
-		p = p - pBPawn + 1;
+		p = p - NUM_PIECE_TYPES;
 
 	return (pieceType) p;
 }
 
 pieceColor pieceGetColor(piece p)
 {
-	if (p >= pWPawn && p <= pWKing)
+	if (p >= pWPawn && p < pWPawn + NUM_PIECE_TYPES)
 		return pcWhite;
 
-	if (p >= pBPawn && p <= pBKing)
+	if (p >= pBPawn && p < pBPawn + NUM_PIECE_TYPES)
 		return pcBlack;
 
 	return pcNoColor;
@@ -48,9 +48,12 @@ char pieceTypeGetLetter(pieceType pe)
 		case ptKing:
 			return 'K';
 
-		// TODO - does this make sense?
+		// TODO - do these make sense?
 		case ptEmpty:
 			return ' ';
+
+		case ptBlocker:
+			return '#';
 
 		default:
 			return 0;

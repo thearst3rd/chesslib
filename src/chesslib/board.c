@@ -114,6 +114,10 @@ uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 					boardSetPiece(b, currSq, isBlack ? pBKing : pWKing);
 					break;
 
+				case '#':
+					boardSetPiece(b, currSq, pBlocker);
+					break;
+
 				default:
 					fprintf(stderr, "ERROR IN FEN: Unknown character '%c'\n", c);
 					return 1;

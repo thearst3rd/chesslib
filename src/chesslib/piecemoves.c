@@ -17,6 +17,8 @@ int canMoveHere(board *b, sq s, pieceColor ourColor)
 	piece p = boardGetPiece(b, s);
 	if (p == pEmpty)
 		return 1;
+	if (p == pBlocker)
+		return 0;
 
 	pieceColor theirColor = pieceGetColor(p);
 

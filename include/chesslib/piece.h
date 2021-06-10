@@ -5,9 +5,14 @@
 
 #pragma once
 
+// How many types of pieces have we programmed?
+#define NUM_PIECE_TYPES 6
+#define NUM_PIECES (2 * NUM_PIECE_TYPES)
+
 typedef enum
 {
-	ptEmpty,
+	ptEmpty,	// empty square, can be inhabited
+	ptBlocker,	// blocked square, cannot be inhabited
 	ptPawn,
 	ptKnight,
 	ptBishop,
@@ -19,6 +24,7 @@ typedef enum
 typedef enum
 {
 	pEmpty,
+	pBlocker,
 	pWPawn,
 	pWKnight,
 	pWBishop,
