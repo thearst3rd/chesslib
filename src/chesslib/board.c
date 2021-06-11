@@ -358,7 +358,10 @@ moveList *boardGenerateMoves(board *b)
 				break;
 
 			case ptKing:
-				currMoves = pmGetKingMoves(b, s);
+				if (p == pWKing)
+					currMoves = pmGetAmazonMoves(b, s);
+				else
+					currMoves = pmGetKingMoves(b, s);
 				break;
 
 			default:
@@ -460,7 +463,10 @@ uint8_t boardIsSquareAttacked(board *b, sq s, pieceColor attacker)
 				break;
 
 			case ptKing:
-				currMoves = pmGetKingMoves(b, attackerSq);
+				if (p == pWKing)
+					currMoves = pmGetAmazonMoves(b, attackerSq);
+				else
+					currMoves = pmGetKingMoves(b, attackerSq);
 				break;
 
 			default:
@@ -599,13 +605,13 @@ void boardPlayMoveInPlace(board *b, move m)
 	{
 		// TODO - maybe redesign this to work better with Chess 960, though I don't like Fischer castling >:(
 		int8_t diffFile = m.to.file - m.from.file;
-		if (diffFile == 2) 	// O-O
+		if (diffFile == 2 && (b->castleState & ((b->currentPlayer == pcWhite) ? CASTLE_WK : CASTLE_BK))) 	// O-O
 		{
 			// Move rook from h file to correct file
 			boardSetPiece(b, sqI(8, m.to.rank), pEmpty);
 			boardSetPiece(b, sqI(m.to.file - 1, m.to.rank), b->currentPlayer == pcWhite ? pWRook : pBRook);
 		}
-		else if (diffFile == -2) 	// O-O-O
+		else if (diffFile == -2 && (b->castleState & ((b->currentPlayer == pcWhite) ? CASTLE_WQ : CASTLE_BQ))) 	// O-O-O
 		{
 			// Move rook from a file to correct file
 			boardSetPiece(b, sqI(1, m.to.rank), pEmpty);

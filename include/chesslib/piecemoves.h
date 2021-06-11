@@ -27,6 +27,7 @@ moveList *pmGetBishopMoves(board *b, sq s);
 moveList *pmGetRookMoves(board *b, sq s);
 moveList *pmGetQueenMoves(board *b, sq s);
 moveList *pmGetKingMoves(board *b, sq s);
+moveList *pmGetAmazonMoves(board *b, sq s);
 
 // Pawns are special...
 moveList *pmGetPawnAttacks(board *b, sq s);

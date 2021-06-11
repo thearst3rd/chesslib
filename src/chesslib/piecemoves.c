@@ -97,7 +97,7 @@ moveList *pmRiderMoveList(board *b, sq s, pieceType pt, int8_t dirs[][2], size_t
 void addPawnMoveToMoveList(board *b, moveList *list, sq oldSq, sq newSq)
 {
 	// Should this be a promotion?
-	if (newSq.rank == 1 || newSq.rank == b->height)
+	if (0)// (newSq.rank == 1 || newSq.rank == b->height)
 	{
 		moveListAdd(list, movePromote(oldSq, newSq, ptQueen));
 		moveListAdd(list, movePromote(oldSq, newSq, ptRook));
@@ -120,6 +120,9 @@ moveList *pmGetPawnMoves(board *b, sq s)
 
 	pieceColor color = pieceGetColor(p);
 	int delta = color == pcWhite ? 1 : -1;
+
+	if (color == pcWhite ? (s.rank == b->height) : (s.rank == 1))
+		return list;
 
 	// Handle forward moves
 	sq newSq = sqI(s.file, s.rank + delta);
@@ -245,4 +248,14 @@ moveList *pmGetQueenMoves(board *b, sq s)
 moveList *pmGetKingMoves(board *b, sq s)
 {
 	return pmLeaperMoveList(b, s, ptKing, royalOffsets, 8);
+}
+
+moveList *pmGetAmazonMoves(board *b, sq s)
+{
+	moveList *qList = pmRiderMoveList(b, s, ptKing, royalOffsets, 8);
+	moveList *nList = pmLeaperMoveList(b, s, ptKing, knightOffsets, 8);
+	for (moveListNode *n = nList->head; n; n = n->next)
+		moveListAdd(qList, n->move);
+	moveListFree(nList);
+	return qList;
 }
