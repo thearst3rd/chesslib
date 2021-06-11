@@ -797,7 +797,7 @@ void printBlanks(char **fenPtr, int num)
 // Returns a FEN string from the given board. Must be freed
 char *boardGetFen(board *b)
 {
-	char buf[1000];
+	char *buf = malloc(((b->width + 1) * b->height) + 50);	// Upper bound on fen string length
 	char *c = buf;
 
 	// Pieces
@@ -881,7 +881,6 @@ char *boardGetFen(board *b)
 	sprintf(c, "%u %u", b->halfMoveClock, b->moveNumber);
 
 	size_t len = strlen(buf);
-	char *str = (char *) malloc((len + 1) * sizeof(char));
-	strcpy(str, buf);
-	return str;
+	buf = (char *) realloc(buf, (len + 1) * sizeof(char));
+	return buf;
 }
