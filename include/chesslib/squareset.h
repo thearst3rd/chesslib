@@ -7,9 +7,20 @@
 
 #include "chesslib/square.h"
 
-// A square set is just a 64-bit number that describes if each square on the board is "on" or "off" in the set
-// TODO - add conditional typedefs to let systems that don't support uint64_t to use a struct of 8 bytes or something
-typedef uint64_t sqSet;
+// A square set is just a data structure that describes if each square on the board is "on" or "off" in the set
+typedef struct
+{
+	int width;
+	int height;
+	uint8_t *bytes;
+} sqSet;
+
+sqSet *sqSetCreate();
+sqSet *sqSetCreateCustomDimensions(int width, int height);
+void sqSetFree(sqSet *ss);
+
+void sqSetSetBit(sqSet *ss, int index, uint8_t value);
+uint8_t sqSetGetBit(sqSet *ss, int index);
 
 void sqSetSet(sqSet *ss, sq s, uint8_t value);
 uint8_t sqSetGet(sqSet *ss, sq s);

@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "chesslib/board.h"
 #include "chesslib/piecemoves.h"
@@ -18,15 +19,36 @@ board *boardCreate()
 
 board *boardCreateFromFen(const char *fen)
 {
+	return boardCreateCustomDimensions(8, 8, fen);
+}
+
+board *boardCreateCustomDimensions(int width, int height, const char *fen)
+{
 	board *b = (board *) malloc(sizeof(board));
 
-	if (boardInitFromFenInPlace(b, fen))
+	if (boardInitCustomDimensionsInPlace(b, width, height, fen))
 	{
 		free(b);
 		return NULL;
 	}
 
 	return b;
+}
+
+void boardFree(board *b)
+{
+	boardDeinitInPlace(b);
+	free(b);
+}
+
+board *boardClone(board *b)
+{
+	board *newBoard = (board *) malloc(sizeof(board));
+	piece *newPieces = (piece *) malloc(b->width * b->height * sizeof(piece));
+	memcpy(newBoard, b, sizeof(board));
+	memcpy(newPieces, b->pieces, b->width * b->height * sizeof(piece));
+	newBoard->pieces = newPieces;
+	return newBoard;
 }
 
 void boardInitInPlace(board *b)
@@ -36,9 +58,19 @@ void boardInitInPlace(board *b)
 
 uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 {
-	sq currSq = sqI(1, 8);
+	return boardInitCustomDimensionsInPlace(b, 8, 8, fen);
+}
+
+uint8_t boardInitCustomDimensionsInPlace(board *b, int width, int height, const char *fen)
+{
+	// TODO - improve lots of this function for better custom dimensions
+	sq currSq = sqI(1, height);
 
 	char c;
+
+	b->width = width;
+	b->height = height;
+	b->pieces = (piece *) malloc(b->width * b->height * sizeof(piece));
 
 	// Read in pieces
 
@@ -48,10 +80,17 @@ uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 		{
 			break;
 		}
-		else if (c >= '1' && c <= '8')
+		else if (c >= '0' && c <= '9')
 		{
-			int num = c - '0';
-			if (currSq.file + num > 9)
+			int num = 0;
+			while (c >= '0' && c <= '9')
+			{
+				num = (10 * num) + (c - '0');
+				fen++;
+				c = *fen;
+			}
+			fen--;
+			if (currSq.file + num > (b->width + 1))
 			{
 				fprintf(stderr, "ERROR IN FEN: Spacer put file over the end\n");
 				return 1;
@@ -64,7 +103,7 @@ uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 		}
 		else if (c == '/')
 		{
-			if (currSq.file != 9)
+			if (currSq.file != (b->width + 1))
 			{
 				fprintf(stderr, "ERROR IN FEN: Found '/' at wrong position in rank\n");
 				return 1;
@@ -79,7 +118,7 @@ uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 		}
 		else
 		{
-			if (currSq.file > 8)
+			if (currSq.file > b->width)
 			{
 				fprintf(stderr, "ERROR IN FEN: Found character '%c' after the end of a rank\n", c);
 				return 1;
@@ -129,7 +168,7 @@ uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 		fen++;
 	}
 
-	if ((currSq.rank != 1) || (currSq.file != 9))
+	if ((currSq.rank != 1) || (currSq.file != (b->width + 1)))
 	{
 		fprintf(stderr, "ERROR IN FEN: Ended prematurely\n");
 		return 1;
@@ -247,15 +286,36 @@ uint8_t boardInitFromFenInPlace(board *b, const char *fen)
 	return 0;
 }
 
+void boardDeinitInPlace(board *b)
+{
+	free(b->pieces);
+}
+
+// Same as sqIndex but accounts for variable board dimensions
+sq boardSqIndex(board *b, int index)
+{
+	int file = (index % b->width) + 1;
+	int rank = floor(index / b->width) + 1;
+	return sqI(file, rank);
+}
+
+// Same as sqGetIndex but accounts for variable board dimensions
+int boardSqGetIndex(board *b, sq s)
+{
+	int index = (s.rank - 1) * b->width;
+	index += s.file - 1;
+	return index;
+}
+
 void boardSetPiece(board *b, sq s, piece p)
 {
-	int index = sqGetIndex(s);
+	int index = boardSqGetIndex(b, s);
 	b->pieces[index] = p;
 }
 
 piece boardGetPiece(board *b, sq s)
 {
-	int index = sqGetIndex(s);
+	int index = boardSqGetIndex(b, s);
 	return b->pieces[index];
 }
 
@@ -264,9 +324,9 @@ moveList *boardGenerateMoves(board *b)
 {
 	moveList *list = moveListCreate();
 
-	for (int i = 0; i < 64; i++)
+	for (int i = 0; i < (b->width * b->height); i++)
 	{
-		sq s = sqIndex(i);
+		sq s = boardSqIndex(b, i);
 		piece p = boardGetPiece(b, s);
 
 		if (pieceGetColor(p) != b->currentPlayer)
@@ -308,14 +368,14 @@ moveList *boardGenerateMoves(board *b)
 
 		if (currMoves)
 		{
-			board bCheck;
 			for (moveListNode *n = currMoves->head; n; n = n->next)
 			{
-				memcpy(&bCheck, b, sizeof(board)); 	// Done this way so less malloc+freeing required
+				board *bCheck = boardClone(b);
 				move m = n->move;
-				boardPlayMoveInPlace(&bCheck, m);
-				if (!boardIsPlayerInCheck(&bCheck, b->currentPlayer))
+				boardPlayMoveInPlace(bCheck, m);
+				if (!boardIsPlayerInCheck(bCheck, b->currentPlayer))
 					moveListAdd(list, m);
+				boardFree(bCheck);
 			}
 			moveListFree(currMoves);
 		}
@@ -364,9 +424,9 @@ moveList *boardGenerateMoves(board *b)
 
 uint8_t boardIsSquareAttacked(board *b, sq s, pieceColor attacker)
 {
-	for (int i = 0; i < 64; i++)
+	for (int i = 0; i < (b->width * b->height); i++)
 	{
-		sq attackerSq = sqIndex(i);
+		sq attackerSq = boardSqIndex(b, i);
 		piece p = boardGetPiece(b, attackerSq);
 
 		if (pieceGetColor(p) != attacker)
@@ -435,9 +495,9 @@ uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 {
 	piece royalPiece = (player == pcWhite) ? pWKing : pBKing;
 	pieceColor otherColor = (player == pcWhite) ? pcBlack : pcWhite;
-	for (int i = 0; i < 64; i++)
+	for (int i = 0; i < (b->width * b->height); i++)
 	{
-		sq s = sqIndex(i);
+		sq s = boardSqIndex(b, i);
 		if (boardGetPiece(b, s) == royalPiece)
 		{
 			if (boardIsSquareAttacked(b, s, otherColor))
@@ -457,9 +517,9 @@ uint8_t boardIsInsufficientMaterial(board *b)
 	uint8_t numWhiteKings = 0;
 	uint8_t numBlackKings = 0;
 
-	for (int i = 0; i < 64; i++)
+	for (int i = 0; i < (b->width * b->height); i++)
 	{
-		sq s = sqIndex(i);
+		sq s = boardSqIndex(b, i);
 		piece p = boardGetPiece(b, s);
 		pieceType pt = pieceGetType(p);
 
@@ -512,8 +572,7 @@ uint8_t boardIsInsufficientMaterial(board *b)
 // NOTE - this assumes that the move is legal!
 board *boardPlayMove(board *b, move m)
 {
-	board *newBoard = (board *) malloc(sizeof(board));
-	memcpy(newBoard, b, sizeof(board));
+	board *newBoard = boardClone(b);
 
 	boardPlayMoveInPlace(newBoard, m);
 
@@ -581,7 +640,7 @@ void boardPlayMoveInPlace(board *b, move m)
 	if (pt == ptPawn && sqEq(b->epTarget, m.to))
 	{
 		// Remove the captured pawn
-		uint8_t delta = (b->currentPlayer == pcWhite) ? -1 : 1;
+		int delta = (b->currentPlayer == pcWhite) ? -1 : 1;
 		boardSetPiece(b, sqI(m.to.file, m.to.rank + delta), pEmpty);
 	}
 
@@ -592,10 +651,10 @@ void boardPlayMoveInPlace(board *b, move m)
 	boardSetPiece(b, m.from, pEmpty);
 
 	// Should this set the EP target square?
-	int8_t diffRank = m.to.rank - m.from.rank;
+	int diffRank = m.to.rank - m.from.rank;
 	if (pt == ptPawn && ((diffRank == 2) || (diffRank == -2)))
 	{
-		int8_t delta = (b->currentPlayer == pcWhite) ? -1 : 1;
+		int delta = (b->currentPlayer == pcWhite) ? -1 : 1;
 		b->epTarget = sqI(m.to.file, m.to.rank + delta);
 	}
 	else
@@ -625,7 +684,13 @@ uint8_t boardEq(board *b1, board *b2)
 	if (b1->moveNumber != b2->moveNumber)
 		return 0;
 
-	if (memcmp(b1, b2, 64 * sizeof(piece)))
+	if (b1->width != b2->width)
+		return 0;
+
+	if (b1->height != b2->height)
+		return 0;
+
+	if (memcmp(b1->pieces, b2->pieces, b1->width * b1->height * sizeof(piece)))
 		return 0;
 
 	return 1;
@@ -640,7 +705,13 @@ uint8_t boardEqContext(board *b1, board *b2)
 	if (b1->castleState != b2->castleState)
 		return 0;
 
-	if (memcmp(b1, b2, 64 * sizeof(piece)))
+	if (b1->width != b2->width)
+		return 0;
+
+	if (b1->height != b2->height)
+		return 0;
+
+	if (memcmp(b1->pieces, b2->pieces, b1->width * b1->height * sizeof(piece)))
 		return 0;
 
 	// Filter EP target squares
@@ -656,21 +727,21 @@ uint8_t boardEqContext(board *b1, board *b2)
 		sq from = sqI(b1EpTarget.file - 1, b1EpTarget.rank + delta);
 		if (boardGetPiece(b1, from) == p)
 		{
-			board b;
-			memcpy(&b, b1, sizeof(board));
-			boardPlayMoveInPlace(&b, moveSq(from, b1EpTarget));
-			if (!boardIsPlayerInCheck(&b, b1->currentPlayer))
+			board *b = boardClone(b1);
+			boardPlayMoveInPlace(b, moveSq(from, b1EpTarget));
+			if (!boardIsPlayerInCheck(b, b1->currentPlayer))
 				found = 1;
+			boardFree(b);
 		}
 
 		from = sqI(b1EpTarget.file + 1, b1EpTarget.rank + delta);
 		if ((!found) && (boardGetPiece(b1, from) == p))
 		{
-			board b;
-			memcpy(&b, b1, sizeof(board));
-			boardPlayMoveInPlace(&b, moveSq(from, b1EpTarget));
-			if (!boardIsPlayerInCheck(&b, b1->currentPlayer))
+			board *b = boardClone(b1);
+			boardPlayMoveInPlace(b, moveSq(from, b1EpTarget));
+			if (!boardIsPlayerInCheck(b, b1->currentPlayer))
 				found = 1;
+			boardFree(b);
 		}
 
 		if (!found)
@@ -689,21 +760,21 @@ uint8_t boardEqContext(board *b1, board *b2)
 		sq from = sqI(b2EpTarget.file - 1, b2EpTarget.rank + delta);
 		if (boardGetPiece(b2, from) == p)
 		{
-			board b;
-			memcpy(&b, b2, sizeof(board));
-			boardPlayMoveInPlace(&b, moveSq(from, b2EpTarget));
-			if (!boardIsPlayerInCheck(&b, b2->currentPlayer))
+			board *b = boardClone(b2);
+			boardPlayMoveInPlace(b, moveSq(from, b2EpTarget));
+			if (!boardIsPlayerInCheck(b, b2->currentPlayer))
 				found = 1;
+			boardFree(b);
 		}
 
 		from = sqI(b2EpTarget.file + 1, b2EpTarget.rank + delta);
 		if ((!found) && (boardGetPiece(b2, from) == p))
 		{
-			board b;
-			memcpy(&b, b2, sizeof(board));
-			boardPlayMoveInPlace(&b, moveSq(from, b2EpTarget));
-			if (!boardIsPlayerInCheck(&b, b2->currentPlayer))
+			board *b = boardClone(b2);
+			boardPlayMoveInPlace(b, moveSq(from, b2EpTarget));
+			if (!boardIsPlayerInCheck(b, b2->currentPlayer))
 				found = 1;
+			boardFree(b);
 		}
 
 		if (!found)
@@ -716,17 +787,24 @@ uint8_t boardEqContext(board *b1, board *b2)
 	return 1;
 }
 
+void printBlanks(char **fenPtr, int num)
+{
+	sprintf(*fenPtr, "%d", num);
+	while (**fenPtr)
+		(*fenPtr)++;
+}
+
 // Returns a FEN string from the given board. Must be freed
 char *boardGetFen(board *b)
 {
-	char buf[104];
+	char buf[1000];
 	char *c = buf;
 
 	// Pieces
-	for (uint8_t rank = 8; rank >= 1; rank--)
+	for (int rank = b->height; rank >= 1; rank--)
 	{
-		uint8_t blanks = 0;
-		for (uint8_t file = 1; file <= 8; file++)
+		int blanks = 0;
+		for (int file = 1; file <= b->width; file++)
 		{
 			sq s = sqI(file, rank);
 			piece p = boardGetPiece(b, s);
@@ -734,7 +812,7 @@ char *boardGetFen(board *b)
 			{
 				if (blanks > 0)
 				{
-					*c++ = '0' + blanks;
+					printBlanks(&c, blanks);
 					blanks = 0;
 				}
 				*c++ = pieceGetLetter(p);
@@ -747,7 +825,7 @@ char *boardGetFen(board *b)
 
 		if (blanks > 0)
 		{
-			*c++ = '0' + blanks;
+			printBlanks(&c, blanks);
 		}
 
 		if (rank > 1)

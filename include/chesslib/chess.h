@@ -33,11 +33,13 @@ typedef struct
 // Creates and initializes a chess game. Must be freed. In FromFen: if invalid FEN, then NULL is returned.
 chess *chessCreate();
 chess *chessCreateFen(const char *fen);
+chess *chessCreateCustomDimensions(int width, int height, const char *fen);
 
 // Initializes the chess game
 void chessInitInPlace(chess *c);
 // Returns 0 if successful, 1 if invalid FEN (and does not init)
 uint8_t chessInitFenInPlace(chess *c, const char *fen);
+uint8_t chessInitCustomDimensionsInPlace(chess *c, int width, int height, const char *fen);
 
 // Frees a chess game and all components
 void chessFree(chess *c);

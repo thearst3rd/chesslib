@@ -64,7 +64,7 @@ void boardListUndo(boardList *list)
 
 	if (list->head->next == NULL)
 	{
-		free(list->head->board);
+		boardFree(list->head->board);
 		free(list->head);
 		list->head = NULL;
 		list->tail = NULL;
@@ -80,7 +80,7 @@ void boardListUndo(boardList *list)
 			curr = curr->next;
 		}
 
-		free(curr->board);
+		boardFree(curr->board);
 		free(curr);
 		prev->next = NULL;
 		list->tail = prev;
@@ -95,7 +95,7 @@ void boardListFree(boardList *list)
 	while (node)
 	{
 		boardListNode *next = node->next;
-		free(node->board);
+		boardFree(node->board);
 		free(node);
 		node = next;
 	}

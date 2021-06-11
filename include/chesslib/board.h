@@ -18,7 +18,9 @@
 
 typedef struct
 {
-	piece pieces[64];
+	int width;
+	int height;
+	piece *pieces;
 	pieceColor currentPlayer;
 	uint8_t castleState; 	// Bitmask describing castle state
 	sq epTarget;
@@ -30,10 +32,16 @@ typedef struct
 // boardCreateFromFen returns NULL on failure
 board *boardCreate();
 board *boardCreateFromFen(const char *fen);
+board *boardCreateCustomDimensions(int width, int height, const char *fen);
+void boardFree(board *b);
+
+board *boardClone(board *b);
 
 // Initializes the given board in place. In FromFen: return 0 if successful, 1 if not
 void boardInitInPlace(board *b);
 uint8_t boardInitFromFenInPlace(board *b, const char *fen);
+uint8_t boardInitCustomDimensionsInPlace(board *b, int width, int height, const char *fen);
+void boardDeinitInPlace(board *b);
 
 void boardSetPiece(board *b, sq s, piece p);
 piece boardGetPiece(board *b, sq s);

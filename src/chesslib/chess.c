@@ -15,9 +15,14 @@ chess *chessCreate()
 
 chess *chessCreateFen(const char *fen)
 {
+	return chessCreateCustomDimensions(8, 8, fen);
+}
+
+chess *chessCreateCustomDimensions(int width, int height, const char *fen)
+{
 	chess *c = (chess *) malloc(sizeof(chess));
 
-	if (chessInitFenInPlace(c, fen))
+	if (chessInitCustomDimensionsInPlace(c, width, height, fen))
 	{
 		free(c);
 		return NULL;
@@ -33,7 +38,12 @@ void chessInitInPlace(chess *c)
 
 uint8_t chessInitFenInPlace(chess *c, const char *fen)
 {
-	board *b = boardCreateFromFen(fen);
+	return chessInitCustomDimensionsInPlace(c, 8, 8, fen);
+}
+
+uint8_t chessInitCustomDimensionsInPlace(chess *c, int width, int height, const char *fen)
+{
+	board *b = boardCreateCustomDimensions(width, height, fen);
 	if (b == NULL)
 		return 1;
 

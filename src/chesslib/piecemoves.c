@@ -41,7 +41,7 @@ moveList *pmLeaperMoveList(board *b, sq s, pieceType pt, int8_t dirs[][2], size_
 		newSq.file = s.file + dirs[i][0];
 		newSq.rank = s.rank + dirs[i][1];
 
-		if (newSq.file < 1 || newSq.file > 8 || newSq.rank < 1 || newSq.rank > 8)
+		if (newSq.file < 1 || newSq.file > b->width || newSq.rank < 1 || newSq.rank > b->height)
 			continue;
 
 		if (canMoveHere(b, newSq, color))
@@ -71,7 +71,7 @@ moveList *pmRiderMoveList(board *b, sq s, pieceType pt, int8_t dirs[][2], size_t
 			newSq.file += dirs[i][0];
 			newSq.rank += dirs[i][1];
 
-			if (newSq.file < 1 || newSq.file > 8 || newSq.rank < 1 || newSq.rank > 8)
+			if (newSq.file < 1 || newSq.file > b->width || newSq.rank < 1 || newSq.rank > b->height)
 				break;
 
 			piece capturePiece = boardGetPiece(b, newSq);
@@ -94,10 +94,10 @@ moveList *pmRiderMoveList(board *b, sq s, pieceType pt, int8_t dirs[][2], size_t
 
 // HELPER FUNCTION:
 // Same as moveListAdd, but will automatically add promotion moves as well
-void addPawnMoveToMoveList(moveList *list, sq oldSq, sq newSq)
+void addPawnMoveToMoveList(board *b, moveList *list, sq oldSq, sq newSq)
 {
 	// Should this be a promotion?
-	if (newSq.rank == 1 || newSq.rank == 8)
+	if (newSq.rank == 1 || newSq.rank == b->height)
 	{
 		moveListAdd(list, movePromote(oldSq, newSq, ptQueen));
 		moveListAdd(list, movePromote(oldSq, newSq, ptRook));
@@ -125,14 +125,14 @@ moveList *pmGetPawnMoves(board *b, sq s)
 	sq newSq = sqI(s.file, s.rank + delta);
 	if (boardGetPiece(b, newSq) == pEmpty)
 	{
-		addPawnMoveToMoveList(list, s, newSq);
+		addPawnMoveToMoveList(b, list, s, newSq);
 
 		// Can this piece move two squares?
-		if (color == pcWhite ? (s.rank <= 2) : (s.rank >= 7))
+		if (color == pcWhite ? (s.rank <= 2) : (s.rank >= (b->height - 1)))
 		{
 			newSq.rank += delta;
 			if (boardGetPiece(b, newSq) == pEmpty)
-				addPawnMoveToMoveList(list, s, newSq);
+				addPawnMoveToMoveList(b, list, s, newSq);
 		}
 	}
 
@@ -144,16 +144,16 @@ moveList *pmGetPawnMoves(board *b, sq s)
 		capturePiece = boardGetPiece(b, newSq);
 		if (((capturePiece != pEmpty) && canMoveHere(b, newSq, color))
 				|| sqEq(newSq, b->epTarget))
-			addPawnMoveToMoveList(list, s, newSq);
+			addPawnMoveToMoveList(b, list, s, newSq);
 	}
 
-	if (s.file < 8)
+	if (s.file < b->width)
 	{
 		newSq = sqI(s.file + 1, s.rank + delta);
 		capturePiece = boardGetPiece(b, newSq);
 		if (((capturePiece != pEmpty) && canMoveHere(b, newSq, color))
 				|| sqEq(newSq, b->epTarget))
-			addPawnMoveToMoveList(list, s, newSq);
+			addPawnMoveToMoveList(b, list, s, newSq);
 	}
 
 	return list;
@@ -179,7 +179,7 @@ moveList *pmGetPawnAttacks(board *b, sq s)
 			moveListAdd(list, moveSq(s, newSq));
 	}
 
-	if (s.file < 8)
+	if (s.file < b->width)
 	{
 		sq newSq = sqI(s.file + 1, s.rank + delta);
 		if (canMoveHere(b, newSq, color))

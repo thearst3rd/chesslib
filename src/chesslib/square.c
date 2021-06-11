@@ -6,11 +6,8 @@
 #include "chesslib/square.h"
 
 // Create a square from two ints, i.e. 5, 4
-sq sqI(uint8_t file, uint8_t rank)
+sq sqI(int file, int rank)
 {
-	if (file < 1 || file > 8 || rank < 1 || rank > 8)
-		return SQ_INVALID;
-
 	sq s;
 	s.file = file;
 	s.rank = rank;
@@ -18,16 +15,17 @@ sq sqI(uint8_t file, uint8_t rank)
 }
 
 // Create a position from a SAN square, i.e. "e4"
+// TODO: Make this read numbers better for custom size
 sq sqS(const char *str)
 {
 	char c1 = str[0];
 
-	if (c1 < 'a' || c1 > 'h')
+	if (c1 < 'a')
 		return SQ_INVALID;
 
 	char c2 = str[1];
 
-	if (c2 < '1' || c2 > '8')
+	if (c2 < '1')
 		return SQ_INVALID;
 
 	sq s;
@@ -49,7 +47,7 @@ const char *SQ_STRS[64] =
 };
 
 // Create a position from the given index (same as the POS_STRS below)
-sq sqIndex(uint8_t index)
+sq sqIndex(int index)
 {
 	if (index < 0 || index > 63)
 		return SQ_INVALID;
@@ -57,7 +55,7 @@ sq sqIndex(uint8_t index)
 	return sqS(SQ_STRS[index]);
 }
 
-uint8_t sqGetIndex(sq s)
+int sqGetIndex(sq s)
 {
 	if (s.file < 1 || s.file > 8 || s.rank < 1 || s.rank > 8)
 		return -1;
@@ -82,9 +80,5 @@ uint8_t sqIsDark(sq s)
 
 uint8_t sqEq(sq s1, sq s2)
 {
-	if (s1.file < 1 || s1.file > 8 || s1.rank < 1 || s1.rank > 8)
-		s1 = SQ_INVALID;
-	if (s2.file < 1 || s2.file > 8 || s2.rank < 1 || s2.rank > 8)
-		s2 = SQ_INVALID;
 	return s1.file == s2.file && s1.rank == s2.rank;
 }
