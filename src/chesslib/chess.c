@@ -241,6 +241,29 @@ void chessCalculateFields(chess *c)
 
 	c->currentLegalMoves = boardGenerateMoves(currentBoard);
 
+	int hasKing = 0;
+	piece theirKing = pieceMake(ptKing, currentBoard->currentPlayer);
+	for (int file = 1; file <= currentBoard->width; file++)
+	{
+		for (int rank = 1; rank <= currentBoard->height; rank++)
+		{
+			sq s = sqI(file, rank);
+			if (boardGetPiece(currentBoard, s) == theirKing)
+			{
+				hasKing = 1;
+				break;
+			}
+		}
+		if (hasKing)
+			break;
+	}
+
+	if (!hasKing)
+	{
+		c->terminal = tsCheckmate;
+		return;
+	}
+
 	if (c->currentLegalMoves->size == 0)
 	{
 		if (boardIsInCheck(currentBoard))

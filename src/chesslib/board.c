@@ -493,6 +493,7 @@ uint8_t boardIsInCheck(board *b)
 
 uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 {
+	/*
 	piece royalPiece = (player == pcWhite) ? pWKing : pBKing;
 	pieceColor otherColor = (player == pcWhite) ? pcBlack : pcWhite;
 	for (int i = 0; i < (b->width * b->height); i++)
@@ -504,6 +505,7 @@ uint8_t boardIsPlayerInCheck(board *b, pieceColor player)
 				return 1;
 		}
 	}
+	*/
 	return 0;
 }
 
