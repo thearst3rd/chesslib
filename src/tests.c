@@ -163,7 +163,9 @@ void testSqGetStr()
 
 			char str[3] = {'a' + file - 1, '0' + rank, 0};
 
-			validateString(sqGetStr(s), str);
+			char *sq = sqGetStr(s);
+			validateString(sq, str);
+			free(sq);
 		}
 	}
 }
@@ -182,11 +184,13 @@ void testSqIsDark()
 			if (actualIsDark != expectedIsDark)
 			{
 				char message[50];
+				char *sq = sqGetStr(s);
 				sprintf(message,
 						"Square %s was %s, expected %s",
-						sqGetStr(s),
+						sq,
 						actualIsDark ? "dark" : "light",
 						expectedIsDark ? "dark" : "light");
+				free(sq);
 				failTest(message);
 			}
 
@@ -207,9 +211,17 @@ void validateMove(move m, sq expectedFrom, sq expectedTo, pieceType expectedProm
 			|| m.promotion != expectedPromotion)
 	{
 		char msg[55];
+		char *sqF = sqGetStr(m.from);
+		char *sqT = sqGetStr(m.to);
+		char *sqEf = sqGetStr(expectedFrom);
+		char *sqEt = sqGetStr(expectedTo);
 		sprintf(msg, "Actual (%s, %s, %d), but expected (%s, %s, %d)",
-				sqGetStr(m.from), sqGetStr(m.to), m.promotion,
-				sqGetStr(expectedFrom), sqGetStr(expectedTo), expectedPromotion);
+				sqF, sqT, m.promotion,
+				sqEf, sqEf, expectedPromotion);
+		free(sqF);
+		free(sqT);
+		free(sqEf);
+		free(sqEt);
 		failTest(msg);
 	}
 }
@@ -411,7 +423,9 @@ void testBoardCreateFromFen()
 	if (!sqEq(b->epTarget, sqI(5, 3)))
 	{
 		char message[50];
-		sprintf(message, "Actual EP target square: %s, expected: e3", sqGetStr(b->epTarget));
+		char *sq = sqGetStr(b->epTarget);
+		sprintf(message, "Actual EP target square: %s, expected: e3", sq);
+		free(sq);
 		failTest(message);
 	}
 
@@ -864,7 +878,9 @@ void testIsSquareAttacked()
 		if (expectedAttacked != actualAttacked)
 		{
 			char message[50];
-			sprintf(message, "Actual %s attacked: %u, expected: %u", sqGetStr(s), actualAttacked, expectedAttacked);
+			char *sq = sqGetStr(s);
+			sprintf(message, "Actual %s attacked: %u, expected: %u", sq, actualAttacked, expectedAttacked);
+			free(sq);
 			failTest(message);
 		}
 	}
@@ -885,7 +901,9 @@ void testIsSquareAttacked()
 		if (expectedAttacked != actualAttacked)
 		{
 			char message[50];
-			sprintf(message, "Actual %s attacked: %u, expected: %u", sqGetStr(s), actualAttacked, expectedAttacked);
+			char *sq = sqGetStr(s);
+			sprintf(message, "Actual %s attacked: %u, expected: %u", sq, actualAttacked, expectedAttacked);
+			free(sq);
 			failTest(message);
 		}
 	}
@@ -907,7 +925,9 @@ void testIsSquareAttacked()
 		if (expectedAttacked != actualAttacked)
 		{
 			char message[50];
-			sprintf(message, "Actual %s attacked: %u, expected: %u", sqGetStr(s), actualAttacked, expectedAttacked);
+			char *sq = sqGetStr(s);
+			sprintf(message, "Actual %s attacked: %u, expected: %u", sq, actualAttacked, expectedAttacked);
+			free(sq);
 			failTest(message);
 		}
 	}

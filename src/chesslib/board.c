@@ -870,9 +870,11 @@ char *boardGetFen(board *b)
 	}
 	else
 	{
-		const char *ep = sqGetStr(b->epTarget);
-		*c++ = ep[0];
-		*c++ = ep[1];
+		char *ep = sqGetStr(b->epTarget);
+		char *epPointer = ep;
+		while (*epPointer)
+			*c++ = *epPointer++;
+		free(ep);
 	}
 
 	*c++ = ' ';

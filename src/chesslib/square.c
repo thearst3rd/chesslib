@@ -3,6 +3,10 @@
  * Created by thearst3rd on 8/6/2020
  */
 
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
 #include "chesslib/square.h"
 
 // Create a square from two ints, i.e. 5, 4
@@ -18,41 +22,27 @@ sq sqI(int file, int rank)
 // TODO: Make this read numbers better for custom size
 sq sqS(const char *str)
 {
-	char c1 = str[0];
+	char file;
+	int rank;
 
-	if (c1 < 'a')
-		return SQ_INVALID;
-
-	char c2 = str[1];
-
-	if (c2 < '1')
-		return SQ_INVALID;
+	sscanf(str, "%c%d", &file, &rank);
 
 	sq s;
-	s.file = c1 - 'a' + 1;
-	s.rank = c2 - '0';
+	s.file = file - ('a' - 1);
+	s.rank = rank;
 	return s;
 }
 
-const char *SQ_STRS[64] =
-{
-	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
-	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
-	"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
-	"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
-	"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
-	"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
-	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
-	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
-};
-
-// Create a position from the given index (same as the POS_STRS below)
+// Create a position from the given index
+// This does not have knowledge of the board size and assumes 8x8. See boardSqIndex instead
 sq sqIndex(int index)
 {
 	if (index < 0 || index > 63)
 		return SQ_INVALID;
 
-	return sqS(SQ_STRS[index]);
+	int file = (index % 8) + 1;
+	int rank = floor(index / 8) + 1;
+	return sqI(file, rank);
 }
 
 int sqGetIndex(sq s)
@@ -63,13 +53,13 @@ int sqGetIndex(sq s)
 	return (8 * (s.rank - 1)) + (s.file - 1);
 }
 
-// Gets the SAN string representing the given square. Does not need to be freed
-const char *sqGetStr(sq s)
+// Gets the SAN string representing the given square. Must be freed
+// TODO: better support files > 26 (z)
+char *sqGetStr(sq s)
 {
-	unsigned int index = sqGetIndex(s);
-	if (index > 63)
-		return "##";
-	return SQ_STRS[index];
+	char buf[10];
+	sprintf(buf, "%c%d", ('a' - 1) + s.file, s.rank);
+	return strdup(buf);
 }
 
 // Returns 1 if the square is a dark colored square, 0 if light

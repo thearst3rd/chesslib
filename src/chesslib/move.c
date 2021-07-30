@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 
 #include "chesslib/move.h"
@@ -33,32 +34,36 @@ uint8_t moveEq(move m1, move m2)
 // Returns the UCI string of the given move. Must be freed.
 char *moveGetUci(move m)
 {
-	char *str;
-	char p[2] = {0, 0};
+	char buf[20];
+	char p;
 	if (m.promotion)
-	{
-		p[0] = tolower(pieceTypeGetLetter(m.promotion));
-		str = (char *) malloc(6 * sizeof(char));
-	}
+		p = tolower(pieceTypeGetLetter(m.promotion));
 	else
-	{
-		str = (char *) malloc(5 * sizeof(char));
-	}
+		p = '\0';
 
-	sprintf(str, "%s%s%s", sqGetStr(m.from), sqGetStr(m.to), p);
+	char *sqF = sqGetStr(m.from);
+	char *sqT = sqGetStr(m.to);
+	sprintf(buf, "%s%s%c", sqF, sqT, p);
+	free(sqF);
+	free(sqT);
 
-	return str;
+	return strdup(buf);
 }
 
 // Returns a move from a UCI string
 // Note - currently has no error checking...
 move moveFromUci(char *uci)
 {
-	char from[3] = {uci[0], uci[1], 0};
-	char to[3] = {uci[2], uci[3], 0};
+	char fromFile;
+	int fromRank;
+	char toFile;
+	int toRank;
+	char promotionLetter;
+
+	sscanf(uci, "%c%d%c%d%c", &fromFile, &fromRank, &toFile, &toRank, &promotionLetter);
 
 	pieceType promotion;
-	switch (uci[4])
+	switch (promotionLetter)
 	{
 		case 'p': 	// Maybe this should not be here...
 			promotion = ptPawn;
@@ -90,8 +95,8 @@ move moveFromUci(char *uci)
 	}
 
 	move m;
-	m.from = sqS(from);
-	m.to = sqS(to);
+	m.from = sqI(fromFile - ('a' - 1), fromRank);
+	m.to = sqI(toFile - ('a' - 1), toRank);
 	m.promotion = promotion;
 	return m;
 }

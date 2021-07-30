@@ -24,8 +24,8 @@ sq sqS(const char *str);
 sq sqIndex(int index);
 int sqGetIndex(sq s);
 
-// Gets the SAN string representing the given square. Does not need to be freed
-const char *sqGetStr(sq s);
+// Gets the SAN string representing the given square. Must be freed
+char *sqGetStr(sq s);
 
 // Returns 1 if the square is a dark colored square, 0 if light
 uint8_t sqIsDark(sq s);
