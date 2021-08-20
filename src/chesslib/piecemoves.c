@@ -103,6 +103,14 @@ void addPawnMoveToMoveList(board *b, moveList *list, sq oldSq, sq newSq)
 		moveListAdd(list, movePromote(oldSq, newSq, ptRook));
 		moveListAdd(list, movePromote(oldSq, newSq, ptBishop));
 		moveListAdd(list, movePromote(oldSq, newSq, ptKnight));
+		// Uncomment for fairy pieces
+		/*
+		moveListAdd(list, movePromote(oldSq, newSq, ptWazir));
+		moveListAdd(list, movePromote(oldSq, newSq, ptMann));
+		moveListAdd(list, movePromote(oldSq, newSq, ptArchbishop));
+		moveListAdd(list, movePromote(oldSq, newSq, ptChancellor));
+		moveListAdd(list, movePromote(oldSq, newSq, ptAmazon));
+		*/
 	}
 	else
 	{
@@ -245,4 +253,51 @@ moveList *pmGetQueenMoves(board *b, sq s)
 moveList *pmGetKingMoves(board *b, sq s)
 {
 	return pmLeaperMoveList(b, s, ptKing, royalOffsets, 8);
+}
+
+
+///////////
+// FAIRY //
+///////////
+
+moveList *pmGetWazirMoves(board *b, sq s)
+{
+	return pmLeaperMoveList(b, s, ptWazir, rookOffsets, 4);
+}
+moveList *pmGetMannMoves(board *b, sq s)
+{
+	return pmLeaperMoveList(b, s, ptMann, royalOffsets, 8);
+}
+moveList *pmGetArchbishopMoves(board *b, sq s)
+{
+	moveList *bishopMoves = pmRiderMoveList(b, s, ptArchbishop, bishopOffsets, 4);
+	moveList *knightMoves = pmLeaperMoveList(b, s, ptArchbishop, knightOffsets, 8);
+	for (moveListNode *n = knightMoves->head; n; n = n->next)
+	{
+		moveListAdd(bishopMoves, n->move);
+	}
+	moveListFree(knightMoves);
+	return bishopMoves;
+}
+moveList *pmGetChancellorMoves(board *b, sq s)
+{
+	moveList *rookMoves = pmRiderMoveList(b, s, ptChancellor, rookOffsets, 4);
+	moveList *knightMoves = pmLeaperMoveList(b, s, ptChancellor, knightOffsets, 8);
+	for (moveListNode *n = knightMoves->head; n; n = n->next)
+	{
+		moveListAdd(rookMoves, n->move);
+	}
+	moveListFree(knightMoves);
+	return rookMoves;
+}
+moveList *pmGetAmazonMoves(board *b, sq s)
+{
+	moveList *queenMoves = pmRiderMoveList(b, s, ptAmazon, royalOffsets, 8);
+	moveList *knightMoves = pmLeaperMoveList(b, s, ptAmazon, knightOffsets, 8);
+	for (moveListNode *n = knightMoves->head; n; n = n->next)
+	{
+		moveListAdd(queenMoves, n->move);
+	}
+	moveListFree(knightMoves);
+	return queenMoves;
 }

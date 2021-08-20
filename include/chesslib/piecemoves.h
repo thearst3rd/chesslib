@@ -30,3 +30,10 @@ moveList *pmGetKingMoves(board *b, sq s);
 
 // Pawns are special...
 moveList *pmGetPawnAttacks(board *b, sq s);
+
+// Fairy pieces
+moveList *pmGetWazirMoves(board *b, sq s);
+moveList *pmGetMannMoves(board *b, sq s);
+moveList *pmGetArchbishopMoves(board *b, sq s);
+moveList *pmGetChancellorMoves(board *b, sq s);
+moveList *pmGetAmazonMoves(board *b, sq s);

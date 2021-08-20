@@ -125,32 +125,53 @@ uint8_t boardInitCustomDimensionsInPlace(board *b, int width, int height, const 
 			}
 
 			char lc = tolower(c);
-			int isBlack = islower(c);
+			pieceColor col = islower(c) ? pcBlack : pcWhite;
 
 			switch (lc)
 			{
 				case 'p':
-					boardSetPiece(b, currSq, isBlack ? pBPawn : pWPawn);
+					boardSetPiece(b, currSq, pieceMake(ptPawn, col));
 					break;
 
 				case 'n':
-					boardSetPiece(b, currSq, isBlack ? pBKnight : pWKnight);
+					boardSetPiece(b, currSq, pieceMake(ptKnight, col));
 					break;
 
 				case 'b':
-					boardSetPiece(b, currSq, isBlack ? pBBishop : pWBishop);
+					boardSetPiece(b, currSq, pieceMake(ptBishop, col));
 					break;
 
 				case 'r':
-					boardSetPiece(b, currSq, isBlack ? pBRook : pWRook);
+					boardSetPiece(b, currSq, pieceMake(ptRook, col));
 					break;
 
 				case 'q':
-					boardSetPiece(b, currSq, isBlack ? pBQueen : pWQueen);
+					boardSetPiece(b, currSq, pieceMake(ptQueen, col));
 					break;
 
 				case 'k':
-					boardSetPiece(b, currSq, isBlack ? pBKing : pWKing);
+					boardSetPiece(b, currSq, pieceMake(ptKing, col));
+					break;
+
+				// Fairy
+				case 'w':
+					boardSetPiece(b, currSq, pieceMake(ptWazir, col));
+					break;
+
+				case 'm':
+					boardSetPiece(b, currSq, pieceMake(ptMann, col));
+					break;
+
+				case 'h':
+					boardSetPiece(b, currSq, pieceMake(ptArchbishop, col));
+					break;
+
+				case 'c':
+					boardSetPiece(b, currSq, pieceMake(ptChancellor, col));
+					break;
+
+				case 'a':
+					boardSetPiece(b, currSq, pieceMake(ptAmazon, col));
 					break;
 
 				case '#':
@@ -359,6 +380,27 @@ moveList *boardGenerateMoves(board *b)
 
 			case ptKing:
 				currMoves = pmGetKingMoves(b, s);
+				break;
+
+			// Fairy
+			case ptWazir:
+				currMoves = pmGetWazirMoves(b, s);
+				break;
+
+			case ptMann:
+				currMoves = pmGetMannMoves(b, s);
+				break;
+
+			case ptArchbishop:
+				currMoves = pmGetArchbishopMoves(b, s);
+				break;
+
+			case ptChancellor:
+				currMoves = pmGetChancellorMoves(b, s);
+				break;
+
+			case ptAmazon:
+				currMoves = pmGetAmazonMoves(b, s);
 				break;
 
 			default:

@@ -48,6 +48,21 @@ char pieceTypeGetLetter(pieceType pe)
 		case ptKing:
 			return 'K';
 
+		case ptWazir:
+			return 'W';
+
+		case ptMann:
+			return 'M';
+
+		case ptArchbishop:
+			return 'H';
+
+		case ptChancellor:
+			return 'C';
+
+		case ptAmazon:
+			return 'A';
+
 		// TODO - do these make sense?
 		case ptEmpty:
 			return ' ';
@@ -72,32 +87,11 @@ char pieceGetLetter(piece p)
 
 piece pieceMake(pieceType type, pieceColor color)
 {
-	if ((color != pcWhite) && (color != pcBlack))
+	if ((color != pcWhite && color != pcBlack) ||
+			(type < ptPawn || type >= (ptPawn + NUM_PIECE_TYPES)))
 	{
-		return pEmpty;
+		return type == ptBlocker ? pBlocker : pEmpty;
 	}
 
-	switch(type)
-	{
-		case ptKing:
-			return (color == pcWhite) ? pWKing : pBKing;
-
-		case ptQueen:
-			return (color == pcWhite) ? pWQueen : pBQueen;
-
-		case ptRook:
-			return (color == pcWhite) ? pWRook : pBRook;
-
-		case ptBishop:
-			return (color == pcWhite) ? pWBishop : pBBishop;
-
-		case ptKnight:
-			return (color == pcWhite) ? pWKnight : pBKnight;
-
-		case ptPawn:
-			return (color == pcWhite) ? pWPawn : pBPawn;
-
-		default:
-			return pEmpty;
-	}
+	return (piece) (type + (color == pcBlack ? NUM_PIECE_TYPES : 0));
 }

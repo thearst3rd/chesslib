@@ -89,6 +89,27 @@ move moveFromUci(char *uci)
 			promotion = ptKing;
 			break;
 
+		// Fairy pieces
+		case 'w':
+			promotion = ptWazir;
+			break;
+
+		case 'm':
+			promotion = ptMann;
+			break;
+
+		case 'h':
+			promotion = ptArchbishop;
+			break;
+
+		case 'c':
+			promotion = ptChancellor;
+			break;
+
+		case 'a':
+			promotion = ptAmazon;
+			break;
+
 		default:
 			promotion = ptEmpty;
 			break;

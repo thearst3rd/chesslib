@@ -6,7 +6,7 @@
 #pragma once
 
 // How many types of pieces have we programmed?
-#define NUM_PIECE_TYPES 6
+#define NUM_PIECE_TYPES 11
 #define NUM_PIECES (2 * NUM_PIECE_TYPES)
 
 typedef enum
@@ -18,7 +18,12 @@ typedef enum
 	ptBishop,
 	ptRook,
 	ptQueen,
-	ptKing
+	ptKing,
+	ptWazir,
+	ptMann,
+	ptArchbishop,
+	ptChancellor,
+	ptAmazon
 } pieceType;
 
 typedef enum
@@ -31,12 +36,22 @@ typedef enum
 	pWRook,
 	pWQueen,
 	pWKing,
+	pWWazir,
+	pWMann,
+	pWArchbishop,
+	pWChancellor,
+	pWAmazon,
 	pBPawn,
 	pBKnight,
 	pBBishop,
 	pBRook,
 	pBQueen,
-	pBKing
+	pBKing,
+	pBWazir,
+	pBMann,
+	pBArchbishop,
+	pBChancellor,
+	pBAmazon
 } piece;
 
 typedef enum
