@@ -505,6 +505,27 @@ uint8_t boardIsSquareAttacked(board *b, sq s, pieceColor attacker)
 				currMoves = pmGetKingMoves(b, attackerSq);
 				break;
 
+			// Fairy pieces
+			case ptWazir:
+				currMoves = pmGetWazirMoves(b, attackerSq);
+				break;
+
+			case ptMann:
+				currMoves = pmGetMannMoves(b, attackerSq);
+				break;
+
+			case ptArchbishop:
+				currMoves = pmGetArchbishopMoves(b, attackerSq);
+				break;
+
+			case ptChancellor:
+				currMoves = pmGetChancellorMoves(b, attackerSq);
+				break;
+
+			case ptAmazon:
+				currMoves = pmGetAmazonMoves(b, attackerSq);
+				break;
+
 			default:
 				// Nothing to do
 				break;
